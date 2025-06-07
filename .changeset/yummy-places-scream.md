@@ -1,6 +1,5 @@
 ---
-"@better-analytics/next": major
-"@better-analytics/core": major
+"better-analytics": major
 ---
 
 # Initial Release 🚀
@@ -9,15 +8,21 @@ Better Analytics SDK - A micro-analytics JavaScript SDK for tracking page views 
 
 ## Features
 
-- **@better-analytics/core**: Framework-agnostic SDK < 2KB gzip
-- **@better-analytics/next**: Next.js adapter with automatic page tracking
+- **better-analytics**: Framework-agnostic SDK < 2KB gzip with subpath exports
+- **better-analytics/next**: Next.js adapter with automatic page tracking
 
 ## Usage
 
 ```bash
-npm install @better-analytics/core
-# or for Next.js
-npm install @better-analytics/next
+npm install better-analytics
+```
+
+```javascript
+// Core functionality
+import { init, track } from 'better-analytics';
+
+// Next.js adapter
+import { useBetterAnalytics } from 'better-analytics/next';
 ```
 
 Success criterion achieved: "npm install, paste five lines, events reach my own URL." ✅

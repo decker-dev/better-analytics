@@ -16,13 +16,13 @@ A micro-analytics JavaScript SDK that developers can drop into any website.
 ### Installation
 
 ```bash
-npm install @better-analytics/core
+npm install better-analytics
 ```
 
 ### Basic Usage
 
 ```javascript
-import { init, track, trackPageview } from '@better-analytics/core';
+import { init, track, trackPageview } from 'better-analytics';
 
 // Initialize with your endpoint
 init({ endpoint: 'https://your-api.com/collect' });
@@ -37,13 +37,13 @@ trackPageview();
 ### Next.js Usage
 
 ```bash
-npm install @better-analytics/next
+npm install better-analytics
 ```
 
 ```javascript
 // app/layout.tsx
 import { useEffect } from 'react';
-import { init, useBetterAnalytics } from '@better-analytics/next';
+import { init, useBetterAnalytics } from 'better-analytics/next';
 
 export default function RootLayout({ children }) {
   useEffect(() => {
@@ -64,8 +64,9 @@ export default function RootLayout({ children }) {
 
 This monorepo contains:
 
-- `@better-analytics/core` - Core SDK (packages/sdk)
-- `@better-analytics/next` - Next.js adapter (packages/next-hook)
+- `better-analytics` - Core SDK with subpath exports (packages/sdk)
+  - `better-analytics` - Core functionality
+  - `better-analytics/next` - Next.js adapter
 - `web` - Demo Next.js app (apps/web)
 
 ## Development

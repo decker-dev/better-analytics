@@ -70,15 +70,12 @@ importers:
 
   apps/web:
     dependencies:
-      '@better-analytics/core':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      '@better-analytics/next':
-        specifier: workspace:*
-        version: link:../../packages/next-hook
       '@repo/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      better-analytics:
+        specifier: workspace:*
+        version: link:../../packages/sdk
       next:
         specifier: ^15.3.0
         version: 15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -147,11 +144,8 @@ importers:
         specifier: ^8.33.0
         version: 8.33.0(eslint@9.28.0)(typescript@5.8.2)
 
-  packages/next-hook:
+  packages/sdk:
     dependencies:
-      '@better-analytics/core':
-        specifier: workspace:*
-        version: link:../sdk
       next:
         specifier: '>=13'
         version: 15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -165,15 +159,12 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.1.0
-
-  packages/sdk:
-    devDependencies:
       jsdom:
         specifier: ^23.0.0
         version: 23.2.0
       vitest:
         specifier: ^1.0.0
-        version: 1.6.1(@types/node@22.15.3)(jsdom@23.2.0)
+        version: 1.6.1(@types/node@20.19.0)(jsdom@23.2.0)
 
   packages/typescript-config: {}
 
@@ -6757,24 +6748,6 @@ snapshots:
       - supports-color
       - terser
 
-  vite-node@1.6.1(@types/node@22.15.3):
-    dependencies:
-      cac: 6.7.14
-      debug: 4.4.1
-      pathe: 1.1.2
-      picocolors: 1.1.1
-      vite: 5.4.19(@types/node@22.15.3)
-    transitivePeerDependencies:
-      - '@types/node'
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
   vite@5.4.19(@types/node@20.19.0):
     dependencies:
       esbuild: 0.21.5
@@ -6782,15 +6755,6 @@ snapshots:
       rollup: 4.42.0
     optionalDependencies:
       '@types/node': 20.19.0
-      fsevents: 2.3.3
-
-  vite@5.4.19(@types/node@22.15.3):
-    dependencies:
-      esbuild: 0.21.5
-      postcss: 8.5.4
-      rollup: 4.42.0
-    optionalDependencies:
-      '@types/node': 22.15.3
       fsevents: 2.3.3
 
   vitest@1.6.1(@types/node@20.19.0)(jsdom@23.2.0):
@@ -6817,41 +6781,6 @@ snapshots:
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 20.19.0
-      jsdom: 23.2.0
-    transitivePeerDependencies:
-      - less
-      - lightningcss
-      - sass
-      - sass-embedded
-      - stylus
-      - sugarss
-      - supports-color
-      - terser
-
-  vitest@1.6.1(@types/node@22.15.3)(jsdom@23.2.0):
-    dependencies:
-      '@vitest/expect': 1.6.1
-      '@vitest/runner': 1.6.1
-      '@vitest/snapshot': 1.6.1
-      '@vitest/spy': 1.6.1
-      '@vitest/utils': 1.6.1
-      acorn-walk: 8.3.4
-      chai: 4.5.0
-      debug: 4.4.1
-      execa: 8.0.1
-      local-pkg: 0.5.1
-      magic-string: 0.30.17
-      pathe: 1.1.2
-      picocolors: 1.1.1
-      std-env: 3.9.0
-      strip-literal: 2.1.1
-      tinybench: 2.9.0
-      tinypool: 0.8.4
-      vite: 5.4.19(@types/node@22.15.3)
-      vite-node: 1.6.1(@types/node@22.15.3)
-      why-is-node-running: 2.3.0
-    optionalDependencies:
-      '@types/node': 22.15.3
       jsdom: 23.2.0
     transitivePeerDependencies:
       - less
