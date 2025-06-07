@@ -1,6 +1,6 @@
 'use client';
 
-import { track } from '@better/analytics-next';
+import { track } from '@better-analytics/next';
 import { Button } from '@repo/ui/button';
 import styles from './page.module.css';
 

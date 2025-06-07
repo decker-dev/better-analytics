@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { trackPageview } from '@better/analytics';
+import { trackPageview } from '@better-analytics/core';
 import { usePathname } from 'next/navigation';
 
 /**
@@ -16,5 +16,5 @@ export function useBetterAnalytics(): void {
 }
 
 // Re-export the main SDK functions for convenience
-export { init, track, trackPageview } from '@better/analytics';
-export type { AnalyticsConfig, EventData } from '@better/analytics'; 
+export { init, track, trackPageview } from '@better-analytics/core';
+export type { AnalyticsConfig, EventData } from '@better-analytics/core'; 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { init, useBetterAnalytics } from '@better/analytics-next';
+import { init, useBetterAnalytics } from '@better-analytics/next';
 
 export function AnalyticsProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {

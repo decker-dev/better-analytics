@@ -1,6 +1,6 @@
 {
-  "name": "@better/analytics-next",
-  "version": "0.0.0",
+  "name": "@better-analytics/next",
+  "version": "1.0.0",
   "description": "Next.js adapter for Better Analytics SDK",
   "main": "dist/index.mjs",
   "types": "dist/index.d.mts",
@@ -29,10 +29,10 @@
   "peerDependencies": {
     "react": ">=18",
     "next": ">=13",
-    "@better/analytics": "workspace:*"
+    "@better-analytics/core": "workspace:*"
   },
   "dependencies": {
-    "@better/analytics": "workspace:*"
+    "@better-analytics/core": "workspace:*"
   },
   "devDependencies": {
     "@types/react": "^19.0.0",
