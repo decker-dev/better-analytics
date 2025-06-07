@@ -1,0 +1,41 @@
+{
+  "name": "@better/analytics-next",
+  "version": "0.0.0",
+  "description": "Next.js adapter for Better Analytics SDK",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.mts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --dts --watch",
+    "lint": "echo 'No linting configured'",
+    "check-types": "tsc --noEmit"
+  },
+  "keywords": [
+    "analytics",
+    "nextjs",
+    "react",
+    "hook"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "react": ">=18",
+    "next": ">=13",
+    "@better/analytics": "workspace:*"
+  },
+  "dependencies": {
+    "@better/analytics": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/node": "^20.0.0"
+  }
+}

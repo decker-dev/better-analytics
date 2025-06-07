@@ -1,84 +1,106 @@
-# Turborepo starter
+# Better Analytics
 
-This Turborepo starter is maintained by the Turborepo core team.
+A micro-analytics JavaScript SDK that developers can drop into any website.
 
-## Using this example
+## Features
 
-Run the following command:
+- 🚀 **Micro SDK**: < 2KB gzip, framework-agnostic
+- 📦 **Tree-shakable**: ESM + UMD bundles
+- ⚡ **Zero dependencies**: Pure JavaScript
+- 🔧 **TypeScript**: Full type support
+- 🎯 **Simple API**: Just 3 functions - `init()`, `trackPageview()`, `track()`
+- 🔌 **Next.js adapter**: React hook for automatic page tracking
 
-```sh
-npx create-turbo@latest
+## Quick Start
+
+### Installation
+
+```bash
+npm install @better/analytics
 ```
 
-## What's inside?
+### Basic Usage
 
-This Turborepo includes the following packages/apps:
+```javascript
+import { init, track, trackPageview } from '@better/analytics';
 
-### Apps and Packages
+// Initialize with your endpoint
+init({ endpoint: 'https://your-api.com/collect' });
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+// Track custom events
+track('button_click', { button: 'signup' });
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
+// Manual page view tracking
+trackPageview();
 ```
-cd my-turborepo
+
+### Next.js Usage
+
+```bash
+npm install @better/analytics-next
+```
+
+```javascript
+// app/layout.tsx
+import { useEffect } from 'react';
+import { init, useBetterAnalytics } from '@better/analytics-next';
+
+export default function RootLayout({ children }) {
+  useEffect(() => {
+    init({ endpoint: '/api/collect' });
+  }, []);
+
+  useBetterAnalytics(); // Auto-tracks route changes
+
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+## Packages
+
+This monorepo contains:
+
+- `@better/analytics` - Core SDK (packages/sdk)
+- `@better/analytics-next` - Next.js adapter (packages/next-hook)
+- `web` - Demo Next.js app (apps/web)
+
+## Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build all packages
 pnpm build
-```
 
-### Develop
+# Run tests
+pnpm test
 
-To develop all apps and packages, run the following command:
-
-```
-cd my-turborepo
+# Start development server
 pnpm dev
 ```
 
-### Remote Caching
+## Demo
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+The `apps/web` directory contains a working Next.js demo that shows the SDK in action. Run `pnpm dev` and visit http://localhost:3000 to see analytics events being tracked in real-time.
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+## Success Criterion
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+**"npm install, paste five lines, events reach my own URL."** ✅
 
-```
-cd my-turborepo
-npx turbo login
-```
+This SDK achieves exactly that - minimal setup, maximum functionality.
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## Architecture
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- **Framework-agnostic core**: Works with vanilla JS, React, Vue, Svelte, etc.
+- **Compressed JSON**: All events sent via POST with minimal payload
+- **Your own endpoint**: Complete control over data storage and processing
+- **No external dependencies**: No tracking pixels, no third-party services
 
-```
-npx turbo link
-```
+## License
 
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.com/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.com/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.com/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.com/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.com/docs/reference/configuration)
-- [CLI Usage](https://turborepo.com/docs/reference/command-line-reference)
+MIT
