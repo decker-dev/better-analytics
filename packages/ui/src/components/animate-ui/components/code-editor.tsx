@@ -34,8 +34,8 @@ function CodeEditor({
   children: code,
   lang,
   themes = {
-    light: "github-light",
-    dark: "github-dark",
+    light: "dark-plus",
+    dark: "dark-plus",
   },
   duration = 5,
   delay = 0,
@@ -142,13 +142,13 @@ function CodeEditor({
     <div
       data-slot="code-editor"
       className={cn(
-        "relative bg-gray-900 w-[600px] h-[400px] border border-gray-700 overflow-hidden flex flex-col rounded-xl text-white",
+        "relative bg-black w-[600px] h-[400px] border border-gray-800 overflow-hidden flex flex-col rounded-xl text-white",
         className,
       )}
       {...props}
     >
       {header ? (
-        <div className="bg-gray-800 border-b border-gray-700 relative flex flex-row items-center justify-between gap-y-2 h-10 px-4">
+        <div className="bg-gray-950 border-b border-gray-800 relative flex flex-row items-center justify-between gap-y-2 h-10 px-4">
           {dots && (
             <div className="flex flex-row gap-x-2">
               <div className="size-2 rounded-full bg-red-500" />
@@ -206,7 +206,7 @@ function CodeEditor({
       )}
       <div
         ref={editorRef}
-        className="h-[calc(100%-2.75rem)] w-full text-sm p-4 font-mono relative overflow-auto flex-1 bg-gray-900 text-gray-100"
+        className="h-[calc(100%-2.75rem)] w-full text-sm p-4 font-mono relative overflow-auto flex-1 bg-black text-gray-100"
       >
         <div
           className={cn(

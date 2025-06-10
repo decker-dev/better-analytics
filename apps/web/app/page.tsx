@@ -18,9 +18,9 @@ export default function LandingPage() {
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
       <CodeEditor
         cursor
-        className="w-[640px] h-[340px] bg-gray-900 border border-gray-700"
+        className="w-[500px] h-[340px] bg-black border border-white/30"
         lang="tsx"
-        title="component.tsx"
+        title="layout.tsx"
         icon={<Code />}
         duration={10}
         delay={0.5}
