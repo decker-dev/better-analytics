@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { AnalyticsProvider } from "./analytics-provider";
+import { Analytics } from "better-analytics/next";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -25,10 +25,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AnalyticsProvider>
-          {children}
-        </AnalyticsProvider>
-      </body>
+      {children}
+      <Analytics api="/api/collect" debug={true} />
+      </body> 
     </html>
   );
 }
