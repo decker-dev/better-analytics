@@ -110,20 +110,16 @@ function CodeEditor({
 
     if (!code.length || !isInView) return;
 
-    const characters = Array.from(code);
     let index = 0;
     const totalDuration = duration * 1000;
-    const interval = totalDuration / characters.length;
+    const interval = totalDuration / code.length;
     let intervalId: NodeJS.Timeout;
 
     const timeout = setTimeout(() => {
       intervalId = setInterval(() => {
-        if (index < characters.length) {
-          setVisibleCode((prev) => {
-            const currentIndex = index;
-            index += 1;
-            return prev + characters[currentIndex];
-          });
+        if (index < code.length) {
+          index += 1;
+          setVisibleCode(code.slice(0, index));
           editorRef.current?.scrollTo({
             top: editorRef.current?.scrollHeight,
             behavior: "smooth",
