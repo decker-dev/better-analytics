@@ -77,10 +77,10 @@ function CodeEditor({
         const highlighted = await codeToHtml(visibleCode, {
           lang,
           themes: {
-            light: themes.dark,
+            light: themes.light,
             dark: themes.dark,
           },
-          defaultColor: "dark",
+          defaultColor: resolvedTheme === "dark" ? "dark" : "light",
         });
 
         setHighlightedCode(highlighted);
@@ -210,13 +210,12 @@ function CodeEditor({
       >
         <div
           className={cn(
-            "[&>pre,_&_code]:!bg-transparent [&>pre,_&_code]:[background:transparent_!important] [&>pre,_&_code]:border-none [&_code]:!text-[13px] [&>pre]:text-gray-100",
-            "[&_pre]:!bg-transparent [&_pre]:!background-transparent [&_code]:!bg-transparent [&_code]:!background-transparent",
-            "[&_.shiki]:!bg-transparent [&_.shiki]:!background-transparent [&_.shiki_pre]:!bg-transparent",
-            "[&_*]:!bg-transparent [&_span]:!bg-transparent",
+            "[&_*]:!bg-transparent [&_pre]:!bg-transparent [&_code]:!bg-transparent",
+            "[&_.shiki]:!bg-transparent [&_.shiki_pre]:!bg-transparent",
+            "[&_code]:!text-[13px] [&>pre]:text-gray-100 [&>pre,_&_code]:border-none",
             cursor &&
               !isDone &&
-              "[&_.line:last-of-type::after]:content-['|'] [&_.line:last-of-type::after]:animate-pulse [&_.line:last-of-type::after]:inline-block [&_.line:last-of-type::after]:w-[1ch] [&_.line:last-of-type::after]:-translate-px [&_.line:last-of-type::after]:text-gray-100",
+              "[&_.line:last-child::after]:content-['|'] [&_.line:last-child::after]:animate-pulse [&_.line:last-child::after]:text-gray-100",
           )}
         >
           {highlightedCode ? (
