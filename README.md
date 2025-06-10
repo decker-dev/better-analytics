@@ -9,7 +9,7 @@ A micro-analytics JavaScript SDK that developers can drop into any website.
 - ⚡ **Zero dependencies**: Pure JavaScript
 - 🔧 **TypeScript**: Full type support
 - 🎯 **Simple API**: Just 3 functions - `init()`, `trackPageview()`, `track()`
-- 🔌 **Next.js adapter**: React hook for automatic page tracking
+- 🔌 **Next.js adapter**: Drop-in component for automatic page tracking
 
 ## Quick Start
 
@@ -42,19 +42,33 @@ npm install better-analytics
 
 ```javascript
 // app/layout.tsx
-import { useEffect } from 'react';
-import { init, useBetterAnalytics } from 'better-analytics/next';
+import { Analytics } from 'better-analytics/next';
 
 export default function RootLayout({ children }) {
-  useEffect(() => {
-    init({ endpoint: '/api/collect' });
-  }, []);
-
-  useBetterAnalytics(); // Auto-tracks route changes
-
   return (
     <html>
-      <body>{children}</body>
+      <body>
+        <Analytics api="/api/collect" />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+**Or using the endpoint prop:**
+
+```javascript
+// app/layout.tsx
+import { Analytics } from 'better-analytics/next';
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Analytics endpoint="/api/collect" />
+        {children}
+      </body>
     </html>
   );
 }
@@ -92,8 +106,6 @@ The `apps/web` directory contains a working Next.js demo that shows the SDK in a
 ## Success Criterion
 
 **"npm install, paste five lines, events reach my own URL."** ✅
-
-This SDK achieves exactly that - minimal setup, maximum functionality.
 
 ## Architecture
 
