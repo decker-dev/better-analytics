@@ -77,10 +77,10 @@ function CodeEditor({
         const highlighted = await codeToHtml(visibleCode, {
           lang,
           themes: {
-            light: themes.light,
+            light: themes.dark,
             dark: themes.dark,
           },
-          defaultColor: resolvedTheme === "dark" ? "dark" : "light",
+          defaultColor: "dark",
         });
 
         setHighlightedCode(highlighted);
@@ -142,13 +142,13 @@ function CodeEditor({
     <div
       data-slot="code-editor"
       className={cn(
-        "relative bg-muted/50 w-[600px] h-[400px] border border-border overflow-hidden flex flex-col rounded-xl",
+        "relative bg-gray-900 w-[600px] h-[400px] border border-gray-700 overflow-hidden flex flex-col rounded-xl text-white",
         className,
       )}
       {...props}
     >
       {header ? (
-        <div className="bg-muted border-b border-border/75 dark:border-border/50 relative flex flex-row items-center justify-between gap-y-2 h-10 px-4">
+        <div className="bg-gray-800 border-b border-gray-700 relative flex flex-row items-center justify-between gap-y-2 h-10 px-4">
           {dots && (
             <div className="flex flex-row gap-x-2">
               <div className="size-2 rounded-full bg-red-500" />
@@ -167,7 +167,7 @@ function CodeEditor({
             >
               {icon ? (
                 <div
-                  className="text-muted-foreground [&_svg]:size-3.5"
+                  className="text-gray-400 [&_svg]:size-3.5"
                   // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
                   // biome-ignore lint/security/noDangerouslySetInnerHtmlWithChildren: <explanation>
                   dangerouslySetInnerHTML={
@@ -177,7 +177,7 @@ function CodeEditor({
                   {typeof icon !== "string" ? icon : null}
                 </div>
               ) : null}
-              <figcaption className="flex-1 truncate text-muted-foreground text-[13px]">
+              <figcaption className="flex-1 truncate text-gray-400 text-[13px]">
                 {title}
               </figcaption>
             </div>
@@ -188,7 +188,7 @@ function CodeEditor({
               content={code}
               size="sm"
               variant="ghost"
-              className="-me-2 bg-transparent hover:bg-black/5 dark:hover:bg-white/10"
+              className="-me-2 bg-transparent hover:bg-white/10 text-gray-300"
               onCopy={onCopy}
             />
           ) : null}
@@ -199,25 +199,39 @@ function CodeEditor({
             content={code}
             size="sm"
             variant="ghost"
-            className="absolute right-2 top-2 z-[2] backdrop-blur-md bg-transparent hover:bg-black/5 dark:hover:bg-white/10"
+            className="absolute right-2 top-2 z-[2] backdrop-blur-md bg-transparent hover:bg-white/10 text-gray-300"
             onCopy={onCopy}
           />
         )
       )}
       <div
         ref={editorRef}
-        className="h-[calc(100%-2.75rem)] w-full text-sm p-4 font-mono relative overflow-auto flex-1"
+        className="h-[calc(100%-2.75rem)] w-full text-sm p-4 font-mono relative overflow-auto flex-1 bg-gray-900 text-gray-100"
       >
         <div
           className={cn(
-            "[&>pre,_&_code]:!bg-transparent [&>pre,_&_code]:[background:transparent_!important] [&>pre,_&_code]:border-none [&_code]:!text-[13px]",
+            "[&>pre,_&_code]:!bg-transparent [&>pre,_&_code]:[background:transparent_!important] [&>pre,_&_code]:border-none [&_code]:!text-[13px] [&>pre]:text-gray-100",
+            "[&_pre]:!bg-transparent [&_pre]:!background-transparent [&_code]:!bg-transparent [&_code]:!background-transparent",
+            "[&_.shiki]:!bg-transparent [&_.shiki]:!background-transparent [&_.shiki_pre]:!bg-transparent",
+            "[&_*]:!bg-transparent [&_span]:!bg-transparent",
             cursor &&
               !isDone &&
-              "[&_.line:last-of-type::after]:content-['|'] [&_.line:last-of-type::after]:animate-pulse [&_.line:last-of-type::after]:inline-block [&_.line:last-of-type::after]:w-[1ch] [&_.line:last-of-type::after]:-translate-px",
+              "[&_.line:last-of-type::after]:content-['|'] [&_.line:last-of-type::after]:animate-pulse [&_.line:last-of-type::after]:inline-block [&_.line:last-of-type::after]:w-[1ch] [&_.line:last-of-type::after]:-translate-px [&_.line:last-of-type::after]:text-gray-100",
           )}
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-          dangerouslySetInnerHTML={{ __html: highlightedCode }}
-        />
+        >
+          {highlightedCode ? (
+            <div
+              className="[&_*]:!bg-transparent [&_pre]:!bg-transparent [&_code]:!bg-transparent"
+              // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+              dangerouslySetInnerHTML={{ __html: highlightedCode }}
+            />
+          ) : (
+            <pre className="text-gray-100 whitespace-pre-wrap font-mono text-[13px] leading-relaxed bg-transparent">
+              {visibleCode}
+              {cursor && !isDone && <span className="animate-pulse">|</span>}
+            </pre>
+          )}
+        </div>
       </div>
     </div>
   );
