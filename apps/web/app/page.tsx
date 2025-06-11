@@ -16,17 +16,79 @@ import { CodeEditor } from "@repo/ui/components/animate-ui/components/code-edito
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-8">
-      <CodeEditor
-        cursor
-        className="w-[500px] h-[340px] bg-black border border-white/30"
-        lang="tsx"
-        title="layout.tsx"
-        icon={<Code />}
-        duration={10}
-        delay={0.5}
-        copyButton
-      >
-        {`import { Analytics } from "better-analytics/next";
+      <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div>
+          <div className="flex items-center space-x-2 mb-6">
+            <Zap className="h-4 w-4 text-green-400" />
+            <span className="text-gray-400 text-sm">Own Your Analytics</span>
+          </div>
+          <h1 className="text-5xl lg:text-6xl font-bold leading-tight mb-6">
+            The fastest way to add analytics to your app.
+          </h1>
+          <p className="text-xl text-gray-400 mb-8 leading-relaxed max-w-lg">
+            Drop-in replacement for Vercel Analytics. Same API, your endpoint.
+            Open source, privacy-first, and lightning fast.
+          </p>
+          <div className="flex items-center space-x-4 mb-8">
+            <Badge
+              variant="secondary"
+              className="bg-green-500/10 text-green-400 border-green-500/20"
+            >
+              <Heart className="h-3 w-3 mr-1" />
+              Open Source
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-blue-500/10 text-blue-400 border-blue-500/20"
+            >
+              <Zap className="h-3 w-3 mr-1" />
+              {"< 2KB"}
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="bg-purple-500/10 text-purple-400 border-purple-500/20"
+            >
+              Free Forever
+            </Badge>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button
+              size="lg"
+              className="bg-white text-black hover:bg-gray-100 transition-colors"
+            >
+              GET STARTED
+            </Button>
+            <Button
+              variant="ghost"
+              size="lg"
+              className="text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600"
+            >
+              <Code className="h-4 w-4 mr-2" />
+              View on GitHub
+            </Button>
+          </div>
+          <div className="mt-8 flex items-center space-x-4 text-sm text-gray-500">
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-green-400 rounded-full" />
+              <span>npm add better-analytics</span>
+            </div>
+            <div className="flex items-center space-x-1">
+              <div className="w-2 h-2 bg-blue-400 rounded-full" />
+              <span>3 lines of code</span>
+            </div>
+          </div>
+        </div>
+        <CodeEditor
+          cursor
+          className="w-[500px] h-[340px] bg-black border border-white/30"
+          lang="tsx"
+          title="layout.tsx"
+          icon={<Code />}
+          duration={10}
+          delay={0.5}
+          copyButton
+        >
+          {`import { Analytics } from "better-analytics/next";
 
 export default function Layout() {
   return (
@@ -38,7 +100,8 @@ export default function Layout() {
     </html>
   );
 }`}
-      </CodeEditor>
+        </CodeEditor>
+      </div>
     </div>
   );
 }
