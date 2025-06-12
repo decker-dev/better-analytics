@@ -1,14 +1,4 @@
-import {
-  ArrowRight,
-  Copy,
-  Check,
-  Github,
-  Moon,
-  BarChart3,
-  Zap,
-  Heart,
-  Code,
-} from "lucide-react";
+import { Zap, Heart, Code } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { Badge } from "@repo/ui/components/badge";
 import { CodeEditor } from "@repo/ui/components/animate-ui/components/code-editor";
@@ -59,37 +49,8 @@ export default function LandingPage() {
                   Free Forever
                 </Badge>
               </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-8">
-                <Button
-                  size="lg"
-                  className="bg-white text-black hover:bg-gray-100 transition-colors w-full sm:w-auto"
-                >
-                  GET STARTED
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600 w-full sm:w-auto"
-                >
-                  <Code className="h-4 w-4 mr-2" />
-                  View on GitHub
-                </Button>
-              </div>
-
-              <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 text-sm text-gray-500">
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-green-400 rounded-full" />
-                  <span>npm add better-analytics</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <div className="w-2 h-2 bg-blue-400 rounded-full" />
-                  <span>3 lines of code</span>
-                </div>
-              </div>
             </div>
 
-            {/* Code Editor Section */}
             <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
               <div className="w-full max-w-[500px]">
                 <CodeEditor
