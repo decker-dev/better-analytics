@@ -2,6 +2,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import "@repo/ui/globals.css";
 import { Providers } from "@/components/providers";
+import { Analytics } from "better-analytics/next";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -24,6 +25,7 @@ export default function RootLayout({
         className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased dark:bg-background dark:text-foreground`}
       >
         <Providers>{children}</Providers>
+        <Analytics api="/api/collect" />
       </body>
     </html>
   );
