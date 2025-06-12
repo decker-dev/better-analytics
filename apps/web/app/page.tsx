@@ -1,7 +1,14 @@
 import { Zap, Heart, Code } from "lucide-react";
-import { Button } from "@repo/ui/components/button";
 import { Badge } from "@repo/ui/components/badge";
 import { CodeEditor } from "@repo/ui/components/animate-ui/components/code-editor";
+import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
+
+const COMMANDS = {
+  pnpm: "pnpm add better-analytics",
+  yarn: "yarn add better-analytics",
+  bun: "bun add better-analytics",
+  npm: "npm install better-analytics",
+};
 
 export default function LandingPage() {
   return (
@@ -76,6 +83,11 @@ export default function Layout() {
   );
 }`}
                 </CodeEditor>
+                <CodeTabs
+                  defaultValue="pnpm"
+                  className="max-w-[650px] bg-black"
+                  codes={COMMANDS}
+                />
               </div>
             </div>
           </div>
