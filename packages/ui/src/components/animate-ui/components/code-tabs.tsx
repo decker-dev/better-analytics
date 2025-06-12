@@ -82,7 +82,7 @@ function CodeTabs({
     <Tabs
       data-slot="install-tabs"
       className={cn(
-        "w-full gap-0 bg-muted/50 rounded-xl border overflow-hidden",
+        "w-full gap-0 bg-muted/50 rounded-xl border dark:border-white/20 overflow-hidden",
         className,
       )}
       {...props}
@@ -94,7 +94,7 @@ function CodeTabs({
     >
       <TabsList
         data-slot="install-tabs-list"
-        className="w-full relative justify-between rounded-none h-10 bg-muted border-b border-border/75 dark:border-border/50 text-current py-0 px-4"
+        className="w-full relative justify-between rounded-none h-10 bg-gray-950 border-b border-border/75 dark:border-white/20 text-current py-0 px-4"
         activeClassName="rounded-none shadow-none bg-transparent after:content-[''] after:absolute after:inset-x-0 after:h-0.5 after:bottom-0 dark:after:bg-white after:bg-black after:rounded-t-full"
       >
         <div className="flex gap-x-3 h-full">

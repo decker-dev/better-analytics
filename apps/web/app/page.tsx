@@ -59,7 +59,7 @@ export default function LandingPage() {
             </div>
 
             <div className="order-1 lg:order-2 flex justify-center lg:justify-end">
-              <div className="w-full max-w-[500px]">
+              <div className="w-full max-w-[500px] flex flex-col gap-4">
                 <CodeEditor
                   cursor
                   className="w-full h-[280px] sm:h-[320px] lg:h-[340px] bg-black border border-white/30"
