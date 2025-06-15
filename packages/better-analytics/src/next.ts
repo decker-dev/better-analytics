@@ -44,8 +44,17 @@ export function Analytics(props: AnalyticsProps = {}): null {
     const urlEnvName = urlEnvVar || 'NEXT_PUBLIC_BA_URL';
     const siteEnvName = siteEnvVar || 'NEXT_PUBLIC_BA_SITE';
 
-    const analyticsEndpoint = api || endpoint || process.env[urlEnvName];
-    const analyticsSite = site || process.env[siteEnvName];
+    // Access environment variables directly (Next.js requires static references)
+    const getEnvVar = (name: string) => {
+      switch (name) {
+        case 'NEXT_PUBLIC_BA_URL': return process.env.NEXT_PUBLIC_BA_URL;
+        case 'NEXT_PUBLIC_BA_SITE': return process.env.NEXT_PUBLIC_BA_SITE;
+        default: return process.env[name]; // Fallback for custom env vars
+      }
+    };
+
+    const analyticsEndpoint = api || endpoint || getEnvVar(urlEnvName);
+    const analyticsSite = site || getEnvVar(siteEnvName);
 
     if (analyticsEndpoint) {
       const config: AnalyticsConfig = {
@@ -58,9 +67,17 @@ export function Analytics(props: AnalyticsProps = {}): null {
       if (debug && typeof window !== 'undefined') {
         console.log('🚀 Better Analytics initialized with endpoint:', analyticsEndpoint, 'site:', analyticsSite);
         console.log('📦 Sources - URL:', api || endpoint ? 'prop' : `env(${urlEnvName})`, 'Site:', site ? 'prop' : `env(${siteEnvName})`);
+        console.log('🔍 Debug env vars:', {
+          [urlEnvName]: getEnvVar(urlEnvName),
+          [siteEnvName]: getEnvVar(siteEnvName)
+        });
       }
     } else if (debug && typeof window !== 'undefined') {
       console.warn('⚠️ Better Analytics: No endpoint provided. Set', urlEnvName, 'environment variable or pass api/endpoint prop.');
+      console.log('🔍 Debug env vars:', {
+        [urlEnvName]: getEnvVar(urlEnvName),
+        [siteEnvName]: getEnvVar(siteEnvName)
+      });
     }
   }, [api, endpoint, site, urlEnvVar, siteEnvVar, debug]);
 
