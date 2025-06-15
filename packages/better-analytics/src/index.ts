@@ -7,7 +7,7 @@ interface AnalyticsConfig {
 
 interface EventData {
   event: string;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
   timestamp: number;
   url: string;
   referrer: string;
@@ -39,7 +39,7 @@ export function trackPageview(): void {
  * @param event Event name
  * @param props Optional event properties
  */
-export function track(event: string, props?: Record<string, any>): void {
+export function track(event: string, props?: Record<string, unknown>): void {
   if (!config) {
     console.warn('Better Analytics: SDK not initialized. Call init() first.');
     return;

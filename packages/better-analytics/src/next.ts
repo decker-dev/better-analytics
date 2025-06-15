@@ -15,7 +15,7 @@ export interface AnalyticsProps {
   /** Enable debug mode to log events to console */
   debug?: boolean;
   /** Modify event data before sending - return null to ignore event */
-  beforeSend?: (event: any) => any | null;
+  beforeSend?: (event: unknown) => unknown | null;
 }
 
 /**
