@@ -29,7 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
-        <Analytics api="api/collect" site="demo" />
+        <Analytics />
       </body>
     </html>
   );

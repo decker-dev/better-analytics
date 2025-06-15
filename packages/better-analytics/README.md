@@ -32,15 +32,41 @@ track('button_click', { button: 'signup' });
 
 ### Next.js (Recommended)
 
+**Option 1: Environment Variables (Cleanest)**
+
+```bash
+# .env.local
+NEXT_PUBLIC_BA_URL=/api/collect
+NEXT_PUBLIC_BA_SITE=my-app
+```
+
 ```jsx
 import { Analytics } from "better-analytics/next";
 
-// Add to your root layout
+// Add to your root layout - auto-configures from env vars
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <Analytics api="/api/collect" />
+        <Analytics />
+        {children}
+      </body>
+    </html>
+  );
+}
+```
+
+**Option 2: Props (Override env vars)**
+
+```jsx
+import { Analytics } from "better-analytics/next";
+
+// Props take precedence over environment variables
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Analytics api="/api/collect" site="my-app" />
         {children}
       </body>
     </html>
@@ -122,19 +148,36 @@ React component that automatically handles initialization and page tracking.
 ```jsx
 import { Analytics } from "better-analytics/next";
 
+// Environment variables only (recommended)
+<Analytics />
+
+// With props (override env vars)
 <Analytics 
-  api="/api/collect"           // Required: your endpoint
-  debug={true}                 // Optional: enable console logging
-  mode="development"           // Optional: override environment detection
+  api="/api/collect"           // Your endpoint (or use NEXT_PUBLIC_BA_URL)
+  site="my-app"               // Site identifier (or use NEXT_PUBLIC_BA_SITE)
+  debug={true}                // Optional: enable console logging
+/>
+
+// Custom environment variable names
+<Analytics 
+  urlEnvVar="CUSTOM_URL"      // Use process.env.CUSTOM_URL instead
+  siteEnvVar="CUSTOM_SITE"    // Use process.env.CUSTOM_SITE instead
 />
 ```
 
 **Props:**
-- `api` (string): Analytics endpoint URL
+- `api` (string): Analytics endpoint URL (fallback if NEXT_PUBLIC_BA_URL not set)
 - `endpoint` (string): Alternative prop name for `api`
+- `site` (string): Site identifier (fallback if NEXT_PUBLIC_BA_SITE not set)
+- `urlEnvVar` (string): Custom environment variable name for URL
+- `siteEnvVar` (string): Custom environment variable name for site
 - `debug` (boolean): Enable debug logging to console
 - `mode` ('development' | 'production' | 'auto'): Override environment detection
 - `beforeSend` (function): Modify or filter events before sending
+
+**Environment Variables:**
+- `NEXT_PUBLIC_BA_URL`: Analytics endpoint (e.g., `/api/collect`)
+- `NEXT_PUBLIC_BA_SITE`: Site identifier (e.g., `my-app`)
 
 ## Event Data Structure
 
@@ -148,6 +191,7 @@ interface EventData {
   url: string;                   // Current page URL
   referrer: string;              // Document referrer
   userAgent: string;             // Browser user agent
+  site?: string;                 // Site identifier
 }
 ```
 
@@ -160,7 +204,8 @@ Example payload:
   "timestamp": 1704067200000,
   "url": "https://example.com/pricing",
   "referrer": "https://google.com",
-  "userAgent": "Mozilla/5.0..."
+  "userAgent": "Mozilla/5.0...",
+  "site": "my-app"
 }
 ```
 
