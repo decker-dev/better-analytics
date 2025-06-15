@@ -12,6 +12,7 @@ const incomingEventSchema = z.object({
   url: z.string().optional(),
   referrer: z.string().optional(),
   userAgent: z.string().optional(),
+  site: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -21,8 +22,9 @@ export async function POST(request: NextRequest) {
     // Validar los datos de entrada
     const validatedData = incomingEventSchema.parse(body);
 
-    // Extraer el sitio de la URL o usar un valor por defecto
-    const site = validatedData.url ? new URL(validatedData.url).hostname : 'unknown';
+    // Usar el site del payload o extraer de la URL como fallback
+    const site = validatedData.site ||
+      (validatedData.url ? new URL(validatedData.url).hostname : 'unknown');
 
     // Parsear el user agent para extraer información útil
     // Extrae: browser, OS, device type/vendor/model, engine, CPU architecture

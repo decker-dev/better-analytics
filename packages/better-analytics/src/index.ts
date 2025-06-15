@@ -3,6 +3,7 @@
 
 interface AnalyticsConfig {
   endpoint: string;
+  site?: string;
 }
 
 interface EventData {
@@ -12,6 +13,7 @@ interface EventData {
   url: string;
   referrer: string;
   userAgent: string;
+  site?: string;
 }
 
 let config: AnalyticsConfig | null = null;
@@ -52,6 +54,7 @@ export function track(event: string, props?: Record<string, unknown>): void {
     url: typeof window !== 'undefined' ? window.location.href : '',
     referrer: typeof window !== 'undefined' ? document.referrer : '',
     userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+    site: config.site,
   };
 
   send(eventData);

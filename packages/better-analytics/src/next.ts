@@ -10,6 +10,8 @@ export interface AnalyticsProps {
   api?: string;
   /** Alternative name for api prop (for compatibility with init() function) */
   endpoint?: string;
+  /** Site identifier to track which project/user is sending data */
+  site?: string;
   /** Override environment detection (development/production) */
   mode?: 'development' | 'production' | 'auto';
   /** Enable debug mode to log events to console */
@@ -22,28 +24,31 @@ export interface AnalyticsProps {
  * Analytics component that automatically tracks page views in Next.js applications
  * 
  * Usage:
- *   <Analytics api="/api/collect" />
- *   <Analytics endpoint="/api/collect" debug={true} />
+ *   <Analytics api="/api/collect" site="demo" />
+ *   <Analytics endpoint="/api/collect" site="my-app" debug={true} />
  * 
  * Similar to Vercel Analytics - just add to your layout and it works automatically
  */
 export function Analytics(props: AnalyticsProps = {}): null {
   const pathname = usePathname();
-  const { api, endpoint, mode, debug, beforeSend } = props;
+  const { api, endpoint, site, mode, debug, beforeSend } = props;
 
   // Auto-initialize when component mounts with provided config
   useEffect(() => {
     const analyticsEndpoint = api || endpoint;
     if (analyticsEndpoint) {
-      const config: AnalyticsConfig = { endpoint: analyticsEndpoint };
+      const config: AnalyticsConfig = {
+        endpoint: analyticsEndpoint,
+        site: site
+      };
       init(config);
 
       // Log debug info if enabled
       if (debug && typeof window !== 'undefined') {
-        console.log('🚀 Better Analytics initialized with endpoint:', analyticsEndpoint);
+        console.log('🚀 Better Analytics initialized with endpoint:', analyticsEndpoint, 'site:', site);
       }
     }
-  }, [api, endpoint, debug]);
+  }, [api, endpoint, site, debug]);
 
   // Track page changes
   useEffect(() => {
