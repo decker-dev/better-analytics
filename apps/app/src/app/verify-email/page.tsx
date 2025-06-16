@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { authClient } from "@/lib/auth/auth-client";
+import { authClient } from "@/modules/auth/lib/auth-client";
 import {
   Card,
   CardContent,

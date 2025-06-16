@@ -29,6 +29,8 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
+    NEXT_PUBLIC_BA_URL: z.string().url(),
+    NEXT_PUBLIC_BA_SITE: z.string().url(),
   },
 
   /*
@@ -45,6 +47,8 @@ export const env = createEnv({
 
     // Client
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    NEXT_PUBLIC_BA_URL: process.env.NEXT_PUBLIC_BA_URL,
+    NEXT_PUBLIC_BA_SITE: process.env.NEXT_PUBLIC_BA_SITE,
   },
 
   /*

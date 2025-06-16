@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession, signOut } from "@/lib/auth/auth-client";
+import { useSession, signOut } from "@/modules/auth/lib/auth-client";
 import {
   Card,
   CardContent,

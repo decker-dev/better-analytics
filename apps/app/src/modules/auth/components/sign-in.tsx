@@ -16,7 +16,7 @@ import { Loader2, Key, Mail, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@repo/ui/lib/utils";
 import { Button } from "@repo/ui/components/button";
-import { signIn } from "@/lib/auth/auth-client";
+import { signIn } from "@/modules/auth/lib/auth-client";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 
 export default function SignIn() {
