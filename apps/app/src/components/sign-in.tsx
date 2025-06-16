@@ -12,24 +12,79 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Checkbox } from "@repo/ui/components/checkbox";
 import { useState } from "react";
-import { Loader2, Key } from "lucide-react";
+import { Loader2, Key, Mail, CheckCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@repo/ui/lib/utils";
 import { Button } from "@repo/ui/components/button";
 import { signIn } from "@/lib/auth/auth-client";
+import { Alert, AlertDescription } from "@repo/ui/components/alert";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [message, setMessage] = useState("");
+
+  const handleMagicLinkSubmit = async () => {
+    if (!email) {
+      setStatus("error");
+      setMessage("Please enter your email address");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      setStatus("error");
+      setMessage("Please enter a valid email address");
+      return;
+    }
+
+    setLoading(true);
+    setStatus("idle");
+    setMessage("");
+
+    try {
+      const result = await signIn.magicLink(
+        {
+          email,
+        },
+        {
+          onRequest: () => {
+            setLoading(true);
+          },
+          onResponse: () => {
+            setLoading(false);
+          },
+        },
+      );
+
+      if (result.error) {
+        setStatus("error");
+        setMessage(result.error.message || "Failed to send magic link");
+      } else {
+        setStatus("success");
+        setMessage(
+          "Magic link sent! Check your email and click the link to sign in.",
+        );
+      }
+    } catch (error) {
+      setStatus("error");
+      setMessage(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Card className="max-w-md">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
+        <CardTitle className="text-lg md:text-xl flex items-center gap-2">
+          <Mail className="h-5 w-5" />
+          Sign In
+        </CardTitle>
         <CardDescription className="text-xs md:text-sm">
-          Enter your email below to login to your account
+          Enter your email below to receive a magic link to sign in
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -43,37 +98,66 @@ export default function SignIn() {
               required
               onChange={(e) => {
                 setEmail(e.target.value);
+                if (status !== "idle") {
+                  setStatus("idle");
+                  setMessage("");
+                }
               }}
               value={email}
-            />
-            <Button
               disabled={loading}
-              className="gap-2"
-              onClick={async () => {
-                await signIn.magicLink(
-                  {
-                    email,
-                  },
-                  {
-                    onRequest: (ctx) => {
-                      setLoading(true);
-                    },
-                    onResponse: (ctx) => {
-                      setLoading(false);
-                    },
-                  },
-                );
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  handleMagicLinkSubmit();
+                }
               }}
+            />
+
+            {status !== "idle" && (
+              <Alert
+                className={cn(
+                  status === "success" && "border-green-200 bg-green-50",
+                  status === "error" && "border-red-200 bg-red-50",
+                )}
+              >
+                <div className="flex items-center gap-2">
+                  {status === "success" && (
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                  )}
+                  {status === "error" && (
+                    <AlertCircle className="h-4 w-4 text-red-600" />
+                  )}
+                  <AlertDescription
+                    className={cn(
+                      status === "success" && "text-green-800",
+                      status === "error" && "text-red-800",
+                    )}
+                  >
+                    {message}
+                  </AlertDescription>
+                </div>
+              </Alert>
+            )}
+
+            <Button
+              disabled={loading || !email}
+              className="gap-2"
+              onClick={handleMagicLinkSubmit}
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" />
               ) : (
-                "Sign-in with Magic Link"
+                <Mail size={16} />
               )}
+              {loading ? "Sending..." : "Send Magic Link"}
             </Button>
           </div>
         </div>
       </CardContent>
+      <CardFooter className="text-center">
+        <p className="text-xs text-gray-500">
+          By signing in, you agree to our terms of service and privacy policy.
+        </p>
+      </CardFooter>
     </Card>
   );
 }
