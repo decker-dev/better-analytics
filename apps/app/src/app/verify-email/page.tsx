@@ -33,7 +33,9 @@ export default function VerifyEmailPage() {
 
         // Verify the magic link
         const { data, error } = await authClient.magicLink.verify({
-          token,
+          query: {
+            token,
+          },
         });
 
         if (error) {

@@ -1,32 +1,23 @@
-"use client";
-
-import { useSession, signOut } from "@/modules/auth/lib/auth-client";
+import { headers } from "next/headers";
+import { auth } from "@/modules/auth/lib/auth";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
-import { Loader2, User, Mail, LogOut } from "lucide-react";
+import { User, Mail } from "lucide-react";
 import Link from "next/link";
-import OrganizationDemo from "@/modules/auth/components/organization-demo";
+import OrganizationServer from "@/modules/auth/components/organization-server";
+import { SignOutButton } from "@/modules/auth/components/sign-out-button";
 
-export default function HomePage() {
-  const { data: session, isPending } = useSession();
+export default async function HomePage() {
+  // Get session on the server
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-  if (isPending) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="max-w-md w-full">
-          <CardContent className="flex items-center justify-center p-8">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+  // If no session, show landing page
   if (!session) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -41,18 +32,18 @@ export default function HomePage() {
               Sign in to access your analytics dashboard
             </p>
             <Link href="/sign-in">
-              <Button className="w-full">Sign In</Button>
+              <button
+                type="button"
+                className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors"
+              >
+                Sign In
+              </button>
             </Link>
           </CardContent>
         </Card>
       </div>
     );
   }
-
-  const handleSignOut = async () => {
-    await signOut();
-    window.location.reload();
-  };
 
   return (
     <div className="min-h-screen p-4">
@@ -64,10 +55,7 @@ export default function HomePage() {
                 <User className="h-5 w-5" />
                 Welcome back!
               </div>
-              <Button variant="outline" onClick={handleSignOut}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Sign Out
-              </Button>
+              <SignOutButton />
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -88,7 +76,7 @@ export default function HomePage() {
 
         <div>
           <h2 className="text-2xl font-bold mb-4">Organization Management</h2>
-          <OrganizationDemo />
+          <OrganizationServer />
         </div>
       </div>
     </div>
