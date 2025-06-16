@@ -17,6 +17,7 @@
   "dependencies": {
     "@repo/ui": "workspace:*",
     "better-analytics": "workspace:*",
+    "better-auth": "^1.2.9",
     "better-sqlite3": "^11.10.0",
     "drizzle-orm": "^0.44.2",
     "drizzle-zod": "^0.8.2",
