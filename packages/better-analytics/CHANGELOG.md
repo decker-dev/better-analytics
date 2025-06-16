@@ -1,5 +1,53 @@
 # better-analytics
 
+## 0.2.0
+
+### Minor Changes
+
+- **Enhanced Developer Experience**: Automatic warning messages in development mode when analytics endpoint is not configured
+- **Custom Environment Variables**: Support for custom environment variable names via `urlEnvVar` and `siteEnvVar` props
+- **Environment Mode Override**: New `mode` prop to override automatic environment detection
+- **Event Filtering**: New `beforeSend` prop to modify or filter events before sending
+- **Improved Debugging**: No longer requires `debug={true}` flag to see configuration warnings during development
+- **Smart Warning System**: Warnings appear automatically when `NODE_ENV=development`, detailed debug info still available with `debug={true}`
+
+### New Features
+
+```jsx
+// Custom environment variables
+<Analytics 
+  urlEnvVar="CUSTOM_ANALYTICS_URL" 
+  siteEnvVar="CUSTOM_SITE_ID" 
+/>
+
+// Environment mode override
+<Analytics mode="production" />  // Force production mode
+
+// Event filtering and modification
+<Analytics 
+  beforeSend={(event) => {
+    // Modify event or return null to ignore
+    if (event.event === 'sensitive_action') return null;
+    return { ...event, modified: true };
+  }}
+/>
+
+// Enhanced debugging
+<Analytics debug={true} />  // Detailed logs + env var inspection
+```
+
+### Developer Experience Improvements
+
+```jsx
+// Before: Silent failure in development
+<Analytics />  // Nothing happens if NEXT_PUBLIC_BA_URL is missing
+
+// After: Automatic warnings in development  
+<Analytics />  // Shows warning: "⚠️ Better Analytics: No endpoint provided..."
+```
+
+These improvements provide more flexibility for different deployment scenarios and better development experience.
+
 ## 0.1.0
 
 ### Major Changes

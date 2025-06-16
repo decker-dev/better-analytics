@@ -72,12 +72,18 @@ export function Analytics(props: AnalyticsProps = {}): null {
           [siteEnvName]: getEnvVar(siteEnvName)
         });
       }
-    } else if (debug && typeof window !== 'undefined') {
-      console.warn('⚠️ Better Analytics: No endpoint provided. Set', urlEnvName, 'environment variable or pass api/endpoint prop.');
-      console.log('🔍 Debug env vars:', {
-        [urlEnvName]: getEnvVar(urlEnvName),
-        [siteEnvName]: getEnvVar(siteEnvName)
-      });
+    } else if (typeof window !== 'undefined') {
+      // Show warning in development or when debug is enabled
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      if (isDevelopment || debug) {
+        console.warn('⚠️ Better Analytics: No endpoint provided. Set', urlEnvName, 'environment variable or pass api/endpoint prop.');
+        if (debug) {
+          console.log('🔍 Debug env vars:', {
+            [urlEnvName]: getEnvVar(urlEnvName),
+            [siteEnvName]: getEnvVar(siteEnvName)
+          });
+        }
+      }
     }
   }, [api, endpoint, site, urlEnvVar, siteEnvVar, debug]);
 
