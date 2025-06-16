@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/modules/auth/lib/auth";
 import {
@@ -45,6 +46,17 @@ export default async function HomePage() {
     );
   }
 
+  // Get user's organizations
+  const organizations = await auth.api.listOrganizations({
+    headers: await headers(),
+  });
+
+  // If user has organizations, redirect to the first one
+  if (organizations && organizations.length > 0) {
+    redirect(`/${organizations[0]!.slug}/dashboard`);
+  }
+
+  // If no organizations, show organization creation page
   return (
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto space-y-6">
@@ -53,29 +65,29 @@ export default async function HomePage() {
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Welcome back!
+                Welcome to Better Analytics!
               </div>
               <SignOutButton />
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-2">
+            <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Mail className="h-4 w-4" />
                 <span>{session.user.email}</span>
               </div>
-              {session.user.name && (
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span>{session.user.name}</span>
-                </div>
-              )}
+              <p className="text-gray-600">
+                You don't have any organizations yet. Create your first
+                organization to get started.
+              </p>
             </div>
           </CardContent>
         </Card>
 
         <div>
-          <h2 className="text-2xl font-bold mb-4">Organization Management</h2>
+          <h2 className="text-2xl font-bold mb-4">
+            Create Your First Organization
+          </h2>
           <OrganizationServer />
         </div>
       </div>
