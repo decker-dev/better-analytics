@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { init, track, trackPageview, _resetConfig } from './index';
+import { init, initWithPageview, track, trackPageview, _resetConfig } from './index';
 
 // Mock fetch
 const mockFetch = vi.fn();
@@ -27,8 +27,14 @@ describe('Better Analytics SDK', () => {
     mockFetch.mockResolvedValue(new Response('', { status: 200 }));
   });
 
-  it('should initialize and fire pageview', async () => {
+  it('should initialize without firing pageview', async () => {
     init({ endpoint: '/api/collect' });
+
+    expect(mockFetch).not.toHaveBeenCalled();
+  });
+
+  it('should initialize and fire pageview with initWithPageview', async () => {
+    initWithPageview({ endpoint: '/api/collect' });
 
     expect(mockFetch).toHaveBeenCalledWith('/api/collect', {
       method: 'POST',
@@ -41,7 +47,6 @@ describe('Better Analytics SDK', () => {
 
   it('should track custom events', async () => {
     init({ endpoint: '/api/collect' });
-    mockFetch.mockClear(); // Clear the pageview call
 
     track('button_click', { button: 'signup' });
 
@@ -59,7 +64,6 @@ describe('Better Analytics SDK', () => {
 
   it('should include metadata in events', async () => {
     init({ endpoint: '/api/collect' });
-    mockFetch.mockClear();
 
     track('test_event');
 

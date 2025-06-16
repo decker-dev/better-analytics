@@ -24,8 +24,14 @@ let config: AnalyticsConfig | null = null;
  */
 export function init(options: AnalyticsConfig): void {
   config = options;
+}
 
-  // Immediately fire a page view when init is called
+/**
+ * Initialize the analytics SDK and immediately track a pageview
+ * @param options Configuration options
+ */
+export function initWithPageview(options: AnalyticsConfig): void {
+  config = options;
   trackPageview();
 }
 

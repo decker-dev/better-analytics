@@ -95,5 +95,5 @@ export function Analytics(props: AnalyticsProps = {}): null {
 }
 
 // Re-export everything from the core module for convenience
-export { init, track, trackPageview } from './index';
+export { init, initWithPageview, track, trackPageview } from './index';
 export type { AnalyticsConfig, EventData } from './index'; 
