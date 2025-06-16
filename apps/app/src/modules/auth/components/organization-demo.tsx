@@ -66,12 +66,30 @@ export default function OrganizationDemo() {
 
   const loadOrganizations = async () => {
     try {
-      const result = await authClient.organization.listOrganizations();
-      if (result.data) {
-        setOrganizations(result.data);
+      const result = await authClient.organization.list();
+
+      if (result.error) {
+        setMessage(`Error loading organizations: ${result.error.message}`);
+      } else if (result.data) {
+        // Map the data to include the role field
+        const mappedOrganizations = result.data.map(
+          (org: { id: string; name: string; slug: string; role?: string }) => ({
+            id: org.id,
+            name: org.name,
+            slug: org.slug,
+            role: org.role || "member", // Default to 'member' if role is not provided
+          }),
+        );
+        setOrganizations(mappedOrganizations);
+        setMessage(`Loaded ${result.data.length} organizations`);
+      } else {
+        setOrganizations([]);
+        setMessage("No organizations found");
       }
     } catch (error) {
-      console.error("Failed to load organizations:", error);
+      setMessage(
+        `Exception loading organizations: ${error instanceof Error ? error.message : "Unknown error"}`,
+      );
     }
   };
 
