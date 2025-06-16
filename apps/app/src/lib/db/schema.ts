@@ -1,7 +1,6 @@
-import { sqliteTable, text, integer } from 'drizzle-orm/sqlite-core';
-import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
 
-export const events = sqliteTable('events', {
+export const events = pgTable('events', {
   id: text('id').primaryKey(),
   site: text('site').notNull(),
   ts: integer('ts').notNull(),
@@ -12,29 +11,29 @@ export const events = sqliteTable('events', {
 });
 
 // Better Auth tables
-export const user = sqliteTable('user', {
+export const user = pgTable('user', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
-  emailVerified: integer('emailVerified', { mode: 'boolean' }).notNull(),
+  emailVerified: boolean('emailVerified').notNull(),
   image: text('image'),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-export const session = sqliteTable('session', {
+export const session = pgTable('session', {
   id: text('id').primaryKey(),
-  expiresAt: integer('expiresAt', { mode: 'timestamp' }).notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
   token: text('token').notNull().unique(),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
   ipAddress: text('ipAddress'),
   userAgent: text('userAgent'),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   activeOrganizationId: text('activeOrganizationId'),
 });
 
-export const account = sqliteTable('account', {
+export const account = pgTable('account', {
   id: text('id').primaryKey(),
   accountId: text('accountId').notNull(),
   providerId: text('providerId').notNull(),
@@ -42,67 +41,54 @@ export const account = sqliteTable('account', {
   accessToken: text('accessToken'),
   refreshToken: text('refreshToken'),
   idToken: text('idToken'),
-  accessTokenExpiresAt: integer('accessTokenExpiresAt', { mode: 'timestamp' }),
-  refreshTokenExpiresAt: integer('refreshTokenExpiresAt', { mode: 'timestamp' }),
+  accessTokenExpiresAt: timestamp('accessTokenExpiresAt'),
+  refreshTokenExpiresAt: timestamp('refreshTokenExpiresAt'),
   scope: text('scope'),
   password: text('password'),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-export const verification = sqliteTable('verification', {
+export const verification = pgTable('verification', {
   id: text('id').primaryKey(),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
-  expiresAt: integer('expiresAt', { mode: 'timestamp' }).notNull(),
-  createdAt: integer('createdAt', { mode: 'timestamp' }),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }),
+  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('createdAt').defaultNow(),
+  updatedAt: timestamp('updatedAt').defaultNow().$onUpdate(() => new Date()),
 });
 
 // Organization plugin tables
-export const organization = sqliteTable('organization', {
+export const organization = pgTable('organization', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   logo: text('logo'),
   metadata: text('metadata'),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-export const member = sqliteTable('member', {
+export const member = pgTable('member', {
   id: text('id').primaryKey(),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
   role: text('role').notNull(),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-export const invitation = sqliteTable('invitation', {
+export const invitation = pgTable('invitation', {
   id: text('id').primaryKey(),
   email: text('email').notNull(),
   inviterId: text('inviterId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
   role: text('role').notNull(),
   status: text('status').notNull(),
-  expiresAt: integer('expiresAt', { mode: 'timestamp' }).notNull(),
-  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
-  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+  expiresAt: timestamp('expiresAt').notNull(),
+  createdAt: timestamp('createdAt').notNull().defaultNow(),
+  updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
-
-// Zod schemas for validation
-export const insertEventSchema = createInsertSchema(events);
-export const selectEventSchema = createSelectSchema(events);
-
-export const insertOrganizationSchema = createInsertSchema(organization);
-export const selectOrganizationSchema = createSelectSchema(organization);
-
-export const insertMemberSchema = createInsertSchema(member);
-export const selectMemberSchema = createSelectSchema(member);
-
-export const insertInvitationSchema = createInsertSchema(invitation);
-export const selectInvitationSchema = createSelectSchema(invitation);
 
 // TypeScript types
 export type Event = typeof events.$inferSelect;

@@ -56,11 +56,8 @@ export async function POST(request: NextRequest) {
       props: validatedData.props ? JSON.stringify(validatedData.props) : null,
     };
 
-    // Validar con el schema de la base de datos
-    const validatedEvent = schema.insertEventSchema.parse(eventToInsert);
-
-    // Insertar en la base de datos
-    await db.insert(schema.events).values(validatedEvent);
+    // Insertar en la base de datos directamente
+    await db.insert(schema.events).values(eventToInsert);
 
     return NextResponse.json({ success: true });
   } catch (error) {

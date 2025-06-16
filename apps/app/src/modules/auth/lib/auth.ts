@@ -14,7 +14,7 @@ const resend = new Resend(env.RESEND_API_KEY);
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'sqlite',
+    provider: 'pg',
   }),
   emailAndPassword: {
     enabled: false, // We only want magic link authentication

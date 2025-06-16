@@ -7,6 +7,9 @@ export const env = createEnv({
    * Will throw if you access these variables on the client.
    */
   server: {
+    // Database
+    DATABASE_URL: z.string().url(),
+
     // Better Auth
     BETTER_AUTH_SECRET: z.string().min(1),
     BETTER_AUTH_URL: z.string().url().optional(),
@@ -36,6 +39,7 @@ export const env = createEnv({
    */
   runtimeEnv: {
     // Server
+    DATABASE_URL: process.env.DATABASE_URL,
     BETTER_AUTH_SECRET: process.env.BETTER_AUTH_SECRET,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
