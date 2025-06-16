@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { authClient } from "@/modules/auth/lib/auth-client";
 import {
   Card,
@@ -17,14 +18,11 @@ import { Alert, AlertDescription } from "@repo/ui/components/alert";
 export const OrganizationActions = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
   // Create organization form
   const [orgName, setOrgName] = useState("");
   const [orgSlug, setOrgSlug] = useState("");
-
-  // Invite member form
-  const [inviteEmail, setInviteEmail] = useState("");
-  const [selectedOrgId, setSelectedOrgId] = useState("");
 
   const handleCreateOrganization = async () => {
     if (!orgName || !orgSlug) {
@@ -42,9 +40,15 @@ export const OrganizationActions = () => {
       if (result.error) {
         setMessage(`Error: ${result.error.message}`);
       } else {
-        setMessage("Organization created successfully! Refresh to see it.");
+        setMessage("Organization created successfully! Redirecting...");
         setOrgName("");
         setOrgSlug("");
+
+        // Refresh the router cache and redirect to the new organization
+        router.refresh();
+        setTimeout(() => {
+          router.push(`/${orgSlug}/dashboard`);
+        }, 1000);
       }
     } catch (error) {
       setMessage(

@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 interface Organization {
   id: string;
@@ -18,8 +19,15 @@ export const OrgSwitcher = ({
   currentOrgSlug,
 }: OrgSwitcherProps) => {
   const router = useRouter();
+  const [selectedSlug, setSelectedSlug] = useState(currentOrgSlug);
+
+  // Sync with prop changes
+  useEffect(() => {
+    setSelectedSlug(currentOrgSlug);
+  }, [currentOrgSlug]);
 
   const handleOrgChange = (newSlug: string) => {
+    setSelectedSlug(newSlug);
     if (newSlug !== currentOrgSlug) {
       router.push(`/${newSlug}/dashboard`);
     }
@@ -28,7 +36,7 @@ export const OrgSwitcher = ({
   return (
     <select
       className="border rounded px-3 py-1 text-sm"
-      defaultValue={currentOrgSlug}
+      value={selectedSlug}
       onChange={(e) => handleOrgChange(e.target.value)}
     >
       {organizations.map((org) => (
