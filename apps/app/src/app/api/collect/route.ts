@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
         cpu: userAgentInfo.cpu.architecture || undefined,
       })
     };
-    console.log(extendedProps);
 
     // Preparar los datos para insertar en la base de datos
     const eventToInsert = {
@@ -55,6 +54,7 @@ export async function POST(request: NextRequest) {
       ref: validatedData.referrer || null,
       props: validatedData.props ? JSON.stringify(validatedData.props) : null,
     };
+    console.log(eventToInsert);
 
     // Insertar en la base de datos directamente
     await db.insert(schema.events).values(eventToInsert);
