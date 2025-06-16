@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     const eventToInsert = {
       id: nanoid(),
       site: site,
-      ts: validatedData.timestamp,
+      ts: validatedData.timestamp.toString(),
       evt: validatedData.event,
       url: validatedData.url || null,
       ref: validatedData.referrer || null,

@@ -3,7 +3,7 @@ import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
 export const events = pgTable('events', {
   id: text('id').primaryKey(),
   site: text('site').notNull(),
-  ts: integer('ts').notNull(),
+  ts: text('ts').notNull(),
   evt: text('evt').notNull(),
   url: text('url'),
   ref: text('ref'),
