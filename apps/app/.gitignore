@@ -38,6 +38,3 @@ next-env.d.ts
 local.db
 local.db-wal
 local.db-shm
-
-# Drizzle
-/drizzle
