@@ -3,6 +3,7 @@ import {
 } from 'better-auth';
 import {
   magicLink,
+  organization,
 } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '@/lib/db';
@@ -48,6 +49,39 @@ export const auth = betterAuth({
           console.log('Magic link sent successfully to:', data.email);
         } catch (error) {
           console.error('Failed to send magic link:', error);
+          throw error;
+        }
+      },
+    }),
+    organization({
+      async sendInvitationEmail(data) {
+        // Send organization invitation email using Resend
+        try {
+          await resend.emails.send({
+            from: 'Acme <onboarding@resend.dev>',
+            to: data.email,
+            subject: `You've been invited to join ${data.organization.name}`,
+            html: `
+              <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
+                <h1 style="color: #333; text-align: center;">You've been invited!</h1>
+                <p style="color: #666; text-align: center; margin-bottom: 20px;">
+                  ${data.inviter.user.name || data.inviter.user.email} has invited you to join <strong>${data.organization.name}</strong> as a ${data.role}.
+                </p>
+                <div style="text-align: center; margin: 30px 0;">
+                  <a href="${env.NEXT_PUBLIC_APP_URL}/accept-invitation/${data.invitation.id}" 
+                     style="background: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: bold;">
+                    Accept Invitation
+                  </a>
+                </div>
+                <p style="color: #999; font-size: 14px; text-align: center;">
+                  This invitation will expire in 48 hours. If you don't want to join this organization, you can safely ignore this email.
+                </p>
+              </div>
+            `,
+          });
+          console.log('Organization invitation sent successfully to:', data.email);
+        } catch (error) {
+          console.error('Failed to send organization invitation:', error);
           throw error;
         }
       },

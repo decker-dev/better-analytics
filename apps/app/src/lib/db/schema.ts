@@ -31,6 +31,7 @@ export const session = sqliteTable('session', {
   ipAddress: text('ipAddress'),
   userAgent: text('userAgent'),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  activeOrganizationId: text('activeOrganizationId'),
 });
 
 export const account = sqliteTable('account', {
@@ -58,10 +59,60 @@ export const verification = sqliteTable('verification', {
   updatedAt: integer('updatedAt', { mode: 'timestamp' }),
 });
 
+// Organization plugin tables
+export const organization = sqliteTable('organization', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  slug: text('slug').notNull().unique(),
+  logo: text('logo'),
+  metadata: text('metadata'),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+});
+
+export const member = sqliteTable('member', {
+  id: text('id').primaryKey(),
+  userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+});
+
+export const invitation = sqliteTable('invitation', {
+  id: text('id').primaryKey(),
+  email: text('email').notNull(),
+  inviterId: text('inviterId').notNull().references(() => user.id, { onDelete: 'cascade' }),
+  organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
+  role: text('role').notNull(),
+  status: text('status').notNull(),
+  expiresAt: integer('expiresAt', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp' }).notNull(),
+  updatedAt: integer('updatedAt', { mode: 'timestamp' }).notNull(),
+});
+
 // Zod schemas for validation
 export const insertEventSchema = createInsertSchema(events);
 export const selectEventSchema = createSelectSchema(events);
 
+export const insertOrganizationSchema = createInsertSchema(organization);
+export const selectOrganizationSchema = createSelectSchema(organization);
+
+export const insertMemberSchema = createInsertSchema(member);
+export const selectMemberSchema = createSelectSchema(member);
+
+export const insertInvitationSchema = createInsertSchema(invitation);
+export const selectInvitationSchema = createSelectSchema(invitation);
+
 // TypeScript types
 export type Event = typeof events.$inferSelect;
-export type NewEvent = typeof events.$inferInsert; 
+export type NewEvent = typeof events.$inferInsert;
+
+export type Organization = typeof organization.$inferSelect;
+export type NewOrganization = typeof organization.$inferInsert;
+
+export type Member = typeof member.$inferSelect;
+export type NewMember = typeof member.$inferInsert;
+
+export type Invitation = typeof invitation.$inferSelect;
+export type NewInvitation = typeof invitation.$inferInsert; 

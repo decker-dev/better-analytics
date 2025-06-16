@@ -10,6 +10,7 @@ import {
 import { Button } from "@repo/ui/components/button";
 import { Loader2, User, Mail, LogOut } from "lucide-react";
 import Link from "next/link";
+import OrganizationDemo from "@/modules/auth/components/organization-demo";
 
 export default function HomePage() {
   const { data: session, isPending } = useSession();
@@ -58,53 +59,37 @@ export default function HomePage() {
       <div className="max-w-4xl mx-auto space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              User Profile
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4 text-gray-500" />
-              <span>{session.user.email}</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="font-medium">User ID:</span>
-                <p className="text-gray-600 break-all">{session.user.id}</p>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Welcome back!
               </div>
-              <div>
-                <span className="font-medium">Email Verified:</span>
-                <p className="text-gray-600">
-                  {session.user.emailVerified ? "✅ Yes" : "❌ No"}
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t">
-              <Button
-                onClick={handleSignOut}
-                variant="outline"
-                className="gap-2"
-              >
-                <LogOut className="h-4 w-4" />
+              <Button variant="outline" onClick={handleSignOut}>
+                <LogOut className="h-4 w-4 mr-2" />
                 Sign Out
               </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4" />
+                <span>{session.user.email}</span>
+              </div>
+              {session.user.name && (
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <span>{session.user.name}</span>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Analytics Dashboard</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-gray-600">
-              Your analytics dashboard content will go here...
-            </p>
-          </CardContent>
-        </Card>
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Organization Management</h2>
+          <OrganizationDemo />
+        </div>
       </div>
     </div>
   );
