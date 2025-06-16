@@ -1,8 +1,8 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { OrgNavigation } from "@/components/org-navigation";
-import { OrgSwitcher } from "@/components/org-switcher";
+import { OrgNavigation } from "@/modules/auth/components/org-navigation";
+import { OrgSwitcher } from "@/modules/auth/components/org-switcher";
 
 interface OrgLayoutProps {
   children: React.ReactNode;
