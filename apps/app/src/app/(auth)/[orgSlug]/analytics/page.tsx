@@ -8,7 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { BarChart3, TrendingUp, Eye, MousePointer } from "lucide-react";
+import {
+  BarChart3,
+  TrendingUp,
+  Eye,
+  MousePointer,
+  Monitor,
+  Smartphone,
+  Globe,
+} from "lucide-react";
 
 interface AnalyticsPageProps {
   params: Promise<{ orgSlug: string }>;
@@ -30,23 +38,23 @@ async function getAnalyticsStats(site: string) {
 
   // Visitantes únicos (aproximado usando referrers únicos)
   const uniqueVisitors = await db
-    .select({ count: sql<number>`COUNT(DISTINCT ${schema.events.ref})` })
+    .select({ count: sql<number>`COUNT(DISTINCT ${schema.events.sessionId})` })
     .from(schema.events)
     .where(
-      sql`${schema.events.site} = ${site} AND ${schema.events.evt} = 'pageview'`,
+      sql`${schema.events.site} = ${site} AND ${schema.events.evt} = 'pageview' AND ${schema.events.sessionId} IS NOT NULL`,
     );
 
   // Páginas más visitadas
   const topPages = await db
     .select({
-      page: sql<string>`${schema.events.url}`,
+      page: sql<string>`${schema.events.pathname}`,
       views: count(),
     })
     .from(schema.events)
     .where(
-      sql`${schema.events.site} = ${site} AND ${schema.events.evt} = 'pageview'`,
+      sql`${schema.events.site} = ${site} AND ${schema.events.evt} = 'pageview' AND ${schema.events.pathname} IS NOT NULL`,
     )
-    .groupBy(schema.events.url)
+    .groupBy(schema.events.pathname)
     .orderBy(desc(count()))
     .limit(10);
 
@@ -64,11 +72,66 @@ async function getAnalyticsStats(site: string) {
     .orderBy(desc(count()))
     .limit(10);
 
+  // Navegadores más usados
+  const topBrowsers = await db
+    .select({
+      browser: sql<string>`${schema.events.browser}`,
+      count: count(),
+    })
+    .from(schema.events)
+    .where(
+      sql`${schema.events.site} = ${site} AND ${schema.events.browser} IS NOT NULL`,
+    )
+    .groupBy(schema.events.browser)
+    .orderBy(desc(count()))
+    .limit(10);
+
+  // Sistemas operativos más usados
+  const topOS = await db
+    .select({
+      os: sql<string>`${schema.events.os}`,
+      count: count(),
+    })
+    .from(schema.events)
+    .where(
+      sql`${schema.events.site} = ${site} AND ${schema.events.os} IS NOT NULL`,
+    )
+    .groupBy(schema.events.os)
+    .orderBy(desc(count()))
+    .limit(10);
+
+  // Tipos de dispositivos
+  const deviceTypes = await db
+    .select({
+      device: sql<string>`COALESCE(${schema.events.device}, 'desktop')`,
+      count: count(),
+    })
+    .from(schema.events)
+    .where(sql`${schema.events.site} = ${site}`)
+    .groupBy(sql`COALESCE(${schema.events.device}, 'desktop')`)
+    .orderBy(desc(count()));
+
+  // Resoluciones de pantalla más comunes
+  const topResolutions = await db
+    .select({
+      resolution: sql<string>`${schema.events.screenWidth} || 'x' || ${schema.events.screenHeight}`,
+      count: count(),
+    })
+    .from(schema.events)
+    .where(
+      sql`${schema.events.site} = ${site} AND ${schema.events.screenWidth} IS NOT NULL AND ${schema.events.screenHeight} IS NOT NULL`,
+    )
+    .groupBy(
+      sql`${schema.events.screenWidth} || 'x' || ${schema.events.screenHeight}`,
+    )
+    .orderBy(desc(count()))
+    .limit(10);
+
   return {
     totalPageViews: totalPageViews[0]?.count || 0,
     uniqueVisitors: uniqueVisitors[0]?.count || 0,
-    topPages: topPages.map((page, index) => ({
-      page: page.page ? new URL(page.page).pathname : "Unknown",
+    topPages: topPages.map((page) => ({
+      page: page.page || "Unknown",
       views: page.views,
       change: "+0%", // Por ahora, podrías calcular esto comparando con períodos anteriores
     })),
@@ -81,6 +144,22 @@ async function getAnalyticsStats(site: string) {
           totalVisits > 0 ? Math.round((ref.visits / totalVisits) * 100) : 0,
       };
     }),
+    topBrowsers: topBrowsers.map((browser) => ({
+      name: browser.browser || "Unknown",
+      count: browser.count,
+    })),
+    topOS: topOS.map((os) => ({
+      name: os.os || "Unknown",
+      count: os.count,
+    })),
+    deviceTypes: deviceTypes.map((device) => ({
+      type: device.device || "desktop",
+      count: device.count,
+    })),
+    topResolutions: topResolutions.map((res) => ({
+      resolution: res.resolution || "Unknown",
+      count: res.count,
+    })),
   };
 }
 
@@ -134,7 +213,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Unique Visitors
+              Unique Sessions
             </CardTitle>
             <MousePointer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -142,7 +221,7 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
             <div className="text-2xl font-bold">
               {analyticsData.uniqueVisitors.toLocaleString()}
             </div>
-            <p className="text-xs text-muted-foreground">Unique referrers</p>
+            <p className="text-xs text-muted-foreground">Unique sessions</p>
           </CardContent>
         </Card>
 
@@ -180,14 +259,14 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
           <CardContent>
             <div className="space-y-4">
               {analyticsData.topPages.length > 0 ? (
-                analyticsData.topPages.map((page, index) => (
+                analyticsData.topPages.map((page) => (
                   <div
                     key={page.page}
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium">
-                        {index + 1}
+                        {analyticsData.topPages.indexOf(page) + 1}
                       </div>
                       <div>
                         <p className="font-medium">{page.page}</p>
@@ -249,6 +328,130 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
         </Card>
       </div>
 
+      {/* Browser and Device Analytics */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Top Browsers */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Globe className="h-5 w-5" />
+              Top Browsers
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analyticsData.topBrowsers.length > 0 ? (
+                analyticsData.topBrowsers.map((browser) => (
+                  <div
+                    key={browser.name}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-sm font-medium">{browser.name}</span>
+                    <span className="text-sm text-gray-500">
+                      {browser.count}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">
+                  No browser data
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Operating Systems */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Monitor className="h-5 w-5" />
+              Operating Systems
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analyticsData.topOS.length > 0 ? (
+                analyticsData.topOS.map((os) => (
+                  <div
+                    key={os.name}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-sm font-medium">{os.name}</span>
+                    <span className="text-sm text-gray-500">{os.count}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No OS data</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Device Types */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Smartphone className="h-5 w-5" />
+              Device Types
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {analyticsData.deviceTypes.length > 0 ? (
+                analyticsData.deviceTypes.map((device) => (
+                  <div
+                    key={device.type}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-sm font-medium capitalize">
+                      {device.type}
+                    </span>
+                    <span className="text-sm text-gray-500">
+                      {device.count}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-gray-500 text-center py-4">No device data</p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Screen Resolutions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Screen Resolutions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {analyticsData.topResolutions.length > 0 ? (
+              analyticsData.topResolutions.map((resolution) => (
+                <div
+                  key={resolution.resolution}
+                  className="text-center p-3 bg-gray-50 rounded-lg"
+                >
+                  <div className="font-medium text-sm">
+                    {resolution.resolution}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {resolution.count} users
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full">
+                <p className="text-gray-500 text-center py-4">
+                  No resolution data
+                </p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Debug Info */}
       <Card>
         <CardHeader>
@@ -259,6 +462,9 @@ export default async function AnalyticsPage({ params }: AnalyticsPageProps) {
             <p>Site ID: {siteId}</p>
             <p>Organization: {currentOrg?.name}</p>
             <p>Total Events: {analyticsData.totalPageViews}</p>
+            <p>Browsers tracked: {analyticsData.topBrowsers.length}</p>
+            <p>OS tracked: {analyticsData.topOS.length}</p>
+            <p>Device types: {analyticsData.deviceTypes.length}</p>
           </div>
         </CardContent>
       </Card>

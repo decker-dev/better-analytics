@@ -8,6 +8,54 @@ export const events = pgTable('events', {
   url: text('url'),
   ref: text('ref'),
   props: text('props'),
+
+  // User Agent information (parsed)
+  userAgent: text('userAgent'), // Raw user agent string
+  browser: text('browser'), // e.g., "Chrome 120.0"
+  os: text('os'), // e.g., "macOS 14.1"
+  device: text('device'), // e.g., "desktop", "mobile", "tablet"
+  deviceVendor: text('deviceVendor'), // e.g., "Apple", "Samsung"
+  deviceModel: text('deviceModel'), // e.g., "iPhone", "MacBook Pro"
+  engine: text('engine'), // e.g., "Blink", "WebKit"
+  cpu: text('cpu'), // e.g., "amd64", "arm64"
+
+  // Geographic information (if available)
+  country: text('country'), // e.g., "US", "ES"
+  region: text('region'), // e.g., "California", "Madrid"
+  city: text('city'), // e.g., "San Francisco", "Madrid"
+
+  // Session information
+  sessionId: text('sessionId'), // To group events by session
+  userId: text('userId'), // If user is identified
+
+  // Page information
+  pageTitle: text('pageTitle'), // Page title
+  pathname: text('pathname'), // Just the path part of URL
+  hostname: text('hostname'), // Just the hostname
+
+  // Performance metrics (optional)
+  loadTime: integer('loadTime'), // Page load time in ms
+
+  // UTM parameters for marketing attribution
+  utmSource: text('utmSource'),
+  utmMedium: text('utmMedium'),
+  utmCampaign: text('utmCampaign'),
+  utmTerm: text('utmTerm'),
+  utmContent: text('utmContent'),
+
+  // Screen resolution
+  screenWidth: integer('screenWidth'),
+  screenHeight: integer('screenHeight'),
+
+  // Viewport size
+  viewportWidth: integer('viewportWidth'),
+  viewportHeight: integer('viewportHeight'),
+
+  // Language
+  language: text('language'), // e.g., "en-US", "es-ES"
+
+  // Timestamps
+  createdAt: timestamp('createdAt').defaultNow(),
 });
 
 // Better Auth tables

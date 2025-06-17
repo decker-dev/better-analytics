@@ -15,6 +15,13 @@
       "when": 1750097370360,
       "tag": "0001_cuddly_jamie_braddock",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1750114114261,
+      "tag": "0002_little_darkstar",
+      "breakpoints": true
     }
   ]
 }
