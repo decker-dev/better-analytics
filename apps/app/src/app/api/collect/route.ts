@@ -7,37 +7,47 @@ import UAParser from 'my-ua-parser';
 // Schema para validar los datos de entrada del SDK
 const incomingEventSchema = z.object({
   event: z.string(),
-  props: z.record(z.any()).optional(),
   timestamp: z.number(),
   url: z.string().optional(),
   referrer: z.string().optional(),
-  userAgent: z.string().optional(),
   site: z.string().optional(),
+
+  // Session & User
+  sessionId: z.string().optional(),
+  userId: z.string().optional(),
+
+  // Device info (optional object)
+  device: z.object({
+    userAgent: z.string().optional(),
+    screenWidth: z.number().optional(),
+    screenHeight: z.number().optional(),
+    viewportWidth: z.number().optional(),
+    viewportHeight: z.number().optional(),
+    language: z.string().optional(),
+    timezone: z.string().optional(),
+    connectionType: z.string().optional(),
+  }).optional(),
+
+  // Page info (optional object)
+  page: z.object({
+    title: z.string().optional(),
+    pathname: z.string().optional(),
+    hostname: z.string().optional(),
+    loadTime: z.number().optional(),
+  }).optional(),
+
+  // UTM parameters (optional object)
+  utm: z.object({
+    source: z.string().optional(),
+    medium: z.string().optional(),
+    campaign: z.string().optional(),
+    term: z.string().optional(),
+    content: z.string().optional(),
+  }).optional(),
+
+  // Custom properties
+  props: z.record(z.any()).optional(),
 });
-
-// Función para extraer parámetros UTM de una URL
-function extractUtmParams(url: string) {
-  try {
-    const urlObj = new URL(url);
-    return {
-      utmSource: urlObj.searchParams.get('utm_source'),
-      utmMedium: urlObj.searchParams.get('utm_medium'),
-      utmCampaign: urlObj.searchParams.get('utm_campaign'),
-      utmTerm: urlObj.searchParams.get('utm_term'),
-      utmContent: urlObj.searchParams.get('utm_content'),
-    };
-  } catch {
-    return {
-      utmSource: null,
-      utmMedium: null,
-      utmCampaign: null,
-      utmTerm: null,
-      utmContent: null,
-    };
-  }
-}
-
-
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,19 +63,10 @@ export async function POST(request: NextRequest) {
     const site = validatedData.site || props.hostname as string || 'unknown';
 
     // Parsear el user agent solo para información básica
-    const userAgentInfo = validatedData.userAgent ? UAParser(validatedData.userAgent) : null;
-
-    // Extraer UTM params de la URL
-    const utmParams = validatedData.url ? extractUtmParams(validatedData.url) : {
-      utmSource: null,
-      utmMedium: null,
-      utmCampaign: null,
-      utmTerm: null,
-      utmContent: null,
-    };
+    const userAgentInfo = validatedData.device?.userAgent ? UAParser(validatedData.device.userAgent) : null;
 
     // Session ID viene del SDK
-    const sessionId = props.sessionId as string || null;
+    const sessionId = validatedData.sessionId || props.sessionId as string || null;
 
     // Preparar los datos para insertar - usar principalmente datos del SDK
     const eventToInsert = {
@@ -78,7 +79,7 @@ export async function POST(request: NextRequest) {
       props: validatedData.props ? JSON.stringify(validatedData.props) : null,
 
       // User Agent information (básica)
-      userAgent: validatedData.userAgent || null,
+      userAgent: validatedData.device?.userAgent || null,
       browser: userAgentInfo?.browser.name ?
         `${userAgentInfo.browser.name} ${userAgentInfo.browser.version || ''}`.trim() : null,
       os: userAgentInfo?.os.name ?
@@ -96,31 +97,31 @@ export async function POST(request: NextRequest) {
 
       // Session information
       sessionId: sessionId,
-      userId: null,
+      userId: validatedData.userId || null,
 
       // Page information (del SDK)
-      pageTitle: props.pageTitle as string || null,
-      pathname: props.pathname as string || null,
-      hostname: props.hostname as string || null,
+      pageTitle: validatedData.page?.title || null,
+      pathname: validatedData.page?.pathname || null,
+      hostname: validatedData.page?.hostname || null,
 
       // Performance metrics (del SDK)
-      loadTime: props.loadTime as number || null,
+      loadTime: validatedData.page?.loadTime || null,
 
-      // UTM parameters
-      utmSource: utmParams.utmSource,
-      utmMedium: utmParams.utmMedium,
-      utmCampaign: utmParams.utmCampaign,
-      utmTerm: utmParams.utmTerm,
-      utmContent: utmParams.utmContent,
+      // UTM parameters (ahora vienen del SDK)
+      utmSource: validatedData.utm?.source || null,
+      utmMedium: validatedData.utm?.medium || null,
+      utmCampaign: validatedData.utm?.campaign || null,
+      utmTerm: validatedData.utm?.term || null,
+      utmContent: validatedData.utm?.content || null,
 
       // Screen and viewport information (del SDK)
-      screenWidth: props.screenWidth as number || null,
-      screenHeight: props.screenHeight as number || null,
-      viewportWidth: props.viewportWidth as number || null,
-      viewportHeight: props.viewportHeight as number || null,
+      screenWidth: validatedData.device?.screenWidth || null,
+      screenHeight: validatedData.device?.screenHeight || null,
+      viewportWidth: validatedData.device?.viewportWidth || null,
+      viewportHeight: validatedData.device?.viewportHeight || null,
 
       // Language (del SDK)
-      language: props.language as string || null,
+      language: validatedData.device?.language || null,
     };
 
     console.log(eventToInsert);

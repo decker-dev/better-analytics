@@ -59,7 +59,7 @@ describe('Better Analytics SDK', () => {
     });
 
     const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
-    expect(callBody.props).toEqual({ button: 'signup' });
+    expect(callBody.props).toMatchObject({ button: 'signup' });
   });
 
   it('should include metadata in events', async () => {
@@ -72,8 +72,29 @@ describe('Better Analytics SDK', () => {
       event: 'test_event',
       url: 'https://example.com/test',
       referrer: 'https://google.com',
-      userAgent: 'Mozilla/5.0 (Test Browser)',
       timestamp: expect.any(Number),
+    });
+
+    // Check that device info is included
+    expect(callBody.device).toBeDefined();
+    expect(callBody.device.userAgent).toBe('Mozilla/5.0 (Test Browser)');
+  });
+
+  it('should extract UTM parameters from URL', async () => {
+    // Mock window.location with UTM parameters
+    Object.defineProperty(window, 'location', {
+      value: { href: 'https://example.com/test?utm_source=google&utm_medium=cpc&utm_campaign=summer' },
+      writable: true,
+    });
+
+    init({ endpoint: '/api/collect' });
+    track('test_event');
+
+    const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+    expect(callBody.utm).toMatchObject({
+      source: 'google',
+      medium: 'cpc',
+      campaign: 'summer',
     });
   });
 
