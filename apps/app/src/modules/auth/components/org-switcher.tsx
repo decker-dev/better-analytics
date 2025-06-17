@@ -29,7 +29,7 @@ export const OrgSwitcher = ({
   const handleOrgChange = (newSlug: string) => {
     setSelectedSlug(newSlug);
     if (newSlug !== currentOrgSlug) {
-      router.push(`/${newSlug}/dashboard`);
+      router.push(`/${newSlug}/stats`);
     }
   };
 

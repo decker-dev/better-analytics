@@ -53,7 +53,7 @@ export default async function HomePage() {
 
   // If user has organizations, redirect to the first one
   if (organizations && organizations.length > 0) {
-    redirect(`/${organizations[0]!.slug}/dashboard`);
+    redirect(`/${organizations[0]!.slug}/stats`);
   }
 
   // If no organizations, show organization creation page

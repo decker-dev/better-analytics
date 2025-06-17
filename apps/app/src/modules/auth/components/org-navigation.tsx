@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Settings, Home } from "lucide-react";
+import { BarChart3, Settings } from "lucide-react";
 
 interface OrgNavigationProps {
   orgSlug: string;
@@ -13,16 +13,10 @@ export const OrgNavigation = ({ orgSlug }: OrgNavigationProps) => {
 
   const navigation = [
     {
-      name: "Dashboard",
-      href: `/${orgSlug}/dashboard`,
-      icon: Home,
-      current: pathname === `/${orgSlug}/dashboard`,
-    },
-    {
-      name: "Analytics",
-      href: `/${orgSlug}/analytics`,
+      name: "Stats",
+      href: `/${orgSlug}/stats`,
       icon: BarChart3,
-      current: pathname === `/${orgSlug}/analytics`,
+      current: pathname === `/${orgSlug}/stats`,
     },
     {
       name: "Settings",

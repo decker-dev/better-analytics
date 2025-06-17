@@ -21,14 +21,14 @@ export function middleware(request: NextRequest) {
   }
 
   // For organization routes, ensure they follow the pattern /{orgSlug}/{page}
-  const orgRouteMatch = pathname.match(/^\/([^\/]+)\/?(dashboard|analytics|settings)?$/);
+  const orgRouteMatch = pathname.match(/^\/([^\/]+)\/?(stats|settings)?$/);
 
   if (orgRouteMatch) {
     const [, orgSlug, page] = orgRouteMatch;
 
-    // If no page specified, redirect to dashboard
+    // If no page specified, redirect to stats
     if (!page) {
-      return NextResponse.redirect(new URL(`/${orgSlug}/dashboard`, request.url));
+      return NextResponse.redirect(new URL(`/${orgSlug}/stats`, request.url));
     }
   }
 

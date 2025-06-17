@@ -47,7 +47,7 @@ export const OrganizationActions = () => {
         // Refresh the router cache and redirect to the new organization
         router.refresh();
         setTimeout(() => {
-          router.push(`/${orgSlug}/dashboard`);
+          router.push(`/${orgSlug}/stats`);
         }, 1000);
       }
     } catch (error) {
