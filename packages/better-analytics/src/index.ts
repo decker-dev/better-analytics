@@ -18,6 +18,7 @@ interface EventData {
 
   // Session & User
   sessionId?: string;
+  deviceId?: string;
   userId?: string;
 
   // Device & Browser (only send if available)
@@ -88,24 +89,84 @@ function extractUtmParams(url: string): Record<string, string | null> {
 }
 
 /**
+ * Simple, efficient session & device tracking
+ */
+function getSessionId(): string {
+  if (typeof window === 'undefined') return 'ssr';
+
+  // Try to get existing session from localStorage (30 min timeout)
+  try {
+    const stored = localStorage.getItem('ba_s');
+    if (stored) {
+      const { id, t } = JSON.parse(stored);
+      // Check if session is still valid (30 minutes)
+      if (Date.now() - t < 1800000) {
+        // Update timestamp and return existing session
+        localStorage.setItem('ba_s', JSON.stringify({ id, t: Date.now() }));
+        return id;
+      }
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+
+  // Generate new session: timestamp + random
+  const sessionId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+  try {
+    localStorage.setItem('ba_s', JSON.stringify({ id: sessionId, t: Date.now() }));
+  } catch {
+    // Ignore if localStorage unavailable
+  }
+
+  return sessionId;
+}
+
+/**
+ * Get persistent device ID (lightweight fingerprint)
+ */
+function getDeviceId(): string {
+  if (typeof window === 'undefined') return 'ssr';
+
+  // Try localStorage first
+  try {
+    const stored = localStorage.getItem('ba_d');
+    if (stored) return stored;
+  } catch {
+    // Ignore
+  }
+
+  // Generate lightweight device ID
+  const deviceId = crypto?.randomUUID?.() ||
+    `${Date.now().toString(36)}-${Math.random().toString(36).substring(2)}-${
+    // Simple fingerprint
+    Math.abs([
+      navigator.language || '',
+      screen.width || 0,
+      screen.height || 0,
+      new Date().getTimezoneOffset()
+    ].join('|').split('').reduce((acc, char) => {
+      const hash = (acc << 5) - acc + char.charCodeAt(0);
+      return hash & hash;
+    }, 0)).toString(36)
+    }`;
+
+  try {
+    localStorage.setItem('ba_d', deviceId);
+  } catch {
+    // Ignore
+  }
+
+  return deviceId;
+}
+
+/**
  * Generate a session ID that lasts approximately 30 minutes
+ * @deprecated Use getSessionId() instead
  */
 function generateSessionId(): string {
-  if (typeof window === 'undefined') return '';
-
-  // Create a session ID that lasts approximately 30 minutes
-  const sessionWindow = 30 * 60 * 1000; // 30 minutes in ms
-  const now = Date.now();
-  const sessionTimestamp = Math.floor(now / sessionWindow) * sessionWindow;
-
-  // Use a combination of user agent and timestamp for uniqueness
-  const userAgent = navigator.userAgent || '';
-  const hash = userAgent.split('').reduce((acc, char) => {
-    const newAcc = ((acc << 5) - acc) + char.charCodeAt(0);
-    return newAcc & newAcc;
-  }, 0);
-
-  return `${sessionTimestamp}-${Math.abs(hash)}`;
+  // Keep for backward compatibility
+  return getSessionId();
 }
 
 /**
@@ -116,6 +177,7 @@ function getBrowserInfo(): {
   page?: EventData['page'];
   utm?: EventData['utm'];
   sessionId?: string;
+  deviceId?: string;
 } {
   if (typeof window === 'undefined') return {};
 
@@ -209,10 +271,13 @@ function getBrowserInfo(): {
     }
   }
 
-  // Session ID
-  result.sessionId = generateSessionId();
+  // Session and device IDs
+  result.sessionId = getSessionId();
 
-  return result;
+  return {
+    ...result,
+    deviceId: getDeviceId(),
+  };
 }
 
 /**
@@ -262,6 +327,7 @@ export function track(event: string, props?: Record<string, unknown>): void {
 
     // Add browser info if available
     ...(browserInfo.sessionId && { sessionId: browserInfo.sessionId }),
+    ...(browserInfo.deviceId && { deviceId: browserInfo.deviceId }),
     ...(browserInfo.device && { device: browserInfo.device }),
     ...(browserInfo.page && { page: browserInfo.page }),
     ...(browserInfo.utm && { utm: browserInfo.utm }),

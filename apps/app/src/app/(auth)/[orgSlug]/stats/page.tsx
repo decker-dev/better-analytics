@@ -378,7 +378,7 @@ export default async function StatsPage({ params }: StatsPageProps) {
               {stats.topPages.length > 0 ? (
                 stats.topPages.map((page, index) => (
                   <div
-                    key={page.page}
+                    key={`page-${index}-${page.page}`}
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center space-x-3">
@@ -416,7 +416,7 @@ export default async function StatsPage({ params }: StatsPageProps) {
               {stats.topReferrers.length > 0 ? (
                 stats.topReferrers.map((referrer, index) => (
                   <div
-                    key={referrer.source}
+                    key={`referrer-${index}-${referrer.source}`}
                     className="flex items-center justify-between"
                   >
                     <div className="flex items-center space-x-3">
@@ -455,9 +455,9 @@ export default async function StatsPage({ params }: StatsPageProps) {
           <CardContent>
             <div className="space-y-3">
               {stats.topBrowsers.length > 0 ? (
-                stats.topBrowsers.map((browser) => (
+                stats.topBrowsers.map((browser, index) => (
                   <div
-                    key={browser.name}
+                    key={`browser-${index}-${browser.name}`}
                     className="flex items-center justify-between"
                   >
                     <span className="text-sm font-medium">{browser.name}</span>
@@ -486,9 +486,9 @@ export default async function StatsPage({ params }: StatsPageProps) {
           <CardContent>
             <div className="space-y-3">
               {stats.topOS.length > 0 ? (
-                stats.topOS.map((os) => (
+                stats.topOS.map((os, index) => (
                   <div
-                    key={os.name}
+                    key={`os-${index}-${os.name}`}
                     className="flex items-center justify-between"
                   >
                     <span className="text-sm font-medium">{os.name}</span>
@@ -513,9 +513,9 @@ export default async function StatsPage({ params }: StatsPageProps) {
           <CardContent>
             <div className="space-y-3">
               {stats.topLanguages.length > 0 ? (
-                stats.topLanguages.map((lang) => (
+                stats.topLanguages.map((lang, index) => (
                   <div
-                    key={lang.language}
+                    key={`lang-${index}-${lang.language}`}
                     className="flex items-center justify-between"
                   >
                     <span className="text-sm font-medium">{lang.language}</span>
@@ -545,9 +545,9 @@ export default async function StatsPage({ params }: StatsPageProps) {
           <CardContent>
             <div className="space-y-3">
               {stats.deviceVendors.length > 0 ? (
-                stats.deviceVendors.map((device) => (
+                stats.deviceVendors.map((device, index) => (
                   <div
-                    key={`${device.vendor}-${device.model}`}
+                    key={`device-${index}-${device.vendor}-${device.model}`}
                     className="flex items-center justify-between"
                   >
                     <div>
@@ -576,9 +576,9 @@ export default async function StatsPage({ params }: StatsPageProps) {
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
               {stats.topResolutions.length > 0 ? (
-                stats.topResolutions.map((resolution) => (
+                stats.topResolutions.map((resolution, index) => (
                   <div
-                    key={resolution.resolution}
+                    key={`resolution-${index}-${resolution.resolution}`}
                     className="text-center p-3 bg-gray-50 rounded-lg"
                   >
                     <div className="font-medium text-sm">
