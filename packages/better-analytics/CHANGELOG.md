@@ -1,5 +1,99 @@
 # better-analytics
 
+## 0.3.0
+
+### Major Changes
+
+- **Enhanced Session & Device Tracking**: Persistent session IDs with 30-minute timeout and lightweight device fingerprinting
+- **Rich Event Metadata**: Comprehensive device, page, and UTM parameter collection with smart payload optimization
+- **Advanced Browser Detection**: Automatic collection of screen resolution, viewport size, language, timezone, and connection type
+- **Performance Monitoring**: Built-in page load time tracking via Performance API
+- **Smart Data Structure**: Optimized event payload that only includes available data to minimize bandwidth
+
+### New Features
+
+#### Session & Device Tracking
+```javascript
+// Automatic session management (30-minute sessions)
+// Persistent device IDs with lightweight fingerprinting
+// All handled automatically - no configuration needed
+
+// Events now include:
+{
+  "sessionId": "abc123...",    // 30-minute session
+  "deviceId": "def456...",     // Persistent device ID
+  // ... rest of event data
+}
+```
+
+#### Rich Device & Browser Information
+```javascript
+// Automatically collected when available:
+{
+  "device": {
+    "userAgent": "Mozilla/5.0...",
+    "screenWidth": 1920,
+    "screenHeight": 1080,
+    "viewportWidth": 1200,
+    "viewportHeight": 800,
+    "language": "en-US",
+    "timezone": "America/New_York",
+    "connectionType": "4g"
+  },
+  "page": {
+    "title": "My Page",
+    "pathname": "/products",
+    "hostname": "example.com",
+    "loadTime": 1250  // milliseconds
+  }
+}
+```
+
+#### UTM Parameter Extraction
+```javascript
+// Automatically extracts UTM parameters from URLs:
+// https://example.com?utm_source=google&utm_medium=cpc
+
+{
+  "utm": {
+    "source": "google",
+    "medium": "cpc",
+    "campaign": "summer",
+    "term": "analytics",
+    "content": "banner"
+  }
+}
+```
+
+#### New Initialization Method
+```javascript
+import { initWithPageview } from "better-analytics";
+
+// Initialize and immediately track pageview
+initWithPageview({ endpoint: '/api/collect' });
+
+// Equivalent to:
+// init({ endpoint: '/api/collect' });
+// trackPageview();
+```
+
+### Performance & Optimization
+
+- **Bandwidth Optimization**: Only sends data that's actually available (no empty objects)
+- **Memory Efficient**: Lightweight fingerprinting using existing browser APIs
+- **Storage Resilient**: Graceful fallbacks when localStorage is unavailable
+- **SSR Compatible**: All browser-specific code safely handles server-side rendering
+
+### Developer Experience
+
+- **Enhanced Error Handling**: Better error messages and development-mode logging
+- **TypeScript Improvements**: More detailed type definitions for event data structure
+- **Test Coverage**: Comprehensive test suite covering all new features
+
+### Backward Compatibility
+
+All existing APIs remain unchanged. New features are automatically enabled with no breaking changes.
+
 ## 0.2.0
 
 ### Minor Changes

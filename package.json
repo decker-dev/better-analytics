@@ -12,10 +12,7 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "test": "turbo run test",
-    "changeset": "changeset",
-    "version-packages": "changeset version",
-    "release": "pnpm build && changeset publish"
+    "test": "turbo run test"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -28,8 +25,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "dependencies": {
-    "@changesets/cli": "^2.29.4"
   }
 }

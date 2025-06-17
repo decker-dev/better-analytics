@@ -9,6 +9,9 @@ A micro-analytics JavaScript SDK for tracking page views and events. Framework-a
 - ⚛️ **Next.js ready**: Built-in React component with automatic page tracking
 - 📦 **Modern**: ESM/CJS dual package, TypeScript support
 - 🎯 **Simple**: Three lines to get started
+- 🔍 **Rich Analytics**: Automatic session tracking, device fingerprinting, UTM parameters
+- ⚡ **Performance**: Built-in page load time tracking and bandwidth optimization
+- 🛡️ **Privacy-First**: Lightweight fingerprinting, no cookies, GDPR-friendly
 
 ## Installation
 
@@ -24,10 +27,14 @@ npm install better-analytics
 import { init, track } from "better-analytics";
 
 // Initialize with your endpoint
-init({ endpoint: '/api/collect' });
+init({ endpoint: '/api/collect', site: 'my-app' });
 
-// Track custom events
+// Track custom events (automatically includes rich metadata)
 track('button_click', { button: 'signup' });
+
+// Or initialize with automatic pageview
+import { initWithPageview } from "better-analytics";
+initWithPageview({ endpoint: '/api/collect', site: 'my-app' });
 ```
 
 ### Next.js (Recommended)
@@ -100,12 +107,32 @@ Initialize the analytics SDK.
 import { init } from "better-analytics";
 
 init({
-  endpoint: '/api/collect' // Your analytics endpoint
+  endpoint: '/api/collect', // Your analytics endpoint
+  site: 'my-app'           // Optional site identifier
 });
 ```
 
 **Parameters:**
 - `config.endpoint` (string): URL endpoint to send analytics data
+- `config.site` (string, optional): Site identifier for tracking multiple projects
+
+#### `initWithPageview(config)`
+
+Initialize the analytics SDK and immediately track a pageview.
+
+```javascript
+import { initWithPageview } from "better-analytics";
+
+// Initialize and track pageview in one call
+initWithPageview({
+  endpoint: '/api/collect',
+  site: 'my-app'
+});
+
+// Equivalent to:
+// init({ endpoint: '/api/collect', site: 'my-app' });
+// trackPageview();
+```
 
 #### `track(event, props?)`
 
@@ -181,33 +208,94 @@ import { Analytics } from "better-analytics/next";
 
 ## Event Data Structure
 
-All events include the following metadata:
+All events include comprehensive metadata automatically collected:
 
 ```typescript
 interface EventData {
+  // Core event data
   event: string;                 // Event name
-  props?: Record<string, any>;   // Custom properties
   timestamp: number;             // Unix timestamp
+  site?: string;                 // Site identifier
+  
+  // Page context
   url: string;                   // Current page URL
   referrer: string;              // Document referrer
-  userAgent: string;             // Browser user agent
-  site?: string;                 // Site identifier
+  
+  // Session & User tracking
+  sessionId?: string;            // 30-minute session ID
+  deviceId?: string;             // Persistent device fingerprint
+  userId?: string;               // Custom user ID (if set)
+  
+  // Device & Browser info (only sent if available)
+  device?: {
+    userAgent?: string;          // Browser user agent
+    screenWidth?: number;        // Screen resolution
+    screenHeight?: number;
+    viewportWidth?: number;      // Browser viewport size
+    viewportHeight?: number;
+    language?: string;           // Browser language
+    timezone?: string;           // User timezone
+    connectionType?: string;     // Network connection type
+  };
+  
+  // Page information (only sent if available)
+  page?: {
+    title?: string;              // Page title
+    pathname?: string;           // URL pathname
+    hostname?: string;           // Domain name
+    loadTime?: number;           // Page load time (ms)
+  };
+  
+  // UTM parameters (only sent if present in URL)
+  utm?: {
+    source?: string;             // utm_source
+    medium?: string;             // utm_medium
+    campaign?: string;           // utm_campaign
+    term?: string;               // utm_term
+    content?: string;            // utm_content
+  };
+  
+  // Custom properties from user
+  props?: Record<string, unknown>;
 }
 ```
 
-Example payload:
+Example payload with rich metadata:
 
 ```json
 {
   "event": "button_click",
   "props": { "button": "signup" },
   "timestamp": 1704067200000,
-  "url": "https://example.com/pricing",
+  "url": "https://example.com/pricing?utm_source=google",
   "referrer": "https://google.com",
-  "userAgent": "Mozilla/5.0...",
-  "site": "my-app"
+  "site": "my-app",
+  "sessionId": "abc123def456",
+  "deviceId": "persistent-device-id",
+  "device": {
+    "userAgent": "Mozilla/5.0...",
+    "screenWidth": 1920,
+    "screenHeight": 1080,
+    "viewportWidth": 1200,
+    "viewportHeight": 800,
+    "language": "en-US",
+    "timezone": "America/New_York",
+    "connectionType": "4g"
+  },
+  "page": {
+    "title": "Pricing - My App",
+    "pathname": "/pricing",
+    "hostname": "example.com",
+    "loadTime": 1250
+  },
+  "utm": {
+    "source": "google",
+    "medium": "cpc"
+  }
 }
 ```
+
+**Smart Payload Optimization**: Only data that's actually available is included in the payload, minimizing bandwidth usage.
 
 ## Server-side Endpoint
 
