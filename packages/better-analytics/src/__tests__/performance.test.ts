@@ -36,7 +36,7 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
     });
 
     it('should handle circular references gracefully', () => {
-      const circularObj: any = { name: 'test' };
+      const circularObj: Record<string, unknown> = { name: 'test' };
       circularObj.self = circularObj;
 
       // Should not crash when trying to stringify circular reference
@@ -87,8 +87,10 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
       const originalDocument = global.document;
 
       // @ts-ignore
+      // biome-ignore lint/performance/noDelete: <explanation>
       delete global.window;
-      // @ts-ignore
+      // @ts-ignore 
+      // biome-ignore lint/performance/noDelete: <explanation>
       delete global.document;
 
       expect(() => track('ssr_test')).not.toThrow();
@@ -184,13 +186,13 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
         'not-a-url',
         'javascript:alert(1)',
         'data:text/html,<script>alert(1)</script>',
-        null as any,
-        undefined as any
+        null as unknown as string,
+        undefined as unknown as string
       ];
 
-      invalidEndpoints.forEach(endpoint => {
+      for (const endpoint of invalidEndpoints) {
         expect(() => init({ endpoint })).not.toThrow();
-      });
+      }
     });
 
     it('should handle extremely long site identifiers', () => {
