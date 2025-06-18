@@ -100,6 +100,27 @@ describe('Better Analytics SDK - Integration Tests', () => {
     mockFetch.mockResolvedValue(new Response('', { status: 200 }));
     _resetConfig();
     setupBrowserEnvironment();
+
+    // Mock localStorage to return consistent session/device IDs
+    const mockLocalStorage = {
+      getItem: vi.fn().mockImplementation((key) => {
+        if (key === 'ba_s') {
+          return JSON.stringify({ id: 'test-session-123', t: Date.now() });
+        }
+        if (key === 'ba_d') {
+          return 'test-device-456';
+        }
+        return null;
+      }),
+      setItem: vi.fn(),
+      removeItem: vi.fn(),
+    };
+
+    Object.defineProperty(global, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true,
+      configurable: true
+    });
   });
 
   afterEach(() => {
