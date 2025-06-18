@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/modules/auth/lib/auth-client";
 import {
@@ -11,7 +11,7 @@ import {
 } from "@repo/ui/components/card";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading",
   );
@@ -65,33 +65,53 @@ export default function VerifyEmailPage() {
   }, [searchParams, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="max-w-md w-full">
-        <CardHeader className="text-center">
-          <CardTitle className="flex items-center justify-center gap-2">
-            {status === "loading" && (
-              <Loader2 className="h-6 w-6 animate-spin" />
-            )}
-            {status === "success" && (
-              <CheckCircle className="h-6 w-6 text-green-500" />
-            )}
-            {status === "error" && <XCircle className="h-6 w-6 text-red-500" />}
-            Email Verification
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-center">
-          <p className="text-sm text-gray-600">
-            {status === "loading" && "Verifying your email..."}
-            {status === "success" && message}
-            {status === "error" && message}
-          </p>
+    <Card className="max-w-md w-full">
+      <CardHeader className="text-center">
+        <CardTitle className="flex items-center justify-center gap-2">
+          {status === "loading" && <Loader2 className="h-6 w-6 animate-spin" />}
           {status === "success" && (
-            <p className="text-xs text-gray-500 mt-2">
-              Redirecting you to the homepage...
-            </p>
+            <CheckCircle className="h-6 w-6 text-green-500" />
           )}
-        </CardContent>
-      </Card>
+          {status === "error" && <XCircle className="h-6 w-6 text-red-500" />}
+          Email Verification
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="text-center">
+        <p className="text-sm text-gray-600">
+          {status === "loading" && "Verifying your email..."}
+          {status === "success" && message}
+          {status === "error" && message}
+        </p>
+        {status === "success" && (
+          <p className="text-xs text-gray-500 mt-2">
+            Redirecting you to the homepage...
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Suspense
+        fallback={
+          <Card className="max-w-md w-full">
+            <CardHeader className="text-center">
+              <CardTitle className="flex items-center justify-center gap-2">
+                <Loader2 className="h-6 w-6 animate-spin" />
+                Email Verification
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-sm text-gray-600">Loading...</p>
+            </CardContent>
+          </Card>
+        }
+      >
+        <VerifyEmailContent />
+      </Suspense>
     </div>
   );
 }
