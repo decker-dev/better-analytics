@@ -21,7 +21,7 @@ export default async function OrganizationServer() {
     const result = await auth.api.listOrganizations({
       headers: await headers(),
     });
-    console.log(result);
+
     if (result) {
       organizations = result.map(
         (org: {

@@ -52,7 +52,6 @@ const incomingEventSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('body', body);
     // Validar los datos de entrada
     const validatedData = incomingEventSchema.parse(body);
 
@@ -124,7 +123,6 @@ export async function POST(request: NextRequest) {
       language: validatedData.device?.language || null,
     };
 
-    console.log(eventToInsert);
     // Insertar en la base de datos
     await db.insert(schema.events).values(eventToInsert);
 
