@@ -3,15 +3,16 @@ import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSitesByOrg } from "@/lib/db/sites";
 import Header from "@/components/header";
+import { Suspense } from "react";
+import { HeaderSkeleton } from "@/components/skeletons";
 
 interface OrgLayoutProps {
   children: React.ReactNode;
   params: Promise<{ orgSlug: string }>;
 }
 
-export default async function OrgLayout({ children, params }: OrgLayoutProps) {
-  const { orgSlug } = await params;
-
+// Separate header loading for better Suspense handling
+async function HeaderContent({ orgSlug }: { orgSlug: string }) {
   // Get session
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -52,13 +53,23 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
   }));
 
   return (
+    <Header
+      organizations={organizations || []}
+      currentOrg={currentOrg}
+      sites={mappedSites}
+    />
+  );
+}
+
+export default async function OrgLayout({ children, params }: OrgLayoutProps) {
+  const { orgSlug } = await params;
+
+  return (
     <div className="min-h-screen">
       {/* Smart Header - detects context automatically */}
-      <Header
-        organizations={organizations || []}
-        currentOrg={currentOrg}
-        sites={mappedSites}
-      />
+      <Suspense fallback={<HeaderSkeleton />}>
+        <HeaderContent orgSlug={orgSlug} />
+      </Suspense>
 
       {/* Main Content */}
       <main>{children}</main>

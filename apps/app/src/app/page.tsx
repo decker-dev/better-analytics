@@ -11,9 +11,12 @@ import { User, Mail } from "lucide-react";
 import Link from "next/link";
 import OrganizationServer from "@/modules/auth/components/organization-server";
 import { SignOutButton } from "@/modules/auth/components/sign-out-button";
+import { Suspense } from "react";
+import { OrganizationSkeleton, AuthSkeleton } from "@/components/skeletons";
 
-export default async function HomePage() {
-  // Get session on the server
+// Separate authenticated content for better Suspense handling
+async function AuthenticatedContent() {
+  // Get session
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -88,9 +91,19 @@ export default async function HomePage() {
           <h2 className="text-2xl font-bold mb-4">
             Create Your First Organization
           </h2>
-          <OrganizationServer />
+          <Suspense fallback={<OrganizationSkeleton />}>
+            <OrganizationServer />
+          </Suspense>
         </div>
       </div>
     </div>
+  );
+}
+
+export default async function HomePage() {
+  return (
+    <Suspense fallback={<AuthSkeleton />}>
+      <AuthenticatedContent />
+    </Suspense>
   );
 }

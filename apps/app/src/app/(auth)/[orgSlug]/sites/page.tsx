@@ -3,9 +3,26 @@ import { redirect } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSitesByOrg } from "@/lib/db/sites";
 import { SiteList } from "@/modules/sites/components/site-list";
+import { Suspense } from "react";
+import { SiteListSkeleton } from "@/components/skeletons";
 
 interface SitesPageProps {
   params: Promise<{ orgSlug: string }>;
+}
+
+// Separate sites loading into its own component for Suspense
+async function SitesContent({
+  orgSlug,
+  organizationId,
+}: { orgSlug: string; organizationId: string }) {
+  // Get sites for this organization
+  const sites = await getSitesByOrg(organizationId);
+
+  return (
+    <div className="p-6">
+      <SiteList sites={sites} orgSlug={orgSlug} />
+    </div>
+  );
 }
 
 export default async function SitesPage({ params }: SitesPageProps) {
@@ -32,12 +49,9 @@ export default async function SitesPage({ params }: SitesPageProps) {
     redirect("/");
   }
 
-  // Get sites for this organization
-  const sites = await getSitesByOrg(currentOrg.id);
-
   return (
-    <div className="p-6">
-      <SiteList sites={sites} orgSlug={orgSlug} />
-    </div>
+    <Suspense fallback={<SiteListSkeleton />}>
+      <SitesContent orgSlug={orgSlug} organizationId={currentOrg.id} />
+    </Suspense>
   );
 }
