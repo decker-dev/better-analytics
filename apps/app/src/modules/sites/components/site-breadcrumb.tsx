@@ -20,19 +20,23 @@ export const SiteBreadcrumb = ({
 }: SiteBreadcrumbProps) => {
   const breadcrumbs = [
     {
+      id: "org",
       name: orgName,
       href: `/${orgSlug}`,
       icon: Home,
     },
     {
+      id: "sites",
       name: "Sites",
       href: `/${orgSlug}/sites`,
     },
     {
+      id: "site",
       name: siteName,
       href: `/${orgSlug}/sites/${siteKey}/stats`,
     },
     {
+      id: "current",
       name: currentPage === "stats" ? "Analytics" : "Settings",
       href: `/${orgSlug}/sites/${siteKey}/${currentPage}`,
       current: true,
@@ -49,7 +53,7 @@ export const SiteBreadcrumb = ({
         const isLast = index === breadcrumbs.length - 1;
 
         return (
-          <div key={breadcrumb.href} className="flex items-center space-x-2">
+          <div key={breadcrumb.id} className="flex items-center space-x-2">
             {index > 0 && (
               <ChevronRight
                 className="h-4 w-4 text-gray-400"
