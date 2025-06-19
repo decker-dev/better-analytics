@@ -101,7 +101,9 @@ export const CreateSiteForm = ({
         </Link>
         <div>
           <h1 className="text-3xl font-bold">Create New Site</h1>
-          <p className="text-gray-600">Add a new site to track analytics</p>
+          <p className="text-muted-foreground">
+            Add a new site to track analytics
+          </p>
         </div>
       </div>
 
@@ -121,7 +123,7 @@ export const CreateSiteForm = ({
                 disabled={loading}
                 required
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 A descriptive name for your site
               </p>
             </div>
@@ -135,7 +137,7 @@ export const CreateSiteForm = ({
                 placeholder="example.com"
                 disabled={loading}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 The domain where your site is hosted
               </p>
             </div>
@@ -150,7 +152,7 @@ export const CreateSiteForm = ({
                 disabled={loading}
                 rows={3}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 Additional details about your site
               </p>
             </div>

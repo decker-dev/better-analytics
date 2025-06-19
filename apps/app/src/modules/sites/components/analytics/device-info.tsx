@@ -32,13 +32,19 @@ export const DeviceInfo = ({ stats }: DeviceInfoProps) => {
                 >
                   <div>
                     <span className="text-sm font-medium">{device.vendor}</span>
-                    <p className="text-xs text-gray-500">{device.model}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {device.model}
+                    </p>
                   </div>
-                  <span className="text-sm text-gray-500">{device.count}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {device.count}
+                  </span>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-4">No device data</p>
+              <p className="text-muted-foreground text-center py-4">
+                No device data
+              </p>
             )}
           </div>
         </CardContent>
@@ -55,19 +61,19 @@ export const DeviceInfo = ({ stats }: DeviceInfoProps) => {
               stats.topResolutions.map((resolution, index) => (
                 <div
                   key={`resolution-${index}-${resolution.resolution}`}
-                  className="text-center p-3 bg-gray-50 rounded-lg"
+                  className="text-center p-3 bg-muted rounded-lg"
                 >
                   <div className="font-medium text-sm">
                     {resolution.resolution}
                   </div>
-                  <div className="text-xs text-gray-500">
+                  <div className="text-xs text-muted-foreground">
                     {resolution.count} users
                   </div>
                 </div>
               ))
             ) : (
               <div className="col-span-2">
-                <p className="text-gray-500 text-center py-4">
+                <p className="text-muted-foreground text-center py-4">
                   No resolution data
                 </p>
               </div>

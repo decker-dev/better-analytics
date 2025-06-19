@@ -58,12 +58,14 @@ export default async function OrganizationServer() {
               {organizations.map((org) => (
                 <div key={org.id} className="p-3 border rounded-lg">
                   <h3 className="font-medium">{org.name}</h3>
-                  <p className="text-sm text-gray-600">Slug: {org.slug}</p>
+                  <p className="text-sm text-muted-foreground">
+                    Slug: {org.slug}
+                  </p>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               No organizations found. Create one above!
             </p>
           )}

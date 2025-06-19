@@ -32,17 +32,19 @@ export const TopPagesAndReferrers = ({ stats }: TopPagesAndReferrersProps) => {
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{page.title}</p>
-                    <p className="text-xs text-gray-500 truncate">
+                    <p className="text-xs text-muted-foreground truncate">
                       {page.page}
                     </p>
                   </div>
-                  <span className="text-sm text-gray-500 ml-2">
+                  <span className="text-sm text-muted-foreground ml-2">
                     {page.views.toLocaleString()}
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-4">No page data</p>
+              <p className="text-muted-foreground text-center py-4">
+                No page data
+              </p>
             )}
           </div>
         </CardContent>
@@ -70,19 +72,21 @@ export const TopPagesAndReferrers = ({ stats }: TopPagesAndReferrersProps) => {
                         ? "Direct Traffic"
                         : referrer.source}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-muted-foreground">
                       {referrer.source === "Direct"
                         ? "No referrer"
                         : "External link"}
                     </p>
                   </div>
-                  <span className="text-sm text-gray-500 ml-2">
+                  <span className="text-sm text-muted-foreground ml-2">
                     {referrer.visits.toLocaleString()}
                   </span>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-4">No referrer data</p>
+              <p className="text-muted-foreground text-center py-4">
+                No referrer data
+              </p>
             )}
           </div>
         </CardContent>

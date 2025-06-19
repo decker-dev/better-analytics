@@ -31,11 +31,15 @@ export const TechnologyStats = ({ stats }: TechnologyStatsProps) => {
                   className="flex items-center justify-between"
                 >
                   <span className="text-sm font-medium">{browser.name}</span>
-                  <span className="text-sm text-gray-500">{browser.count}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {browser.count}
+                  </span>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-4">No browser data</p>
+              <p className="text-muted-foreground text-center py-4">
+                No browser data
+              </p>
             )}
           </div>
         </CardContent>
@@ -58,11 +62,15 @@ export const TechnologyStats = ({ stats }: TechnologyStatsProps) => {
                   className="flex items-center justify-between"
                 >
                   <span className="text-sm font-medium">{os.name}</span>
-                  <span className="text-sm text-gray-500">{os.count}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {os.count}
+                  </span>
                 </div>
               ))
             ) : (
-              <p className="text-gray-500 text-center py-4">No OS data</p>
+              <p className="text-muted-foreground text-center py-4">
+                No OS data
+              </p>
             )}
           </div>
         </CardContent>

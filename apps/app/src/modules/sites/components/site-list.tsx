@@ -20,7 +20,7 @@ export const SiteList = ({ sites, orgSlug }: SiteListProps) => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Sites</h1>
-          <p className="text-gray-600">
+          <p className="text-muted-foreground">
             Manage your sites and view their analytics
           </p>
         </div>
@@ -42,25 +42,27 @@ export const SiteList = ({ sites, orgSlug }: SiteListProps) => {
                   {site.name}
                 </CardTitle>
                 {site.description && (
-                  <p className="text-sm text-gray-600">{site.description}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {site.description}
+                  </p>
                 )}
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Site Key:</span>
-                    <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+                    <span className="text-muted-foreground">Site Key:</span>
+                    <code className="bg-muted px-2 py-1 rounded text-xs">
                       {site.siteKey}
                     </code>
                   </div>
                   {site.domain && (
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Domain:</span>
+                      <span className="text-muted-foreground">Domain:</span>
                       <span className="truncate ml-2">{site.domain}</span>
                     </div>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Created:</span>
+                    <span className="text-muted-foreground">Created:</span>
                     <span>{new Date(site.createdAt).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -88,11 +90,11 @@ export const SiteList = ({ sites, orgSlug }: SiteListProps) => {
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <Globe className="h-12 w-12 text-gray-400 mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <Globe className="h-12 w-12 text-muted-foreground/50 mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               No sites yet
             </h3>
-            <p className="text-gray-500 text-center mb-6">
+            <p className="text-muted-foreground text-center mb-6">
               Create your first site to start tracking analytics
             </p>
             <Link href={`/${orgSlug}/sites/new`}>

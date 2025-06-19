@@ -115,8 +115,10 @@ export default function SignIn() {
             {status !== "idle" && (
               <Alert
                 className={cn(
-                  status === "success" && "border-green-200 bg-green-50",
-                  status === "error" && "border-red-200 bg-red-50",
+                  status === "success" &&
+                    "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950",
+                  status === "error" &&
+                    "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950",
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -128,8 +130,9 @@ export default function SignIn() {
                   )}
                   <AlertDescription
                     className={cn(
-                      status === "success" && "text-green-800",
-                      status === "error" && "text-red-800",
+                      status === "success" &&
+                        "text-green-800 dark:text-green-200",
+                      status === "error" && "text-red-800 dark:text-red-200",
                     )}
                   >
                     {message}
@@ -154,7 +157,7 @@ export default function SignIn() {
         </div>
       </CardContent>
       <CardFooter className="text-center">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-muted-foreground">
           By signing in, you agree to our terms of service and privacy policy.
         </p>
       </CardFooter>

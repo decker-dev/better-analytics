@@ -35,7 +35,7 @@ export const OrgSwitcher = ({
 
   return (
     <select
-      className="border rounded px-3 py-1 text-sm"
+      className="border border-input rounded px-3 py-1 text-sm bg-background text-foreground"
       value={selectedSlug}
       onChange={(e) => handleOrgChange(e.target.value)}
     >

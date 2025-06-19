@@ -45,7 +45,7 @@ export const SiteBreadcrumb = ({
 
   return (
     <nav
-      className="flex items-center space-x-2 text-sm text-gray-500"
+      className="flex items-center space-x-2 text-sm text-muted-foreground"
       aria-label="Breadcrumb"
     >
       {breadcrumbs.map((breadcrumb, index) => {
@@ -56,20 +56,20 @@ export const SiteBreadcrumb = ({
           <div key={breadcrumb.id} className="flex items-center space-x-2">
             {index > 0 && (
               <ChevronRight
-                className="h-4 w-4 text-gray-400"
+                className="h-4 w-4 text-muted-foreground/50"
                 aria-hidden="true"
               />
             )}
 
             {isLast ? (
-              <span className="font-medium text-gray-900">
+              <span className="font-medium text-foreground">
                 {Icon && <Icon className="h-4 w-4 inline mr-1" />}
                 {breadcrumb.name}
               </span>
             ) : (
               <Link
                 href={breadcrumb.href}
-                className="hover:text-gray-700 transition-colors"
+                className="hover:text-foreground transition-colors"
               >
                 {Icon && <Icon className="h-4 w-4 inline mr-1" />}
                 {breadcrumb.name}
