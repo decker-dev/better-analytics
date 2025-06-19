@@ -29,7 +29,7 @@ export const SiteNavigation = ({ orgSlug, siteKey }: SiteNavigationProps) => {
 
   return (
     <nav className="border-b bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex space-x-8">
           {navigation.map((item) => {
             const Icon = item.icon;

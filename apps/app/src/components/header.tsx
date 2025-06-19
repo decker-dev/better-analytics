@@ -1,9 +1,9 @@
 "use client";
 
 import { ChartNoAxesColumnIncreasing, ChevronsUpDown } from "lucide-react";
-import { Select as SelectPrimitive } from "radix-ui";
 import { useRouter, useParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import SettingsMenu from "./settings-menu";
 import UserMenu from "./user-menu";
@@ -25,7 +25,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@repo/ui/components/popover";
-import { Select, SelectContent, SelectItem, SelectValue } from "./select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@repo/ui/components/dropdown-menu";
 
 // Navigation links array to be used in both desktop and mobile menus
 const navigationLinks = [
@@ -103,13 +108,11 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
   }, [isInSiteContext, currentOrg, siteKey]);
 
   const handleOrgChange = (orgSlug: string) => {
-    if (orgSlug !== currentOrg?.slug) {
-      router.push(`/${orgSlug}/sites`);
-    }
+    router.push(`/${orgSlug}/sites`);
   };
 
   const handleSiteChange = (newSiteKey: string) => {
-    if (currentOrg && newSiteKey !== currentSite?.siteKey) {
+    if (currentOrg) {
       router.push(`/${currentOrg.slug}/sites/${newSiteKey}/stats`);
     }
   };
@@ -174,71 +177,87 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
           <ChartNoAxesColumnIncreasing size={16} />
           <Breadcrumb>
             <BreadcrumbList>
-              {/* Organization Selector */}
+              {/* Organization */}
               <BreadcrumbItem>
-                <Select
-                  key={`org-${currentOrg?.slug || "none"}`}
-                  value={currentOrg?.slug}
-                  onValueChange={handleOrgChange}
-                >
-                  <SelectPrimitive.SelectTrigger
-                    aria-label="Select organization"
-                    asChild
+                <div className="flex items-center gap-1">
+                  {/* Organization Title Link */}
+                  <Link
+                    href={`/${currentOrg?.slug}/sites`}
+                    className="text-foreground hover:text-primary font-medium transition-colors"
                   >
-                    <Button
-                      variant="ghost"
-                      className="focus-visible:bg-accent text-foreground h-8 p-1.5 focus-visible:ring-0"
-                    >
-                      <SelectValue placeholder="Select organization" />
-                      <ChevronsUpDown
-                        size={14}
-                        className="text-muted-foreground/80"
-                      />
-                    </Button>
-                  </SelectPrimitive.SelectTrigger>
-                  <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-                    {organizations.map((org) => (
-                      <SelectItem key={org.id} value={org.slug}>
-                        {org.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    {currentOrg?.name || "Organization"}
+                  </Link>
+
+                  {/* Organization Dropdown */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="rounded-full shadow-none h-6 w-6"
+                        aria-label="Switch organization"
+                      >
+                        <ChevronsUpDown size={14} aria-hidden="true" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {organizations.map((org) => (
+                        <DropdownMenuItem
+                          key={org.id}
+                          onClick={() => handleOrgChange(org.slug)}
+                          className={
+                            currentOrg?.id === org.id ? "bg-accent" : ""
+                          }
+                        >
+                          {org.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </BreadcrumbItem>
 
-              {/* Site Selector - Only show in site context */}
+              {/* Site - Only show in site context */}
               {isInSiteContext && currentSite && !loading && (
                 <>
                   <BreadcrumbSeparator> / </BreadcrumbSeparator>
                   <BreadcrumbItem>
-                    <Select
-                      key={`site-${currentSite?.siteKey || "none"}`}
-                      value={currentSite.siteKey}
-                      onValueChange={handleSiteChange}
-                    >
-                      <SelectPrimitive.SelectTrigger
-                        aria-label="Select site"
-                        asChild
+                    <div className="flex items-center gap-1">
+                      {/* Site Title Link */}
+                      <Link
+                        href={`/${currentOrg?.slug}/sites/${currentSite.siteKey}/stats`}
+                        className="text-foreground hover:text-primary font-medium transition-colors"
                       >
-                        <Button
-                          variant="ghost"
-                          className="focus-visible:bg-accent text-foreground h-8 p-1.5 focus-visible:ring-0"
-                        >
-                          <SelectValue placeholder="Select site" />
-                          <ChevronsUpDown
-                            size={14}
-                            className="text-muted-foreground/80"
-                          />
-                        </Button>
-                      </SelectPrimitive.SelectTrigger>
-                      <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-                        {sites.map((site) => (
-                          <SelectItem key={site.id} value={site.siteKey}>
-                            {site.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        {currentSite.name}
+                      </Link>
+
+                      {/* Site Dropdown */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="rounded-full shadow-none h-6 w-6"
+                            aria-label="Switch site"
+                          >
+                            <ChevronsUpDown size={14} aria-hidden="true" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {sites.map((site) => (
+                            <DropdownMenuItem
+                              key={site.id}
+                              onClick={() => handleSiteChange(site.siteKey)}
+                              className={
+                                currentSite?.id === site.id ? "bg-accent" : ""
+                              }
+                            >
+                              {site.name}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </BreadcrumbItem>
                 </>
               )}

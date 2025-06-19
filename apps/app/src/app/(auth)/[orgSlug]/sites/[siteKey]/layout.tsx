@@ -2,7 +2,6 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
-import { SiteBreadcrumbWrapper } from "@/modules/sites/components/site-breadcrumb-wrapper";
 import { SiteNavigation } from "@/modules/sites/components/site-navigation";
 
 interface SiteLayoutProps {
@@ -55,19 +54,7 @@ export default async function SiteLayout({
       <SiteNavigation orgSlug={orgSlug} siteKey={siteKey} />
 
       {/* Main Content */}
-      <main className="p-6">
-        {/* Breadcrumb */}
-        <div className="mb-6">
-          <SiteBreadcrumbWrapper
-            orgSlug={orgSlug}
-            orgName={currentOrg.name}
-            siteName={site.name}
-            siteKey={siteKey}
-          />
-        </div>
-
-        {children}
-      </main>
+      <main className="p-6">{children}</main>
     </div>
   );
 }
