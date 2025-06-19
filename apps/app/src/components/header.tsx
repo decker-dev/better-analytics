@@ -1,4 +1,4 @@
-import { ChevronsUpDown } from "lucide-react";
+import { ChartNoAxesColumnIncreasing, ChevronsUpDown } from "lucide-react";
 import { Select as SelectPrimitive } from "radix-ui";
 
 import SettingsMenu from "./settings-menu";
@@ -87,6 +87,7 @@ export default function Header() {
             </PopoverContent>
           </Popover>
           {/* Breadcrumb */}
+          <ChartNoAxesColumnIncreasing size={16} />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
