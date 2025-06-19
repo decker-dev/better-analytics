@@ -46,12 +46,12 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
   return (
     <div className="min-h-screen">
       {/* Organization Header */}
-      <header className="border-b bg-white">
+      <header className="border-b bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <h1 className="text-xl font-semibold">{currentOrg.name}</h1>
-              <span className="text-sm text-gray-500">/{orgSlug}</span>
+              <span className="text-sm text-muted-foreground">/{orgSlug}</span>
             </div>
 
             {/* Organization Switcher */}
@@ -61,7 +61,9 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
                 currentOrgSlug={orgSlug}
               />
 
-              <div className="text-sm text-gray-600">{session.user.email}</div>
+              <div className="text-sm text-muted-foreground">
+                {session.user.email}
+              </div>
             </div>
           </div>
         </div>

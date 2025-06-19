@@ -29,13 +29,13 @@ export default async function HomePage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-center text-gray-600">
+            <p className="text-center text-muted-foreground">
               Sign in to access your analytics dashboard
             </p>
             <Link href="/sign-in">
               <button
                 type="button"
-                className="w-full bg-black text-white py-2 px-4 rounded hover:bg-gray-800 transition-colors"
+                className="w-full bg-primary text-primary-foreground py-2 px-4 rounded hover:bg-primary/90 transition-colors"
               >
                 Sign In
               </button>
@@ -76,7 +76,7 @@ export default async function HomePage() {
                 <Mail className="h-4 w-4" />
                 <span>{session.user.email}</span>
               </div>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 You don't have any organizations yet. Create your first
                 organization to get started.
               </p>

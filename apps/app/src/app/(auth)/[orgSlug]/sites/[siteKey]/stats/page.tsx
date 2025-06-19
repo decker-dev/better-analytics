@@ -65,7 +65,9 @@ export default async function SiteStatsPage({ params }: SiteStatsPageProps) {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">{site.name} Analytics</h1>
-        <p className="text-gray-600">Analytics dashboard for {site.name}</p>
+        <p className="text-muted-foreground">
+          Analytics dashboard for {site.name}
+        </p>
       </div>
 
       {/* Key Metrics */}

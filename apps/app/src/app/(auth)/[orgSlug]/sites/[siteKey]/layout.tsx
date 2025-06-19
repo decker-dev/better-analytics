@@ -53,14 +53,14 @@ export default async function SiteLayout({
   return (
     <div className="min-h-[calc(100vh-8rem)]">
       {/* Site Header with Selector */}
-      <div className="border-b bg-white">
+      <div className="border-b bg-background">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <h2 className="text-lg font-semibold">{site.name}</h2>
               <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-500">Site Key:</span>
-                <code className="bg-gray-100 px-2 py-1 rounded text-xs">
+                <span className="text-sm text-muted-foreground">Site Key:</span>
+                <code className="bg-muted px-2 py-1 rounded text-xs">
                   {siteKey}
                 </code>
               </div>

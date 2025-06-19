@@ -56,7 +56,7 @@ export default async function SiteSettingsPage({
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Site Settings</h1>
-        <p className="text-gray-600">Manage settings for {site.name}</p>
+        <p className="text-muted-foreground">Manage settings for {site.name}</p>
       </div>
 
       {/* Site Information */}
@@ -72,20 +72,20 @@ export default async function SiteSettingsPage({
             <div>
               <label
                 htmlFor="name"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
                 Site Name
               </label>
               <input
                 type="text"
                 defaultValue={site.name}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
               />
             </div>
             <div>
               <label
                 htmlFor="domain"
-                className="block text-sm font-medium text-gray-700 mb-1"
+                className="block text-sm font-medium text-foreground mb-1"
               >
                 Domain
               </label>
@@ -93,7 +93,7 @@ export default async function SiteSettingsPage({
                 type="text"
                 defaultValue={site.domain || ""}
                 placeholder="example.com"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
               />
             </div>
           </div>
@@ -101,7 +101,7 @@ export default async function SiteSettingsPage({
           <div>
             <label
               htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-foreground mb-1"
             >
               Description
             </label>
@@ -109,14 +109,14 @@ export default async function SiteSettingsPage({
               rows={3}
               defaultValue={site.description || ""}
               placeholder="Describe your site..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
             />
           </div>
 
           <div className="flex justify-end">
             <button
               type="button"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring"
             >
               Save Changes
             </button>
@@ -136,11 +136,11 @@ export default async function SiteSettingsPage({
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-medium">Current Site Key</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Use this key to identify your site in analytics tracking
               </p>
             </div>
-            <code className="bg-gray-100 px-3 py-2 rounded text-sm">
+            <code className="bg-muted px-3 py-2 rounded text-sm">
               {siteKey}
             </code>
           </div>
@@ -149,14 +149,14 @@ export default async function SiteSettingsPage({
             <div className="flex items-center justify-between">
               <div>
                 <h4 className="font-medium">Regenerate Site Key</h4>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Generate a new site key. This will require updating your
                   tracking code.
                 </p>
               </div>
               <button
                 type="button"
-                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
+                className="px-3 py-1 text-sm border border-input rounded-md hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
               >
                 <RotateCcw className="h-4 w-4" />
                 Regenerate
@@ -174,10 +174,10 @@ export default async function SiteSettingsPage({
         <CardContent className="space-y-4">
           <div>
             <h4 className="font-medium mb-2">JavaScript Integration</h4>
-            <p className="text-sm text-gray-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               Add this code to your website to start tracking analytics
             </p>
-            <pre className="bg-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+            <pre className="bg-muted p-4 rounded-lg text-sm overflow-x-auto">
               <code>{`import { Analytics } from 'better-analytics/next';
 
 export default function RootLayout({ children }) {
@@ -211,7 +211,7 @@ export default function RootLayout({ children }) {
           <div className="flex items-center justify-between">
             <div>
               <h4 className="font-medium">Delete Site</h4>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 Permanently delete this site and all its analytics data. This
                 action cannot be undone.
               </p>
