@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { OrgSwitcher } from "@/modules/auth/components/org-switcher";
+import Header from "@/components/header";
 
 interface OrgLayoutProps {
   children: React.ReactNode;
@@ -45,28 +46,8 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
   return (
     <div className="min-h-screen">
       {/* Organization Header */}
-      <header className="border-b bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold">{currentOrg.name}</h1>
-              <span className="text-sm text-muted-foreground">/{orgSlug}</span>
-            </div>
+      <Header />
 
-            {/* Organization Switcher */}
-            <div className="flex items-center space-x-4">
-              <OrgSwitcher
-                organizations={organizations || []}
-                currentOrgSlug={orgSlug}
-              />
-
-              <div className="text-sm text-muted-foreground">
-                {session.user.email}
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
       {/* Main Content */}
       <main>{children}</main>
     </div>
