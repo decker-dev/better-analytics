@@ -2,6 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { CreateSiteForm } from "@/modules/sites/components/create-site-form";
+import Onboarding from "@/modules/sites/components/onboarding";
 
 interface NewSitePageProps {
   params: Promise<{ orgSlug: string }>;
@@ -33,7 +34,7 @@ export default async function NewSitePage({ params }: NewSitePageProps) {
 
   return (
     <div className="p-6">
-      <CreateSiteForm orgSlug={orgSlug} organizationId={currentOrg.id} />
+      <Onboarding />
     </div>
   );
 }

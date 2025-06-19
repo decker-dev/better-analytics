@@ -91,23 +91,10 @@ export const CreateSiteForm = ({
     };
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <Link href={`/${orgSlug}/sites`}>
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Sites
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold">Create New Site</h1>
-          <p className="text-muted-foreground">
-            Add a new site to track analytics
-          </p>
-        </div>
-      </div>
+    <div className=" mx-auto space-y-6">
+      <h1 className="text-3xl font-bold">Create New Site</h1>
 
-      <Card>
+      <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle>Site Information</CardTitle>
         </CardHeader>
