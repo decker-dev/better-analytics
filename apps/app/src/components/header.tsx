@@ -5,7 +5,6 @@ import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
-import SettingsMenu from "./settings-menu";
 import UserMenu from "./user-menu";
 import {
   Breadcrumb,
@@ -250,12 +249,7 @@ export default function Header({
           </Breadcrumb>
         </div>
 
-        {/* Right side */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            {/* Settings */}
-            <SettingsMenu />
-          </div>
           {/* User menu */}
           <UserMenu />
         </div>
