@@ -1,7 +1,7 @@
 "use client";
 
 import { ChartNoAxesColumnIncreasing, ChevronsUpDown } from "lucide-react";
-import { useRouter, useParams, usePathname } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
@@ -14,30 +14,13 @@ import {
   BreadcrumbSeparator,
 } from "@repo/ui/components/breadcrumb";
 import { Button } from "@repo/ui/components/button";
-import {
-  NavigationMenu,
-  NavigationMenuItem,
-  NavigationMenuLink,
-  NavigationMenuList,
-} from "@repo/ui/components/navigation-menu";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@repo/ui/components/popover";
+import { Popover, PopoverTrigger } from "@repo/ui/components/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
-
-// Navigation links array to be used in both desktop and mobile menus
-const navigationLinks = [
-  { href: "#", label: "Dashboard" },
-  { href: "#", label: "Docs" },
-  { href: "#", label: "API reference" },
-];
 
 interface HeaderOrganization {
   id: string;
@@ -63,10 +46,13 @@ interface HeaderProps {
   sites?: HeaderSite[];
 }
 
-function ClientHeader({ organizations, currentOrg, sites }: HeaderProps) {
+export default function Header({
+  organizations,
+  currentOrg,
+  sites,
+}: HeaderProps) {
   const router = useRouter();
   const params = useParams();
-  const pathname = usePathname();
 
   const [internalSites, setInternalSites] = useState<HeaderSite[]>(sites || []);
   const [internalCurrentSite, setInternalCurrentSite] =
@@ -168,20 +154,6 @@ function ClientHeader({ organizations, currentOrg, sites }: HeaderProps) {
                 </svg>
               </Button>
             </PopoverTrigger>
-            <PopoverContent align="start" className="w-36 p-1 md:hidden">
-              <NavigationMenu className="max-w-none *:w-full">
-                <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
-                  {navigationLinks.map((link, index) => (
-                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                    <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink href={link.href} className="py-1.5">
-                        {link.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </PopoverContent>
           </Popover>
 
           {/* Breadcrumb */}
@@ -281,22 +253,6 @@ function ClientHeader({ organizations, currentOrg, sites }: HeaderProps) {
         {/* Right side */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            {/* Nav menu */}
-            <NavigationMenu className="max-md:hidden">
-              <NavigationMenuList className="gap-2">
-                {navigationLinks.map((link, index) => (
-                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
-                      href={link.href}
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium"
-                    >
-                      {link.label}
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
             {/* Settings */}
             <SettingsMenu />
           </div>
@@ -307,5 +263,3 @@ function ClientHeader({ organizations, currentOrg, sites }: HeaderProps) {
     </header>
   );
 }
-
-export default ClientHeader;
