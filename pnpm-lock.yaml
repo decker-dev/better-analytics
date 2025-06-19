@@ -42,8 +42,8 @@ importers:
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.8.2)(zod@3.25.56)
       better-analytics:
-        specifier: workspace:*
-        version: link:../../packages/better-analytics
+        specifier: ^0.3.0
+        version: 0.3.0(next@15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       better-auth:
         specifier: ^1.2.9
         version: 1.2.9
@@ -2527,6 +2527,17 @@ packages:
 
   better-analytics@0.1.0:
     resolution: {integrity: sha512-E4TkIDvYxAmRMEJfxGk4TRZuX9bRoQaezmbNmO3AhfJpu0l7GHh8I2WVf6+PNeaKAxjOUpPuyNN98JFvl80KgQ==}
+    peerDependencies:
+      next: '>=13'
+      react: '>=18'
+    peerDependenciesMeta:
+      next:
+        optional: true
+      react:
+        optional: true
+
+  better-analytics@0.3.0:
+    resolution: {integrity: sha512-vD9Wjl+7ORR9acyC1/k5It9aCLMM9JEi4D48umJhGROjjcAuOdWsKE72JTJZzE27t2aOqBS3wNFZd+k8fSqmvA==}
     peerDependencies:
       next: '>=13'
       react: '>=18'
@@ -6957,6 +6968,11 @@ snapshots:
   basic-ftp@5.0.5: {}
 
   better-analytics@0.1.0(next@15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
+    optionalDependencies:
+      next: 15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      react: 19.1.0
+
+  better-analytics@0.3.0(next@15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
     optionalDependencies:
       next: 15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
