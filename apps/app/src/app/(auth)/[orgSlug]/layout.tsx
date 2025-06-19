@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { OrgNavigation } from "@/modules/auth/components/org-navigation";
 import { OrgSwitcher } from "@/modules/auth/components/org-switcher";
 
 interface OrgLayoutProps {
@@ -68,10 +67,6 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
           </div>
         </div>
       </header>
-
-      {/* Navigation */}
-      <OrgNavigation orgSlug={orgSlug} />
-
       {/* Main Content */}
       <main>{children}</main>
     </div>
