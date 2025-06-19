@@ -1,6 +1,7 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
+import { getSitesByOrg } from "@/lib/db/sites";
 import Header from "@/components/header";
 
 interface OrgLayoutProps {
@@ -42,10 +43,22 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
     },
   });
 
+  // Fetch all sites for the organization (for header dropdown)
+  const sites = await getSitesByOrg(currentOrg.id);
+  const mappedSites = sites.map((site) => ({
+    id: site.id,
+    name: site.name,
+    siteKey: site.siteKey,
+  }));
+
   return (
     <div className="min-h-screen">
       {/* Smart Header - detects context automatically */}
-      <Header organizations={organizations || []} currentOrg={currentOrg} />
+      <Header
+        organizations={organizations || []}
+        currentOrg={currentOrg}
+        sites={mappedSites}
+      />
 
       {/* Main Content */}
       <main>{children}</main>

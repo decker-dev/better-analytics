@@ -60,27 +60,39 @@ interface SiteApiResponse {
 interface HeaderProps {
   organizations: HeaderOrganization[];
   currentOrg?: HeaderOrganization;
+  sites?: HeaderSite[];
 }
 
-export default function Header({ organizations, currentOrg }: HeaderProps) {
+function ClientHeader({ organizations, currentOrg, sites }: HeaderProps) {
   const router = useRouter();
   const params = useParams();
   const pathname = usePathname();
 
-  const [sites, setSites] = useState<HeaderSite[]>([]);
-  const [currentSite, setCurrentSite] = useState<HeaderSite | null>(null);
+  const [internalSites, setInternalSites] = useState<HeaderSite[]>(sites || []);
+  const [internalCurrentSite, setInternalCurrentSite] =
+    useState<HeaderSite | null>(null);
   const [loading, setLoading] = useState(false);
 
   // Detect if we're in a site context
   const siteKey = params?.siteKey as string | undefined;
   const isInSiteContext = !!siteKey;
 
-  // Fetch sites when in site context
+  // Manage sites and current site detection
   useEffect(() => {
-    if (isInSiteContext && currentOrg && siteKey) {
+    if (sites) {
+      setInternalSites(sites);
+
+      // If we're in site context, find the current site from the provided sites
+      if (isInSiteContext && siteKey) {
+        const current = sites.find((s) => s.siteKey === siteKey);
+        setInternalCurrentSite(current || null);
+      } else {
+        setInternalCurrentSite(null);
+      }
+    } else if (isInSiteContext && currentOrg && siteKey) {
+      // Fallback: fetch sites if not provided (shouldn't happen with server component)
       setLoading(true);
 
-      // Fetch sites for current organization
       fetch(`/api/sites?orgId=${currentOrg.id}`)
         .then((res) => res.json())
         .then((sitesData: SiteApiResponse[]) => {
@@ -89,11 +101,10 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
             name: s.name,
             siteKey: s.siteKey,
           }));
-          setSites(mappedSites);
+          setInternalSites(mappedSites);
 
-          // Find current site
           const current = mappedSites.find((s) => s.siteKey === siteKey);
-          setCurrentSite(current || null);
+          setInternalCurrentSite(current || null);
         })
         .catch((error) => {
           console.error("Failed to fetch sites:", error);
@@ -102,10 +113,10 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
           setLoading(false);
         });
     } else {
-      setSites([]);
-      setCurrentSite(null);
+      setInternalSites([]);
+      setInternalCurrentSite(null);
     }
-  }, [isInSiteContext, currentOrg, siteKey]);
+  }, [isInSiteContext, currentOrg, siteKey, sites]);
 
   const handleOrgChange = (orgSlug: string) => {
     router.push(`/${orgSlug}/sites`);
@@ -200,7 +211,7 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
                         <ChevronsUpDown size={14} aria-hidden="true" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="center">
                       {organizations.map((org) => (
                         <DropdownMenuItem
                           key={org.id}
@@ -218,17 +229,17 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
               </BreadcrumbItem>
 
               {/* Site - Only show in site context */}
-              {isInSiteContext && currentSite && !loading && (
+              {isInSiteContext && internalCurrentSite && !loading && (
                 <>
                   <BreadcrumbSeparator> / </BreadcrumbSeparator>
                   <BreadcrumbItem>
                     <div className="flex items-center gap-1">
                       {/* Site Title Link */}
                       <Link
-                        href={`/${currentOrg?.slug}/sites/${currentSite.siteKey}/stats`}
+                        href={`/${currentOrg?.slug}/sites/${internalCurrentSite.siteKey}/stats`}
                         className="text-foreground hover:text-primary font-medium transition-colors"
                       >
-                        {currentSite.name}
+                        {internalCurrentSite.name}
                       </Link>
 
                       {/* Site Dropdown */}
@@ -243,13 +254,15 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
                             <ChevronsUpDown size={14} aria-hidden="true" />
                           </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {sites.map((site) => (
+                        <DropdownMenuContent align="center">
+                          {internalSites.map((site) => (
                             <DropdownMenuItem
                               key={site.id}
                               onClick={() => handleSiteChange(site.siteKey)}
                               className={
-                                currentSite?.id === site.id ? "bg-accent" : ""
+                                internalCurrentSite?.id === site.id
+                                  ? "bg-accent"
+                                  : ""
                               }
                             >
                               {site.name}
@@ -294,3 +307,5 @@ export default function Header({ organizations, currentOrg }: HeaderProps) {
     </header>
   );
 }
+
+export default ClientHeader;
