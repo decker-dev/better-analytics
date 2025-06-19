@@ -58,7 +58,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
         <OnboardingFlow
           site={site}
           orgSlug={orgSlug}
-          apiEndpoint={process.env.NEXT_PUBLIC_BA_URL || "/api/collect"}
+          apiEndpoint="/api/collect"
         />
       </Suspense>
     </div>
