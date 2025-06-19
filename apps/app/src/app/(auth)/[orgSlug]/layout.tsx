@@ -44,12 +44,8 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
 
   return (
     <div className="min-h-screen">
-      {/* Organization Header */}
-      <Header
-        organizations={organizations || []}
-        currentOrg={currentOrg}
-        context="org"
-      />
+      {/* Smart Header - detects context automatically */}
+      <Header organizations={organizations || []} currentOrg={currentOrg} />
 
       {/* Main Content */}
       <main>{children}</main>

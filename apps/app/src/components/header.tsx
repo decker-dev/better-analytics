@@ -2,7 +2,8 @@
 
 import { ChartNoAxesColumnIncreasing, ChevronsUpDown } from "lucide-react";
 import { Select as SelectPrimitive } from "radix-ui";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import SettingsMenu from "./settings-menu";
 import UserMenu from "./user-menu";
@@ -45,22 +46,61 @@ interface HeaderSite {
   siteKey: string;
 }
 
+interface SiteApiResponse {
+  id: string;
+  name: string;
+  siteKey: string;
+}
+
 interface HeaderProps {
   organizations: HeaderOrganization[];
   currentOrg?: HeaderOrganization;
-  sites?: HeaderSite[];
-  currentSite?: HeaderSite;
-  context: "org" | "site";
 }
 
-export default function Header({
-  organizations,
-  currentOrg,
-  sites,
-  currentSite,
-  context,
-}: HeaderProps) {
+export default function Header({ organizations, currentOrg }: HeaderProps) {
   const router = useRouter();
+  const params = useParams();
+  const pathname = usePathname();
+
+  const [sites, setSites] = useState<HeaderSite[]>([]);
+  const [currentSite, setCurrentSite] = useState<HeaderSite | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  // Detect if we're in a site context
+  const siteKey = params?.siteKey as string | undefined;
+  const isInSiteContext = !!siteKey;
+
+  // Fetch sites when in site context
+  useEffect(() => {
+    if (isInSiteContext && currentOrg && siteKey) {
+      setLoading(true);
+
+      // Fetch sites for current organization
+      fetch(`/api/sites?orgId=${currentOrg.id}`)
+        .then((res) => res.json())
+        .then((sitesData: SiteApiResponse[]) => {
+          const mappedSites = sitesData.map((s) => ({
+            id: s.id,
+            name: s.name,
+            siteKey: s.siteKey,
+          }));
+          setSites(mappedSites);
+
+          // Find current site
+          const current = mappedSites.find((s) => s.siteKey === siteKey);
+          setCurrentSite(current || null);
+        })
+        .catch((error) => {
+          console.error("Failed to fetch sites:", error);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setSites([]);
+      setCurrentSite(null);
+    }
+  }, [isInSiteContext, currentOrg, siteKey]);
 
   const handleOrgChange = (orgSlug: string) => {
     if (orgSlug !== currentOrg?.slug) {
@@ -68,9 +108,9 @@ export default function Header({
     }
   };
 
-  const handleSiteChange = (siteKey: string) => {
-    if (currentOrg && siteKey !== currentSite?.siteKey) {
-      router.push(`/${currentOrg.slug}/sites/${siteKey}/stats`);
+  const handleSiteChange = (newSiteKey: string) => {
+    if (currentOrg && newSiteKey !== currentSite?.siteKey) {
+      router.push(`/${currentOrg.slug}/sites/${newSiteKey}/stats`);
     }
   };
 
@@ -129,6 +169,7 @@ export default function Header({
               </NavigationMenu>
             </PopoverContent>
           </Popover>
+
           {/* Breadcrumb */}
           <ChartNoAxesColumnIncreasing size={16} />
           <Breadcrumb>
@@ -166,7 +207,7 @@ export default function Header({
               </BreadcrumbItem>
 
               {/* Site Selector - Only show in site context */}
-              {context === "site" && sites && currentSite && (
+              {isInSiteContext && currentSite && !loading && (
                 <>
                   <BreadcrumbSeparator> / </BreadcrumbSeparator>
                   <BreadcrumbItem>
@@ -204,6 +245,7 @@ export default function Header({
             </BreadcrumbList>
           </Breadcrumb>
         </div>
+
         {/* Right side */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">

@@ -1,14 +1,9 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import {
-  getSiteByKey,
-  verifySiteOwnership,
-  getSitesByOrg,
-} from "@/lib/db/sites";
+import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
 import { SiteBreadcrumbWrapper } from "@/modules/sites/components/site-breadcrumb-wrapper";
 import { SiteNavigation } from "@/modules/sites/components/site-navigation";
-import Header from "@/components/header";
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -54,24 +49,8 @@ export default async function SiteLayout({
     notFound();
   }
 
-  // Get all sites for the organization
-  const sites = await getSitesByOrg(currentOrg.id);
-
   return (
     <div className="min-h-screen">
-      {/* Site Header */}
-      <Header
-        organizations={organizations || []}
-        currentOrg={currentOrg}
-        sites={sites.map((s) => ({
-          id: s.id,
-          name: s.name,
-          siteKey: s.siteKey,
-        }))}
-        currentSite={{ id: site.id, name: site.name, siteKey: site.siteKey }}
-        context="site"
-      />
-
       {/* Site Navigation */}
       <SiteNavigation orgSlug={orgSlug} siteKey={siteKey} />
 
