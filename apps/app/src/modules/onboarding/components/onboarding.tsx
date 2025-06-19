@@ -22,7 +22,6 @@ export default function Onboarding() {
 
   return (
     <div className="min-h-screen bg-[#0c0c0c] text-white">
-
       {/* Main Content */}
       <div className="max-w-5xl mx-auto px-8 py-12">
         {/* Title Section */}

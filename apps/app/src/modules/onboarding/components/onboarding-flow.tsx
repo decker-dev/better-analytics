@@ -14,8 +14,8 @@ import {
 import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { getCodeExamples } from "../../lib/code-examples";
-import { useOnboardingEvents } from "../../hooks/use-live-events";
+import { getCodeExamples } from "../lib/code-examples";
+import { useOnboardingEvents } from "../hooks/use-live-events";
 import type { Site } from "@/lib/db/schema";
 
 interface OnboardingFlowProps {

@@ -199,17 +199,11 @@ app.get('*', (req, res) => {
 }
 
 /**
- * Get environment variables for code examples
+ * Get example environment variables for Better Analytics
  */
 export function getExampleEnvironment(siteKey: string, apiEndpoint: string) {
   return {
-    'Next.js': `# .env.local
-NEXT_PUBLIC_BA_URL=${apiEndpoint}
-NEXT_PUBLIC_BA_SITE=${siteKey}`,
-
-    'Environment': `# Environment Variables
-BA_ENDPOINT=${apiEndpoint}
-BA_SITE_KEY=${siteKey}
-BA_DEBUG=true`
-  }
+    'NEXT_PUBLIC_BA_SITE': siteKey,
+    'NEXT_PUBLIC_BA_API': apiEndpoint,
+  };
 } 

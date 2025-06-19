@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { sites } from "@/lib/db/schema";
 import { eq, and } from "drizzle-orm";
-import { OnboardingFlow } from "@/modules/sites/components/onboarding/onboarding-flow";
+import { OnboardingFlow } from "@/modules/onboarding/components/onboarding-flow";
 import { auth } from "@/modules/auth/lib/auth";
 import { headers } from "next/headers";
 

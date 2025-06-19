@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { CreateSiteForm } from "@/modules/sites/components/create-site-form";
-import Onboarding from "@/modules/sites/components/onboarding";
+import Onboarding from "@/modules/onboarding/components/onboarding";
 
 interface NewSitePageProps {
   params: Promise<{ orgSlug: string }>;
