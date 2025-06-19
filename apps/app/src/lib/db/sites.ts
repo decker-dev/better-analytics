@@ -11,10 +11,11 @@ export async function createSite(
   organizationId: string,
   name: string,
   domain?: string,
-  description?: string
+  description?: string,
+  customSiteKey?: string
 ): Promise<Site> {
   const id = nanoid();
-  const siteKey = await generateUniqueSiteKey(organizationId);
+  const siteKey = customSiteKey || await generateUniqueSiteKey(organizationId);
 
   const newSite: NewSite = {
     id,

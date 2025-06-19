@@ -10,6 +10,7 @@ const createSiteSchema = z.object({
   name: z.string().min(1),
   domain: z.string().optional(),
   description: z.string().optional(),
+  siteKey: z.string().optional(), // Allow custom site key for onboarding
 });
 
 export async function POST(request: NextRequest) {
@@ -38,7 +39,8 @@ export async function POST(request: NextRequest) {
       validatedData.organizationId,
       validatedData.name,
       validatedData.domain,
-      validatedData.description
+      validatedData.description,
+      validatedData.siteKey
     );
 
     return NextResponse.json(site);

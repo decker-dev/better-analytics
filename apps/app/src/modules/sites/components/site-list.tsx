@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -5,16 +9,55 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
-import { BarChart3, Settings, Plus, Globe } from "lucide-react";
+import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
 import type { Site } from "@/lib/db/schema";
+import { generateSiteName, generateSiteKey } from "@/lib/site-name-generator";
 
 interface SiteListProps {
   sites: Site[];
   orgSlug: string;
+  organizationId: string;
 }
 
-export const SiteList = ({ sites, orgSlug }: SiteListProps) => {
+export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
+  const router = useRouter();
+  const [creating, setCreating] = useState(false);
+
+  const handleCreateSite = async () => {
+    setCreating(true);
+
+    try {
+      const siteName = generateSiteName();
+      const siteKey = generateSiteKey();
+
+      const response = await fetch("/api/sites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          organizationId,
+          name: siteName,
+          siteKey,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create site");
+      }
+
+      const site = await response.json();
+
+      // Redirect to onboarding
+      router.push(`/${orgSlug}/sites/${site.siteKey}/onboarding`);
+    } catch (error) {
+      console.error("Error creating site:", error);
+      // TODO: Add toast notification for error
+    } finally {
+      setCreating(false);
+    }
+  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -24,12 +67,14 @@ export const SiteList = ({ sites, orgSlug }: SiteListProps) => {
             Manage your sites and view their analytics
           </p>
         </div>
-        <Link href={`/${orgSlug}/sites/new`}>
-          <Button>
+        <Button onClick={handleCreateSite} disabled={creating}>
+          {creating ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
             <Plus className="h-4 w-4 mr-2" />
-            Create New Site
-          </Button>
-        </Link>
+          )}
+          Create New Site
+        </Button>
       </div>
 
       {sites.length > 0 ? (
@@ -97,12 +142,14 @@ export const SiteList = ({ sites, orgSlug }: SiteListProps) => {
             <p className="text-muted-foreground text-center mb-6">
               Create your first site to start tracking analytics
             </p>
-            <Link href={`/${orgSlug}/sites/new`}>
-              <Button>
+            <Button onClick={handleCreateSite} disabled={creating}>
+              {creating ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
                 <Plus className="h-4 w-4 mr-2" />
-                Create Your First Site
-              </Button>
-            </Link>
+              )}
+              Create Your First Site
+            </Button>
           </CardContent>
         </Card>
       )}

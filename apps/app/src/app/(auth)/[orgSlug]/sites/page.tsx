@@ -20,7 +20,11 @@ async function SitesContent({
 
   return (
     <div className="p-6">
-      <SiteList sites={sites} orgSlug={orgSlug} />
+      <SiteList
+        sites={sites}
+        orgSlug={orgSlug}
+        organizationId={organizationId}
+      />
     </div>
   );
 }
