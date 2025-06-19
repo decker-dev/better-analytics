@@ -1,5 +1,8 @@
+"use client";
+
 import { ChartNoAxesColumnIncreasing, ChevronsUpDown } from "lucide-react";
 import { Select as SelectPrimitive } from "radix-ui";
+import { useRouter } from "next/navigation";
 
 import SettingsMenu from "./settings-menu";
 import UserMenu from "./user-menu";
@@ -30,7 +33,47 @@ const navigationLinks = [
   { href: "#", label: "API reference" },
 ];
 
-export default function Header() {
+interface HeaderOrganization {
+  id: string;
+  name: string;
+  slug: string;
+}
+
+interface HeaderSite {
+  id: string;
+  name: string;
+  siteKey: string;
+}
+
+interface HeaderProps {
+  organizations: HeaderOrganization[];
+  currentOrg?: HeaderOrganization;
+  sites?: HeaderSite[];
+  currentSite?: HeaderSite;
+  context: "org" | "site";
+}
+
+export default function Header({
+  organizations,
+  currentOrg,
+  sites,
+  currentSite,
+  context,
+}: HeaderProps) {
+  const router = useRouter();
+
+  const handleOrgChange = (orgSlug: string) => {
+    if (orgSlug !== currentOrg?.slug) {
+      router.push(`/${orgSlug}/sites`);
+    }
+  };
+
+  const handleSiteChange = (siteKey: string) => {
+    if (currentOrg && siteKey !== currentSite?.siteKey) {
+      router.push(`/${currentOrg.slug}/sites/${siteKey}/stats`);
+    }
+  };
+
   return (
     <header className="border-b px-4 md:px-6">
       <div className="flex h-16 items-center justify-between gap-4">
@@ -90,17 +133,22 @@ export default function Header() {
           <ChartNoAxesColumnIncreasing size={16} />
           <Breadcrumb>
             <BreadcrumbList>
+              {/* Organization Selector */}
               <BreadcrumbItem>
-                <Select defaultValue="personal">
+                <Select
+                  key={`org-${currentOrg?.slug || "none"}`}
+                  value={currentOrg?.slug}
+                  onValueChange={handleOrgChange}
+                >
                   <SelectPrimitive.SelectTrigger
-                    aria-label="Select account type"
+                    aria-label="Select organization"
                     asChild
                   >
                     <Button
                       variant="ghost"
                       className="focus-visible:bg-accent text-foreground h-8 p-1.5 focus-visible:ring-0"
                     >
-                      <SelectValue placeholder="Select account type" />
+                      <SelectValue placeholder="Select organization" />
                       <ChevronsUpDown
                         size={14}
                         className="text-muted-foreground/80"
@@ -108,36 +156,51 @@ export default function Header() {
                     </Button>
                   </SelectPrimitive.SelectTrigger>
                   <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-                    <SelectItem value="personal">Personal</SelectItem>
-                    <SelectItem value="team">Team</SelectItem>
-                    <SelectItem value="business">Business</SelectItem>
+                    {organizations.map((org) => (
+                      <SelectItem key={org.id} value={org.slug}>
+                        {org.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </BreadcrumbItem>
-              <BreadcrumbSeparator> / </BreadcrumbSeparator>
-              <BreadcrumbItem>
-                <Select defaultValue="1">
-                  <SelectPrimitive.SelectTrigger
-                    aria-label="Select project"
-                    asChild
-                  >
-                    <Button
-                      variant="ghost"
-                      className="focus-visible:bg-accent text-foreground h-8 p-1.5 focus-visible:ring-0"
+
+              {/* Site Selector - Only show in site context */}
+              {context === "site" && sites && currentSite && (
+                <>
+                  <BreadcrumbSeparator> / </BreadcrumbSeparator>
+                  <BreadcrumbItem>
+                    <Select
+                      key={`site-${currentSite?.siteKey || "none"}`}
+                      value={currentSite.siteKey}
+                      onValueChange={handleSiteChange}
                     >
-                      <SelectValue placeholder="Select project" />
-                      <ChevronsUpDown
-                        size={14}
-                        className="text-muted-foreground/80"
-                      />
-                    </Button>
-                  </SelectPrimitive.SelectTrigger>
-                  <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
-                    <SelectItem value="1">Main project</SelectItem>
-                    <SelectItem value="2">Origin project</SelectItem>
-                  </SelectContent>
-                </Select>
-              </BreadcrumbItem>
+                      <SelectPrimitive.SelectTrigger
+                        aria-label="Select site"
+                        asChild
+                      >
+                        <Button
+                          variant="ghost"
+                          className="focus-visible:bg-accent text-foreground h-8 p-1.5 focus-visible:ring-0"
+                        >
+                          <SelectValue placeholder="Select site" />
+                          <ChevronsUpDown
+                            size={14}
+                            className="text-muted-foreground/80"
+                          />
+                        </Button>
+                      </SelectPrimitive.SelectTrigger>
+                      <SelectContent className="[&_*[role=option]]:ps-2 [&_*[role=option]]:pe-8 [&_*[role=option]>span]:start-auto [&_*[role=option]>span]:end-2">
+                        {sites.map((site) => (
+                          <SelectItem key={site.id} value={site.siteKey}>
+                            {site.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </BreadcrumbItem>
+                </>
+              )}
             </BreadcrumbList>
           </Breadcrumb>
         </div>

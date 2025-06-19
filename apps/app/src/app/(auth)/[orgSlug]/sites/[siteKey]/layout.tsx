@@ -1,10 +1,14 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
+import {
+  getSiteByKey,
+  verifySiteOwnership,
+  getSitesByOrg,
+} from "@/lib/db/sites";
 import { SiteBreadcrumbWrapper } from "@/modules/sites/components/site-breadcrumb-wrapper";
 import { SiteNavigation } from "@/modules/sites/components/site-navigation";
-import { SiteSelector } from "@/modules/sites/components/site-selector";
+import Header from "@/components/header";
 
 interface SiteLayoutProps {
   children: React.ReactNode;
@@ -50,31 +54,23 @@ export default async function SiteLayout({
     notFound();
   }
 
-  return (
-    <div className="min-h-[calc(100vh-8rem)]">
-      {/* Site Header with Selector */}
-      <div className="border-b bg-background">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h2 className="text-lg font-semibold">{site.name}</h2>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Site Key:</span>
-                <code className="bg-muted px-2 py-1 rounded text-xs">
-                  {siteKey}
-                </code>
-              </div>
-            </div>
+  // Get all sites for the organization
+  const sites = await getSitesByOrg(currentOrg.id);
 
-            {/* Site Selector */}
-            <SiteSelector
-              currentSiteKey={siteKey}
-              organizationId={currentOrg.id}
-              orgSlug={orgSlug}
-            />
-          </div>
-        </div>
-      </div>
+  return (
+    <div className="min-h-screen">
+      {/* Site Header */}
+      <Header
+        organizations={organizations || []}
+        currentOrg={currentOrg}
+        sites={sites.map((s) => ({
+          id: s.id,
+          name: s.name,
+          siteKey: s.siteKey,
+        }))}
+        currentSite={{ id: site.id, name: site.name, siteKey: site.siteKey }}
+        context="site"
+      />
 
       {/* Site Navigation */}
       <SiteNavigation orgSlug={orgSlug} siteKey={siteKey} />

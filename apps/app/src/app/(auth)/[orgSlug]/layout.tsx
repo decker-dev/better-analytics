@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { redirect, notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { OrgSwitcher } from "@/modules/auth/components/org-switcher";
 import Header from "@/components/header";
 
 interface OrgLayoutProps {
@@ -46,7 +45,11 @@ export default async function OrgLayout({ children, params }: OrgLayoutProps) {
   return (
     <div className="min-h-screen">
       {/* Organization Header */}
-      <Header />
+      <Header
+        organizations={organizations || []}
+        currentOrg={currentOrg}
+        context="org"
+      />
 
       {/* Main Content */}
       <main>{children}</main>
