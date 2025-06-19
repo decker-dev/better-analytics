@@ -5,7 +5,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Eye, Users, Clock, TrendingUp } from "lucide-react";
-import type { AnalyticsStats } from "../lib/analytics";
+import type { AnalyticsStats } from "../../lib/analytics";
 
 interface KeyMetricsProps {
   stats: AnalyticsStats;

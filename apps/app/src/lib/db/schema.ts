@@ -138,6 +138,18 @@ export const invitation = pgTable('invitation', {
   updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
+// Sites table for project management
+export const sites = pgTable('sites', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal"
+  siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único)
+  organizationId: text('organization_id').notNull().references(() => organization.id, { onDelete: 'cascade' }),
+  domain: text('domain'),                           // "dashboard.example.com" (opcional)
+  description: text('description'),                 // Descripción del proyecto
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
+});
+
 // TypeScript types
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
@@ -149,4 +161,7 @@ export type Member = typeof member.$inferSelect;
 export type NewMember = typeof member.$inferInsert;
 
 export type Invitation = typeof invitation.$inferSelect;
-export type NewInvitation = typeof invitation.$inferInsert; 
+export type NewInvitation = typeof invitation.$inferInsert;
+
+export type Site = typeof sites.$inferSelect;
+export type NewSite = typeof sites.$inferInsert; 

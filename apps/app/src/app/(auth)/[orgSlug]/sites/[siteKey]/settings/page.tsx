@@ -1,0 +1,231 @@
+import { headers } from "next/headers";
+import { redirect, notFound } from "next/navigation";
+import { auth } from "@/modules/auth/lib/auth";
+import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@repo/ui/components/card";
+import { Settings, Globe, Trash2, RotateCcw } from "lucide-react";
+
+interface SiteSettingsPageProps {
+  params: Promise<{ orgSlug: string; siteKey: string }>;
+}
+
+export default async function SiteSettingsPage({
+  params,
+}: SiteSettingsPageProps) {
+  const { orgSlug, siteKey } = await params;
+
+  // Get session
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect("/sign-in");
+  }
+
+  // Get user's organizations
+  const organizations = await auth.api.listOrganizations({
+    headers: await headers(),
+  });
+
+  // Find the current organization
+  const currentOrg = organizations?.find((org) => org.slug === orgSlug);
+
+  if (!currentOrg) {
+    redirect("/");
+  }
+
+  // Verify that the site exists and belongs to this organization
+  const isOwner = await verifySiteOwnership(siteKey, currentOrg.id);
+  if (!isOwner) {
+    notFound();
+  }
+
+  // Get site details
+  const site = await getSiteByKey(siteKey);
+  if (!site) {
+    notFound();
+  }
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Site Settings</h1>
+        <p className="text-gray-600">Manage settings for {site.name}</p>
+      </div>
+
+      {/* Site Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            Site Information
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Site Name
+              </label>
+              <input
+                type="text"
+                defaultValue={site.name}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="domain"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Domain
+              </label>
+              <input
+                type="text"
+                defaultValue={site.domain || ""}
+                placeholder="example.com"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="description"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Description
+            </label>
+            <textarea
+              rows={3}
+              defaultValue={site.description || ""}
+              placeholder="Describe your site..."
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="button"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              Save Changes
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Site Key Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Settings className="h-5 w-5" />
+            Site Key
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">Current Site Key</h4>
+              <p className="text-sm text-gray-600">
+                Use this key to identify your site in analytics tracking
+              </p>
+            </div>
+            <code className="bg-gray-100 px-3 py-2 rounded text-sm">
+              {siteKey}
+            </code>
+          </div>
+
+          <div className="border-t pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium">Regenerate Site Key</h4>
+                <p className="text-sm text-gray-600">
+                  Generate a new site key. This will require updating your
+                  tracking code.
+                </p>
+              </div>
+              <button
+                type="button"
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Regenerate
+              </button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Integration Code */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Integration Code</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <h4 className="font-medium mb-2">JavaScript Integration</h4>
+            <p className="text-sm text-gray-600 mb-3">
+              Add this code to your website to start tracking analytics
+            </p>
+            <pre className="bg-gray-100 p-4 rounded-lg text-sm overflow-x-auto">
+              <code>{`import { Analytics } from 'better-analytics/next';
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Analytics
+          api="${process.env.NEXT_PUBLIC_APP_URL}/api/collect"
+          site="${siteKey}"
+          debug={false}
+        />
+      </body>
+    </html>
+  );
+}`}</code>
+            </pre>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Danger Zone */}
+      <Card className="border-red-200">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-red-600">
+            <Trash2 className="h-5 w-5" />
+            Danger Zone
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="font-medium">Delete Site</h4>
+              <p className="text-sm text-gray-600">
+                Permanently delete this site and all its analytics data. This
+                action cannot be undone.
+              </p>
+            </div>
+            <button
+              type="button"
+              className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete Site
+            </button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

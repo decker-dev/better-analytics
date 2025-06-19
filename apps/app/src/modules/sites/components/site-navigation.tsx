@@ -2,21 +2,28 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Globe } from "lucide-react";
+import { BarChart3, Settings } from "lucide-react";
 
-interface OrgNavigationProps {
+interface SiteNavigationProps {
   orgSlug: string;
+  siteKey: string;
 }
 
-export const OrgNavigation = ({ orgSlug }: OrgNavigationProps) => {
+export const SiteNavigation = ({ orgSlug, siteKey }: SiteNavigationProps) => {
   const pathname = usePathname();
 
   const navigation = [
     {
-      name: "Sites",
-      href: `/${orgSlug}/sites`,
-      icon: Globe,
-      current: pathname.startsWith(`/${orgSlug}/sites`),
+      name: "Analytics",
+      href: `/${orgSlug}/sites/${siteKey}/stats`,
+      icon: BarChart3,
+      current: pathname === `/${orgSlug}/sites/${siteKey}/stats`,
+    },
+    {
+      name: "Settings",
+      href: `/${orgSlug}/sites/${siteKey}/settings`,
+      icon: Settings,
+      current: pathname === `/${orgSlug}/sites/${siteKey}/settings`,
     },
   ];
 

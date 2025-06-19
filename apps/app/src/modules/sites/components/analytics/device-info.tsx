@@ -5,7 +5,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Smartphone } from "lucide-react";
-import type { AnalyticsStats } from "../lib/analytics";
+import type { AnalyticsStats } from "../../lib/analytics";
 
 interface DeviceInfoProps {
   stats: AnalyticsStats;
