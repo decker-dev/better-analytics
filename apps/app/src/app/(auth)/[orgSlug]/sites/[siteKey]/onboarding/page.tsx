@@ -8,10 +8,10 @@ import { auth } from "@/modules/auth/lib/auth";
 import { headers } from "next/headers";
 
 interface OnboardingPageProps {
-  params: {
+  params: Promise<{
     orgSlug: string;
     siteKey: string;
-  };
+  }>;
 }
 
 async function getSiteData(orgSlug: string, siteKey: string) {
@@ -49,17 +49,15 @@ async function getSiteData(orgSlug: string, siteKey: string) {
 }
 
 export default async function OnboardingPage({ params }: OnboardingPageProps) {
-  const { site, organization } = await getSiteData(
-    params.orgSlug,
-    params.siteKey,
-  );
+  const { orgSlug, siteKey } = await params;
+  const { site, organization } = await getSiteData(orgSlug, siteKey);
 
   return (
     <div className="min-h-screen bg-[#0c0c0c]">
       <Suspense fallback={<div>Loading...</div>}>
         <OnboardingFlow
           site={site}
-          orgSlug={params.orgSlug}
+          orgSlug={orgSlug}
           apiEndpoint={process.env.NEXT_PUBLIC_BA_URL || "/api/collect"}
         />
       </Suspense>
@@ -68,7 +66,8 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
 }
 
 export async function generateMetadata({ params }: OnboardingPageProps) {
-  const { site } = await getSiteData(params.orgSlug, params.siteKey);
+  const { orgSlug, siteKey } = await params;
+  const { site } = await getSiteData(orgSlug, siteKey);
 
   return {
     title: `Setup ${site.name} - Better Analytics`,

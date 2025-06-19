@@ -83,6 +83,9 @@ importers:
       resend:
         specifier: ^4.6.0
         version: 4.6.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      shiki:
+        specifier: ^3.6.0
+        version: 3.6.0
       swr:
         specifier: ^2.3.3
         version: 2.3.3(react@19.1.0)

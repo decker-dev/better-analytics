@@ -120,21 +120,6 @@ export function OnboardingFlow({
 
   return (
     <div className="text-white">
-      {/* Celebration Overlay */}
-      {showCelebration && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-gradient-to-r from-green-500/20 to-blue-500/20 border border-green-500/30 rounded-lg p-8 text-center">
-            <PartyPopper className="w-16 h-16 mx-auto mb-4 text-green-400" />
-            <h2 className="text-2xl font-bold mb-2">
-              🎉 First Event Received!
-            </h2>
-            <p className="text-gray-300">
-              Your Better Analytics integration is working perfectly.
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="border-b border-gray-800">
         <div className="max-w-5xl mx-auto px-8 py-8">

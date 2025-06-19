@@ -12,9 +12,11 @@ const updateSiteSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { siteKey: string } }
+  { params }: { params: Promise<{ siteKey: string }> }
 ) {
   try {
+    const { siteKey } = await params;
+
     // Check authentication
     const session = await auth.api.getSession({
       headers: await headers(),
@@ -28,7 +30,7 @@ export async function PATCH(
     }
 
     // Get the site
-    const site = await getSiteByKey(params.siteKey);
+    const site = await getSiteByKey(siteKey);
 
     if (!site) {
       return NextResponse.json(
