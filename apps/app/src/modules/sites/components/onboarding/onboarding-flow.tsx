@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
 import {
   Eye,
   EyeOff,
@@ -11,7 +10,6 @@ import {
   Circle,
   Loader2,
   ArrowRight,
-  PartyPopper,
 } from "lucide-react";
 import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
 import Link from "next/link";
@@ -34,9 +32,6 @@ export function OnboardingFlow({
   const router = useRouter();
   const [showSiteKey, setShowSiteKey] = useState(false);
   const [step2Complete, setStep2Complete] = useState(false);
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [newSiteName, setNewSiteName] = useState(site.name);
-  const [showCelebration, setShowCelebration] = useState(false);
 
   // Live events polling
   const {
@@ -44,15 +39,6 @@ export function OnboardingFlow({
     hasFirstEvent,
     isLoading: eventsLoading,
   } = useOnboardingEvents(site.siteKey);
-
-  // Show celebration when first event arrives
-  useEffect(() => {
-    if (hasFirstEvent && !showCelebration) {
-      setShowCelebration(true);
-      // Auto-hide celebration after 3 seconds
-      setTimeout(() => setShowCelebration(false), 3000);
-    }
-  }, [hasFirstEvent, showCelebration]);
 
   const codeExamples = getCodeExamples(site.siteKey, apiEndpoint);
 
@@ -65,27 +51,7 @@ export function OnboardingFlow({
     }
   };
 
-  const handleRenameSite = async () => {
-    if (newSiteName.trim() === site.name || !newSiteName.trim()) {
-      setIsRenaming(false);
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/sites/${site.siteKey}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: newSiteName.trim() }),
-      });
-
-      if (response.ok) {
-        setIsRenaming(false);
-        // TODO: Add toast notification
-      }
-    } catch (error) {
-      console.error("Failed to rename site:", error);
-    }
-  };
+  // Removed handleRenameSite function
 
   const handleSendTestEvent = async () => {
     try {
@@ -158,7 +124,7 @@ export function OnboardingFlow({
 
               {/* Content */}
               <div className="flex-1 -mt-1">
-                <div className="bg-gradient-to-r from-green-500/10 to-transparent border border-green-500/30 rounded-lg p-6">
+                <div className="bg-gradient-to-r from-green-500/10 to-transparent border border-green-500/30 rounded-lg p-6 max-w-3xl">
                   <h2 className="text-xl font-semibold text-white mb-3">
                     Site Created Successfully
                   </h2>
@@ -170,41 +136,7 @@ export function OnboardingFlow({
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-gray-400">Site Name:</span>
-                      {isRenaming ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            value={newSiteName}
-                            onChange={(e) => setNewSiteName(e.target.value)}
-                            className="w-48 h-8"
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") handleRenameSite();
-                              if (e.key === "Escape") setIsRenaming(false);
-                            }}
-                          />
-                          <Button size="sm" onClick={handleRenameSite}>
-                            Save
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setIsRenaming(false)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono">{site.name}</span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setIsRenaming(true)}
-                            className="text-xs"
-                          >
-                            Rename
-                          </Button>
-                        </div>
-                      )}
+                      <span className="font-mono">{site.name}</span>
                     </div>
 
                     {/* Site Key */}
@@ -271,7 +203,7 @@ export function OnboardingFlow({
               {/* Content */}
               <div className="flex-1 -mt-1">
                 <div
-                  className={`border rounded-lg p-6 ${
+                  className={`border rounded-lg p-6 max-w-3xl ${
                     step2Complete || hasFirstEvent
                       ? "bg-gradient-to-r from-green-500/10 to-transparent border-green-500/30"
                       : "bg-gradient-to-r from-blue-500/10 to-transparent border-blue-500/30"
@@ -295,7 +227,7 @@ export function OnboardingFlow({
                       )}
                       lang="typescript"
                       copyButton={true}
-                      className="max-w-none"
+                      className="max-w-3xl"
                     />
                   </div>
 
@@ -348,7 +280,7 @@ export function OnboardingFlow({
               {/* Content */}
               <div className="flex-1 -mt-1">
                 <div
-                  className={`border rounded-lg p-6 ${
+                  className={`border rounded-lg p-6 max-w-3xl ${
                     hasFirstEvent
                       ? "bg-gradient-to-r from-green-500/10 to-transparent border-green-500/30"
                       : "bg-gray-900/50 border-gray-700"

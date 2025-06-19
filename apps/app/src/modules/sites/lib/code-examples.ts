@@ -147,44 +147,6 @@ document.getElementById('contact-form')?.addEventListener('submit', () => {
 </html>`
     },
 
-    'Vue.js': {
-      title: 'Vue.js 3',
-      language: 'typescript',
-      description: 'Add to your main.ts or App.vue',
-      code: `import { createApp } from 'vue'
-import { init, track } from 'better-analytics'
-import App from './App.vue'
-
-// Initialize Better Analytics
-init({
-  endpoint: '${apiEndpoint}',
-  site: '${siteKey}'
-})
-
-const app = createApp(App)
-
-// Global method for tracking
-app.config.globalProperties.$track = track
-
-// Track page view on mount
-app.mixin({
-  mounted() {
-    // Track page views for components that represent pages
-    if (this.$route) {
-      track('pageview', {
-        path: this.$route.path,
-        name: this.$route.name
-      })
-    }
-  }
-})
-
-app.mount('#app')
-
-// In your components:
-// this.$track('button_click', { component: 'Header' })`
-    },
-
     'Node.js': {
       title: 'Node.js Server',
       language: 'typescript',
@@ -233,44 +195,6 @@ app.get('*', (req, res) => {
   // Your SSR logic
 })`
     },
-
-    'cURL': {
-      title: 'cURL Testing',
-      language: 'bash',
-      description: 'Test your analytics endpoint directly',
-      code: `# Test a simple pageview event
-curl -X POST "${apiEndpoint}" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "event": "pageview",
-    "timestamp": '$(date +%s000)',
-    "site": "${siteKey}",
-    "url": "${baseUrl}/test-page",
-    "referrer": "",
-    "props": {
-      "test": true,
-      "source": "curl"
-    }
-  }'
-
-# Test a custom event
-curl -X POST "${apiEndpoint}" \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "event": "button_click",
-    "timestamp": '$(date +%s000)',
-    "site": "${siteKey}",
-    "url": "${baseUrl}/landing",
-    "referrer": "",
-    "props": {
-      "button": "hero-cta",
-      "section": "above-fold",
-      "test": true
-    }
-  }'
-
-# Expected response: 200 OK`
-    }
   }
 }
 

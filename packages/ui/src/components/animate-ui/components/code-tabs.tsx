@@ -94,7 +94,7 @@ function CodeTabs({
     >
       <TabsList
         data-slot="install-tabs-list"
-        className="w-full relative justify-between rounded-none h-10 bg-gray-950 border-b border-border/75 dark:border-white/20 text-current py-0 px-4"
+        className="w-full relative justify-between rounded-none h-10 bg-gray-950 border-b border-border/75 dark:border-white/20 text-current py-0 px-4 flex-shrink-0"
         activeClassName="rounded-none shadow-none bg-transparent after:content-[''] after:absolute after:inset-x-0 after:h-0.5 after:bottom-0 dark:after:bg-white after:bg-black after:rounded-t-full"
       >
         <div className="flex gap-x-3 h-full">
@@ -120,20 +120,22 @@ function CodeTabs({
           />
         )}
       </TabsList>
-      <TabsContents data-slot="install-tabs-contents">
+      <TabsContents data-slot="install-tabs-contents" className="flex-1">
         {highlightedCodes &&
           Object.entries(highlightedCodes).map(([code, val]) => (
             <TabsContent
               data-slot="install-tabs-content"
               key={code}
-              className="w-full text-sm flex items-center p-4 overflow-auto"
+              className="w-full text-sm"
               value={code}
             >
-              <div
-                className="[&>pre,_&_code]:!bg-transparent [&>pre,_&_code]:[background:transparent_!important] [&>pre,_&_code]:border-none [&_code]:!text-[13px]"
-                // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
-                dangerouslySetInnerHTML={{ __html: val }}
-              />
+              <div className="w-full max-h-96 overflow-auto p-4">
+                <div
+                  className="[&>pre]:!bg-transparent [&>pre]:!m-0 [&>pre]:!p-0 [&>pre]:!border-none [&>pre]:!outline-none [&_code]:!bg-transparent [&_code]:!m-0 [&_code]:!p-0 [&_code]:!border-none [&_code]:!outline-none [&>pre,_&_code]:[background:transparent_!important] [&_code]:!text-[13px] [&>pre]:!whitespace-pre-wrap [&_code]:!whitespace-pre-wrap [&>pre]:!word-break-break-word [&_code]:!word-break-break-word"
+                  // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+                  dangerouslySetInnerHTML={{ __html: val }}
+                />
+              </div>
             </TabsContent>
           ))}
       </TabsContents>

@@ -227,16 +227,17 @@ function TabsContents({
   return (
     <div
       data-slot="tabs-contents"
-      className={cn("overflow-hidden", className)}
+      className={cn("relative overflow-hidden w-full", className)}
       {...props}
     >
       <motion.div
-        className="flex -mx-2"
+        className="flex w-full"
         animate={{ x: `${activeIndex * -100}%` }}
         transition={transition}
+        style={{ width: `${childrenArray.length * 100}%` }}
       >
         {childrenArray.map((child, index) => (
-          <div key={index.toString()} className="w-full shrink-0 px-2">
+          <div key={index.toString()} className="w-full shrink-0">
             {child}
           </div>
         ))}
