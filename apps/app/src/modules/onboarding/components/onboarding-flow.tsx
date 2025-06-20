@@ -55,12 +55,12 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
           <div className="relative mb-12">
             <div className="flex items-start gap-8">
               {/* Step Indicator */}
-              <div className="relative z-10 flex-shrink-0">
+              <div className="relative z-10 flex-shrink-0 mt-6">
                 <div className="w-4 h-4 rounded-full bg-primary border-2 border-background shadow-lg" />
               </div>
 
               {/* Content */}
-              <div className="flex-1 -mt-1">
+              <div className="flex-1">
                 <div className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border border-border rounded-lg p-6 max-w-3xl">
                   <h2 className="text-xl font-semibold mb-3">
                     Add the site key to your project
@@ -89,12 +89,12 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
           <div className="relative">
             <div className="flex items-start gap-8">
               {/* Step Indicator */}
-              <div className="relative z-10 flex-shrink-0">
+              <div className="relative z-10 flex-shrink-0 mt-6">
                 <div className="w-4 h-4 rounded-full bg-secondary-foreground border-2 border-background shadow-lg" />
               </div>
 
               {/* Content */}
-              <div className="flex-1 -mt-1">
+              <div className="flex-1">
                 <div className="bg-gradient-to-r from-accent/50 via-accent/30 to-transparent border border-border rounded-lg p-6 max-w-3xl">
                   <h2 className="text-xl font-semibold mb-3">
                     Install Better Analytics
