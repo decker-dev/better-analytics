@@ -28,6 +28,7 @@ jobs:
         
       - name: Run tests
         run: pnpm test
+        working-directory: packages/better-analytics
         
       - name: Build package
         run: pnpm build
