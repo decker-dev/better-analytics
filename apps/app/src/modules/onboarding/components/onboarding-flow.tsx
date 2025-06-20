@@ -39,7 +39,7 @@ export function OnboardingFlow({
     <div className="text-white">
       {/* Header */}
       <div className="border-b border-gray-800">
-        <div className="max-w-5xl mx-auto px-8 py-8">
+        <div className="max-w-4xl mx-auto px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">
@@ -54,7 +54,7 @@ export function OnboardingFlow({
       </div>
 
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-8 py-12">
+      <div className="max-w-4xl mx-auto px-8 py-12">
         {/* Steps Container */}
         <div className="relative">
           {/* Vertical Line */}
