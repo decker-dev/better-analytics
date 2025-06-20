@@ -10,7 +10,7 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
     mockFetch.mockClear();
     mockFetch.mockResolvedValue(new Response('', { status: 200 }));
     _resetConfig();
-    init({ endpoint: '/api/collect', site: 'test-site' });
+    init({ site: 'test-site', endpoint: '/api/collect' });
   });
 
   afterEach(() => {
@@ -191,7 +191,7 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
       ];
 
       for (const endpoint of invalidEndpoints) {
-        expect(() => init({ endpoint })).not.toThrow();
+        expect(() => init({ site: 'test', endpoint })).not.toThrow();
       }
     });
 
@@ -199,7 +199,7 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
       _resetConfig();
       const longSite = 'x'.repeat(10000);
 
-      expect(() => init({ endpoint: '/api/collect', site: longSite })).not.toThrow();
+      expect(() => init({ site: longSite, endpoint: '/api/collect' })).not.toThrow();
 
       track('long_site_test');
 

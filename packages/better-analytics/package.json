@@ -1,6 +1,6 @@
 {
   "name": "better-analytics",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Micro-analytics JavaScript SDK for tracking page views and events",
   "main": "dist/index.cjs",
   "module": "dist/index.js",

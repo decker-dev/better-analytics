@@ -34,13 +34,25 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
   describe('Initialization', () => {
     it('should initialize without firing pageview', async () => {
-      init({ endpoint: '/api/collect' });
+      init({ site: 'test-site' });
 
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should initialize and fire pageview with initWithPageview', async () => {
-      initWithPageview({ endpoint: '/api/collect' });
+      initWithPageview({ site: 'test-site' });
+
+      expect(mockFetch).toHaveBeenCalledWith('https://better-analytics.app/api/collect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: expect.stringContaining('"event":"pageview"'),
+      });
+    });
+
+    it('should use custom endpoint when provided', async () => {
+      initWithPageview({ site: 'test-site', endpoint: '/api/collect' });
 
       expect(mockFetch).toHaveBeenCalledWith('/api/collect', {
         method: 'POST',
@@ -52,8 +64,8 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should handle multiple init calls by updating config', () => {
-      init({ endpoint: '/api/collect', site: 'site1' });
-      init({ endpoint: '/api/collect2', site: 'site2' });
+      init({ site: 'site1', endpoint: '/api/collect' });
+      init({ site: 'site2', endpoint: '/api/collect2' });
 
       track('test_event');
 
@@ -73,11 +85,25 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
       consoleSpy.mockRestore();
     });
+
+    it('should warn when no site identifier provided', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
+
+      // Test with empty site identifier
+      init({ site: '', endpoint: '/api/collect' });
+      track('test_event');
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Better Analytics: No site identifier provided. Please set the site parameter.'
+      );
+
+      consoleSpy.mockRestore();
+    });
   });
 
   describe('Event Tracking', () => {
     beforeEach(() => {
-      init({ endpoint: '/api/collect', site: 'test-site' });
+      init({ site: 'test-site', endpoint: '/api/collect' });
     });
 
     it('should track custom events', async () => {
@@ -137,7 +163,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
   describe('Error Handling', () => {
     beforeEach(() => {
-      init({ endpoint: '/api/collect' });
+      init({ site: 'test-site', endpoint: '/api/collect' });
     });
 
     it('should handle network errors silently in production', async () => {

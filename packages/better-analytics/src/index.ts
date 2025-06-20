@@ -2,8 +2,8 @@
 // Framework-agnostic, < 2KB gzip, tree-shakable
 
 interface AnalyticsConfig {
-  endpoint: string;
-  site?: string;
+  endpoint?: string;
+  site: string;
 }
 
 interface EventData {
@@ -315,6 +315,11 @@ export function track(event: string, props?: Record<string, unknown>): void {
     return;
   }
 
+  if (!config.site) {
+    console.warn('Better Analytics: No site identifier provided. Please set the site parameter.');
+    return;
+  }
+
   // Get browser info with optimized structure
   const browserInfo = getBrowserInfo();
 
@@ -347,10 +352,13 @@ async function send(data: EventData): Promise<void> {
   if (!config) return;
 
   try {
+    // Use default SaaS endpoint if no custom endpoint provided
+    const endpoint = config.endpoint || 'https://better-analytics.app/api/collect';
+
     // Compress JSON and send via POST
     const payload = JSON.stringify(data);
 
-    await fetch(config.endpoint, {
+    await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

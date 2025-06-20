@@ -1,5 +1,63 @@
 # better-analytics
 
+## 0.4.0
+
+### Major Changes
+
+- **SaaS Integration**: Now uses Better Analytics SaaS (`https://better-analytics.app/api/collect`) as the default endpoint
+- **Required Site Parameter**: The `site` parameter is now required, while `endpoint` is optional
+- **Simplified Setup**: You can now start tracking with just `init({ site: 'my-app' })` - no endpoint configuration needed unless you want to use your own server
+
+### Breaking Changes
+
+```javascript
+// Before (v0.3.0 and earlier)
+init({ endpoint: '/api/collect', site: 'my-app' });
+
+// After (v0.4.0) - Uses Better Analytics SaaS by default
+init({ site: 'my-app' });
+
+// Or with custom endpoint
+init({ site: 'my-app', endpoint: '/api/collect' });
+```
+
+### New Features
+
+#### Default SaaS Integration
+```javascript
+import { init, track } from "better-analytics";
+
+// Automatically sends to Better Analytics SaaS
+init({ site: 'my-app' });
+track('user_signup', { plan: 'pro' });
+```
+
+#### Simplified Next.js Setup
+```jsx
+import { Analytics } from "better-analytics/next";
+
+// Just add your site ID - works immediately
+<Analytics site="my-app" />
+
+// Environment variable approach
+// .env.local: NEXT_PUBLIC_BA_SITE=my-app
+<Analytics />
+```
+
+### Configuration Changes
+
+- **site**: Now required (was optional)
+- **endpoint**: Now optional with default value `https://better-analytics.app/api/collect` (was required)
+- Better error messages when site parameter is missing
+
+### Migration Guide
+
+1. **Environment Variables**: Change `NEXT_PUBLIC_BA_URL` to optional, keep `NEXT_PUBLIC_BA_SITE` as required
+2. **API Calls**: Put `site` parameter first in all `init()` calls
+3. **Remove Manual Endpoints**: You can remove custom `/api/collect` endpoints unless you need custom processing
+
+This update makes Better Analytics much easier to get started with while maintaining full flexibility for custom implementations.
+
 ## 0.3.0
 
 ### Major Changes

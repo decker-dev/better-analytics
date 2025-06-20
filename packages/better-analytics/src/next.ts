@@ -6,11 +6,11 @@ import { usePathname } from 'next/navigation';
 import type { AnalyticsConfig } from './index';
 
 export interface AnalyticsProps {
-  /** API endpoint to send analytics data to (fallback if NEXT_PUBLIC_BA_URL not set) */
+  /** API endpoint to send analytics data to (optional, defaults to Better Analytics SaaS) */
   api?: string;
   /** Alternative name for api prop (for compatibility with init() function) */
   endpoint?: string;
-  /** Site identifier to track which project/user is sending data (fallback if NEXT_PUBLIC_BA_SITE not set) */
+  /** Site identifier to track which project/user is sending data (required, or use NEXT_PUBLIC_BA_SITE) */
   site?: string;
   /** Custom environment variable name for URL (default: NEXT_PUBLIC_BA_URL) */
   urlEnvVar?: string;
@@ -28,8 +28,9 @@ export interface AnalyticsProps {
  * Analytics component that automatically tracks page views in Next.js applications
  * 
  * Usage:
- *   <Analytics />  // Uses NEXT_PUBLIC_BA_URL and NEXT_PUBLIC_BA_SITE
- *   <Analytics api="/api/collect" site="demo" />  // Props override env vars
+ *   <Analytics site="my-site" />  // Uses Better Analytics SaaS (default) with your site ID
+ *   <Analytics site="my-site" api="/api/collect" />  // Custom endpoint with site ID
+ *   <Analytics />  // Uses NEXT_PUBLIC_BA_SITE (required) and optional NEXT_PUBLIC_BA_URL
  *   <Analytics urlEnvVar="CUSTOM_URL" siteEnvVar="CUSTOM_SITE" />  // Custom env vars
  * 
  * Similar to Vercel Analytics - just add to your layout and it works automatically
@@ -56,17 +57,18 @@ export function Analytics(props: AnalyticsProps = {}): null {
     const analyticsEndpoint = api || endpoint || getEnvVar(urlEnvName);
     const analyticsSite = site || getEnvVar(siteEnvName);
 
-    if (analyticsEndpoint) {
+    if (analyticsSite) {
       const config: AnalyticsConfig = {
-        endpoint: analyticsEndpoint,
-        site: analyticsSite
+        site: analyticsSite,
+        ...(analyticsEndpoint && { endpoint: analyticsEndpoint })
       };
       init(config);
 
       // Log debug info if enabled
       if (debug && typeof window !== 'undefined') {
-        console.log('🚀 Better Analytics initialized with endpoint:', analyticsEndpoint, 'site:', analyticsSite);
-        console.log('📦 Sources - URL:', api || endpoint ? 'prop' : `env(${urlEnvName})`, 'Site:', site ? 'prop' : `env(${siteEnvName})`);
+        const effectiveEndpoint = analyticsEndpoint || 'https://better-analytics.app/api/collect (default)';
+        console.log('🚀 Better Analytics initialized with endpoint:', effectiveEndpoint, 'site:', analyticsSite);
+        console.log('📦 Sources - URL:', api || endpoint ? 'prop' : analyticsEndpoint ? `env(${urlEnvName})` : 'default SaaS', 'Site:', site ? 'prop' : `env(${siteEnvName})`);
         console.log('🔍 Debug env vars:', {
           [urlEnvName]: getEnvVar(urlEnvName),
           [siteEnvName]: getEnvVar(siteEnvName)
@@ -76,7 +78,7 @@ export function Analytics(props: AnalyticsProps = {}): null {
       // Show warning in development or when debug is enabled
       const isDevelopment = process.env.NODE_ENV === 'development';
       if (isDevelopment || debug) {
-        console.warn('⚠️ Better Analytics: No endpoint provided. Set', urlEnvName, 'environment variable or pass api/endpoint prop.');
+        console.warn('⚠️ Better Analytics: No site identifier provided. Set', siteEnvName, 'environment variable or pass site prop.');
         if (debug) {
           console.log('🔍 Debug env vars:', {
             [urlEnvName]: getEnvVar(urlEnvName),

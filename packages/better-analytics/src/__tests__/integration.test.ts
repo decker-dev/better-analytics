@@ -131,8 +131,8 @@ describe('Better Analytics SDK - Integration Tests', () => {
     it('should track complete user journey with rich metadata', () => {
       // Initialize analytics for e-commerce site
       init({
-        endpoint: '/api/analytics',
-        site: 'mystore-production'
+        site: 'mystore-production',
+        endpoint: '/api/analytics'
       });
 
       // Track page view
@@ -221,7 +221,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
     });
 
     it('should handle rapid successive events', () => {
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
 
       // Simulate rapid user interactions
       track('button_hover', { button: 'add_to_cart' });
@@ -255,7 +255,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
         configurable: true
       });
 
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
 
       // Track landing page visit
       trackPageview();
@@ -303,7 +303,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
         configurable: true
       });
 
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
       trackPageview();
 
       const event = JSON.parse(mockFetch.mock.calls[0][1].body);
@@ -323,7 +323,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
           configurable: true
         });
 
-        init({ endpoint: '/api/analytics' });
+        init({ site: 'test-site', endpoint: '/api/analytics' });
         track('performance_test', { connection_type: connectionType });
 
         const event = JSON.parse(mockFetch.mock.calls[0][1].body);
@@ -354,7 +354,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
         configurable: true
       });
 
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
       track('session_start');
 
       const event1 = JSON.parse(mockFetch.mock.calls[0][1].body);
@@ -364,7 +364,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
       _resetConfig();
       mockFetch.mockClear();
 
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
       track('session_start');
 
       const event2 = JSON.parse(mockFetch.mock.calls[0][1].body);
@@ -375,7 +375,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
 
   describe('Data Quality', () => {
     it('should sanitize and validate event data', () => {
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
 
       // Track event with various data types
       track('data_test', {
@@ -404,7 +404,7 @@ describe('Better Analytics SDK - Integration Tests', () => {
     });
 
     it('should handle edge case data gracefully', () => {
-      init({ endpoint: '/api/analytics' });
+      init({ site: 'test-site', endpoint: '/api/analytics' });
 
       // Track with edge case values
       track('edge_case_test', {

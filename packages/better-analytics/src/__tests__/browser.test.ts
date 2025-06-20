@@ -10,7 +10,7 @@ describe('Better Analytics SDK - Browser Features', () => {
     mockFetch.mockClear();
     mockFetch.mockResolvedValue(new Response('', { status: 200 }));
     _resetConfig();
-    init({ endpoint: '/api/collect', site: 'test-site' });
+    init({ site: 'test-site', endpoint: '/api/collect' });
   });
 
   afterEach(() => {

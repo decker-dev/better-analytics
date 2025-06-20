@@ -10,7 +10,7 @@ describe('Better Analytics SDK - Accessibility & Privacy', () => {
     mockFetch.mockClear();
     mockFetch.mockResolvedValue(new Response('', { status: 200 }));
     _resetConfig();
-    init({ endpoint: '/api/collect', site: 'test-site' });
+    init({ site: 'test-site', endpoint: '/api/collect' });
   });
 
   afterEach(() => {
@@ -133,7 +133,7 @@ describe('Better Analytics SDK - Accessibility & Privacy', () => {
       for (const language of languages) {
         _resetConfig();
         mockFetch.mockClear();
-        init({ endpoint: '/api/collect', site: 'test-site' });
+        init({ site: 'test-site', endpoint: '/api/collect' });
 
         Object.defineProperty(navigator, 'language', {
           value: language,
@@ -160,7 +160,7 @@ describe('Better Analytics SDK - Accessibility & Privacy', () => {
       for (const timezone of timezones) {
         _resetConfig();
         mockFetch.mockClear();
-        init({ endpoint: '/api/collect', site: 'test-site' });
+        init({ site: 'test-site', endpoint: '/api/collect' });
 
         const mockIntl = {
           DateTimeFormat: vi.fn().mockReturnValue({

@@ -26,15 +26,18 @@ npm install better-analytics
 ```javascript
 import { init, track } from "better-analytics";
 
-// Initialize with your endpoint
-init({ endpoint: '/api/collect', site: 'my-app' });
+// Initialize with just your site ID (uses Better Analytics SaaS by default)
+init({ site: 'my-app' });
 
 // Track custom events (automatically includes rich metadata)
 track('button_click', { button: 'signup' });
 
+// Or use your own endpoint
+init({ site: 'my-app', endpoint: '/api/collect' });
+
 // Or initialize with automatic pageview
 import { initWithPageview } from "better-analytics";
-initWithPageview({ endpoint: '/api/collect', site: 'my-app' });
+initWithPageview({ site: 'my-app' });
 ```
 
 ### Next.js (Recommended)
@@ -43,14 +46,14 @@ initWithPageview({ endpoint: '/api/collect', site: 'my-app' });
 
 ```bash
 # .env.local
-NEXT_PUBLIC_BA_URL=/api/collect
 NEXT_PUBLIC_BA_SITE=my-app
+# NEXT_PUBLIC_BA_URL=/api/collect  # Optional: only if you want custom endpoint
 ```
 
 ```jsx
 import { Analytics } from "better-analytics/next";
 
-// Add to your root layout - auto-configures from env vars
+// Add to your root layout - uses Better Analytics SaaS by default
 export default function RootLayout({ children }) {
   return (
     <html>
@@ -68,12 +71,24 @@ export default function RootLayout({ children }) {
 ```jsx
 import { Analytics } from "better-analytics/next";
 
-// Props take precedence over environment variables
+// Uses Better Analytics SaaS with your site ID
 export default function RootLayout({ children }) {
   return (
     <html>
       <body>
-        <Analytics api="/api/collect" site="my-app" />
+        <Analytics site="my-app" />
+        {children}
+      </body>
+    </html>
+  );
+}
+
+// Or use your own endpoint
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Analytics site="my-app" api="/api/collect" />
         {children}
       </body>
     </html>
@@ -106,15 +121,21 @@ Initialize the analytics SDK.
 ```javascript
 import { init } from "better-analytics";
 
+// Uses Better Analytics SaaS by default
 init({
-  endpoint: '/api/collect', // Your analytics endpoint
-  site: 'my-app'           // Optional site identifier
+  site: 'my-app'           // Required site identifier
+});
+
+// Or use your own endpoint
+init({
+  site: 'my-app',          // Required site identifier
+  endpoint: '/api/collect' // Optional custom endpoint
 });
 ```
 
 **Parameters:**
-- `config.endpoint` (string): URL endpoint to send analytics data
-- `config.site` (string, optional): Site identifier for tracking multiple projects
+- `config.site` (string, required): Site identifier for tracking multiple projects
+- `config.endpoint` (string, optional): Custom URL endpoint (defaults to Better Analytics SaaS)
 
 #### `initWithPageview(config)`
 
@@ -123,14 +144,19 @@ Initialize the analytics SDK and immediately track a pageview.
 ```javascript
 import { initWithPageview } from "better-analytics";
 
-// Initialize and track pageview in one call
+// Initialize and track pageview in one call (uses Better Analytics SaaS)
 initWithPageview({
-  endpoint: '/api/collect',
   site: 'my-app'
 });
 
+// Or with custom endpoint
+initWithPageview({
+  site: 'my-app',
+  endpoint: '/api/collect'
+});
+
 // Equivalent to:
-// init({ endpoint: '/api/collect', site: 'my-app' });
+// init({ site: 'my-app' });
 // trackPageview();
 ```
 
@@ -178,11 +204,16 @@ import { Analytics } from "better-analytics/next";
 // Environment variables only (recommended)
 <Analytics />
 
-// With props (override env vars)
+// With props (uses Better Analytics SaaS by default)
 <Analytics 
-  api="/api/collect"           // Your endpoint (or use NEXT_PUBLIC_BA_URL)
   site="my-app"               // Site identifier (or use NEXT_PUBLIC_BA_SITE)
   debug={true}                // Optional: enable console logging
+/>
+
+// With custom endpoint
+<Analytics 
+  site="my-app"               // Site identifier (required)
+  api="/api/collect"          // Custom endpoint (optional)
 />
 
 // Custom environment variable names
@@ -193,9 +224,9 @@ import { Analytics } from "better-analytics/next";
 ```
 
 **Props:**
-- `api` (string): Analytics endpoint URL (fallback if NEXT_PUBLIC_BA_URL not set)
+- `site` (string): Site identifier (required, or use NEXT_PUBLIC_BA_SITE)
+- `api` (string): Custom analytics endpoint URL (optional, defaults to Better Analytics SaaS)
 - `endpoint` (string): Alternative prop name for `api`
-- `site` (string): Site identifier (fallback if NEXT_PUBLIC_BA_SITE not set)
 - `urlEnvVar` (string): Custom environment variable name for URL
 - `siteEnvVar` (string): Custom environment variable name for site
 - `debug` (boolean): Enable debug logging to console
@@ -203,8 +234,8 @@ import { Analytics } from "better-analytics/next";
 - `beforeSend` (function): Modify or filter events before sending
 
 **Environment Variables:**
-- `NEXT_PUBLIC_BA_URL`: Analytics endpoint (e.g., `/api/collect`)
-- `NEXT_PUBLIC_BA_SITE`: Site identifier (e.g., `my-app`)
+- `NEXT_PUBLIC_BA_SITE`: Site identifier (required, e.g., `my-app`)
+- `NEXT_PUBLIC_BA_URL`: Custom analytics endpoint (optional, defaults to Better Analytics SaaS)
 
 ## Event Data Structure
 
@@ -338,7 +369,8 @@ Full TypeScript support is included:
 import { init, track, AnalyticsConfig, EventData } from "better-analytics";
 
 const config: AnalyticsConfig = {
-  endpoint: '/api/collect'
+  site: 'my-app',              // Required
+  endpoint: '/api/collect'     // Optional (defaults to Better Analytics SaaS)
 };
 
 init(config);
