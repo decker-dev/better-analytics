@@ -1,7 +1,6 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { getSitesByOrg } from "@/lib/db/sites";
 
 interface OrgRootPageProps {
   params: Promise<{ orgSlug: string }>;
@@ -31,14 +30,6 @@ export default async function OrgRootPage({ params }: OrgRootPageProps) {
     redirect("/");
   }
 
-  // Get sites for this organization
-  const sites = await getSitesByOrg(currentOrg.id);
-
-  // If there's only one site, redirect directly to its analytics
-  if (sites.length === 1 && sites[0]) {
-    redirect(`/${orgSlug}/sites/${sites[0].siteKey}/stats`);
-  }
-
-  // Otherwise, redirect to sites management
+  // Always redirect to sites management page for consistency
   redirect(`/${orgSlug}/sites`);
 }

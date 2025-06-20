@@ -55,7 +55,7 @@ export const OrganizationInviteForm = ({
     try {
       const result = await authClient.organization.inviteMember({
         email: inviteEmail.trim(),
-        role: inviteRole,
+        role: inviteRole as "member" | "owner" | "admin",
       });
 
       if (result.error) {
