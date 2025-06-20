@@ -27,16 +27,16 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
   );
 
   return (
-    <div className="text-white">
+    <div className="bg-background text-foreground min-h-screen">
       {/* Header */}
-      <div className="border-b border-gray-800">
+      <div className="border-b border-border">
         <div className="max-w-4xl mx-auto px-8 py-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-4xl font-bold mb-2">
                 Get started with Better Analytics
               </h1>
-              <p className="text-gray-400">
+              <p className="text-muted-foreground">
                 Follow these steps to set up analytics for your site
               </p>
             </div>
@@ -49,23 +49,23 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
         {/* Steps Container */}
         <div className="relative">
           {/* Vertical Line */}
-          <div className="absolute left-[15px] top-8 bottom-0 w-px bg-gray-700" />
+          <div className="absolute left-[8px] top-0 bottom-0 w-px bg-border" />
 
           {/* Step 1: Site Created */}
           <div className="relative mb-12">
             <div className="flex items-start gap-8">
               {/* Step Indicator */}
               <div className="relative z-10 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center" />
+                <div className="w-4 h-4 rounded-full bg-primary border-2 border-background shadow-lg" />
               </div>
 
               {/* Content */}
               <div className="flex-1 -mt-1">
-                <div className="bg-gradient-to-r from-green-500/10 to-transparent border border-green-500/30 rounded-lg p-6 max-w-3xl">
-                  <h2 className="text-xl font-semibold text-white mb-3">
+                <div className="bg-gradient-to-r from-muted/50 via-muted/30 to-transparent border border-border rounded-lg p-6 max-w-3xl">
+                  <h2 className="text-xl font-semibold mb-3">
                     Add the site key to your project
                   </h2>
-                  <p className="text-gray-300 mb-6 text-base">
+                  <p className="text-muted-foreground mb-6 text-base">
                     Add the site key to your project to start collecting data
                   </p>
 
@@ -90,16 +90,16 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
             <div className="flex items-start gap-8">
               {/* Step Indicator */}
               <div className="relative z-10 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full border-2 border-blue-500 bg-blue-500 flex items-center justify-center" />
+                <div className="w-4 h-4 rounded-full bg-secondary-foreground border-2 border-background shadow-lg" />
               </div>
 
               {/* Content */}
               <div className="flex-1 -mt-1">
-                <div className="bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/30 rounded-lg p-6 max-w-3xl">
-                  <h2 className="text-xl font-semibold text-white mb-3">
+                <div className="bg-gradient-to-r from-accent/50 via-accent/30 to-transparent border border-border rounded-lg p-6 max-w-3xl">
+                  <h2 className="text-xl font-semibold mb-3">
                     Install Better Analytics
                   </h2>
-                  <p className="text-gray-300 mb-6 text-base">
+                  <p className="text-muted-foreground mb-6 text-base">
                     Add the analytics code to your website and start collecting
                     data
                   </p>
