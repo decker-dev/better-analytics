@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@repo/ui/globals.css";
 import { Analytics } from "better-analytics/next";
 import { ThemeProvider } from "@/components/theme-provider";
+import { env } from "@/env";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -37,11 +38,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
-        <Analytics
-          api="/api/collect"
-          site={process.env.NEXT_PUBLIC_BA_SITE}
-          debug={true}
-        />
+        <Analytics api="/api/collect" site={env.NEXT_PUBLIC_BA_SITE} />
       </body>
     </html>
   );
