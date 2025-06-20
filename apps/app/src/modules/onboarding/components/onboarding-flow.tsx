@@ -97,11 +97,11 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
               <div className="flex-1">
                 <div className="bg-gradient-to-r from-accent/50 via-accent/30 to-transparent border border-border rounded-lg p-6 max-w-3xl">
                   <h2 className="text-xl font-semibold mb-3">
-                    Install Better Analytics
+                    Track events with Better Analytics
                   </h2>
                   <p className="text-muted-foreground mb-6 text-base">
-                    Add the analytics code to your website and start collecting
-                    data
+                    Implement the analytics code to your website and start
+                    tracking events
                   </p>
 
                   {/* Code Examples */}
