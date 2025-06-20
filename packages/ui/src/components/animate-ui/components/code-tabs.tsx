@@ -15,7 +15,7 @@ import {
 import { CopyButton } from "@repo/ui/components/animate-ui/buttons/copy";
 
 type CodeTabsProps = {
-  codes: Record<string, string>;
+  codes: Record<string, string | { display: string; copy: string }>;
   lang?: string;
   themes?: {
     light: string;
@@ -50,14 +50,27 @@ function CodeTabs({
     value ?? defaultValue ?? Object.keys(codes)[0] ?? "",
   );
 
+  // Normalize codes to support both string and object formats
+  const normalizedCodes = React.useMemo(() => {
+    const result: Record<string, { display: string; copy: string }> = {};
+    for (const [key, val] of Object.entries(codes)) {
+      if (typeof val === "string") {
+        result[key] = { display: val, copy: val };
+      } else {
+        result[key] = val;
+      }
+    }
+    return result;
+  }, [codes]);
+
   React.useEffect(() => {
     async function loadHighlightedCode() {
       try {
         const { codeToHtml } = await import("shiki");
         const newHighlightedCodes: Record<string, string> = {};
 
-        for (const [command, val] of Object.entries(codes)) {
-          const highlighted = await codeToHtml(val, {
+        for (const [command, val] of Object.entries(normalizedCodes)) {
+          const highlighted = await codeToHtml(val.display, {
             lang,
             themes: {
               light: themes.light,
@@ -72,11 +85,16 @@ function CodeTabs({
         setHighlightedCodes(newHighlightedCodes);
       } catch (error) {
         console.error("Error highlighting codes", error);
-        setHighlightedCodes(codes);
+        // Fallback to display codes
+        const fallbackCodes: Record<string, string> = {};
+        for (const [key, val] of Object.entries(normalizedCodes)) {
+          fallbackCodes[key] = val.display;
+        }
+        setHighlightedCodes(fallbackCodes);
       }
     }
     loadHighlightedCode();
-  }, [resolvedTheme, lang, themes.light, themes.dark, codes]);
+  }, [resolvedTheme, lang, themes.light, themes.dark, normalizedCodes]);
 
   return (
     <Tabs
@@ -112,7 +130,7 @@ function CodeTabs({
 
         {copyButton && highlightedCodes && (
           <CopyButton
-            content={codes[selectedCode]}
+            content={normalizedCodes[selectedCode]?.copy || ""}
             size="sm"
             variant="ghost"
             className="-me-2 bg-transparent hover:bg-black/5 dark:hover:bg-white/10"

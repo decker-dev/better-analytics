@@ -2,21 +2,41 @@ interface CodeExample {
   title: string;
   language: string;
   code: string;
+  rawCode: string;
   description?: string;
 }
 
 /**
  * Get code examples for Better Analytics integration
  * @param siteKey - The BA_ site key to inject into examples
+ * @param isVisible - Whether to show the real key or obfuscate it
  * @param apiEndpoint - The API endpoint URL
  */
-export function getCodeExamples(siteKey: string): Record<string, CodeExample> {
+export function getCodeExamples(siteKey: string, isVisible = false): Record<string, CodeExample> {
+  const displayKey = isVisible ? siteKey : '••••••••';
+
   return {
     'Next.js': {
       title: 'Next.js App Router',
       language: 'typescript',
       description: 'Add to your root layout.tsx file',
       code: `import { Analytics } from 'better-analytics/next'
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>
+        <Analytics site="${displayKey}" />
+        {children}
+      </body>
+    </html>
+  )
+}`,
+      rawCode: `import { Analytics } from 'better-analytics/next'
 
 export default function RootLayout({
   children,
@@ -37,6 +57,37 @@ export default function RootLayout({
       language: 'typescript',
       description: 'Add to your main App component',
       code: `import { useEffect } from 'react'
+import { init, trackPageview, track } from 'better-analytics'
+
+function App() {
+  useEffect(() => {
+    // Initialize Better Analytics
+    init({
+      site: '${displayKey}'
+    })
+    
+    // Track initial page view
+    trackPageview()
+  }, [])
+
+  const handleButtonClick = () => {
+    // Track custom events
+    track('button_click', { 
+      section: 'hero',
+      action: 'cta_clicked' 
+    })
+  }
+
+  return (
+    <div>
+      <h1>My App</h1>
+      <button onClick={handleButtonClick}>
+        Click me!
+      </button>
+    </div>
+  )
+}`,
+      rawCode: `import { useEffect } from 'react'
 import { init, trackPageview, track } from 'better-analytics'
 
 function App() {
@@ -74,6 +125,31 @@ function App() {
       language: 'javascript',
       description: 'Add to your HTML file or main JS bundle',
       code: `import { init, trackPageview, track } from 'better-analytics'
+
+// Initialize Better Analytics
+init({
+  site: '${displayKey}'
+})
+
+// Track page view
+trackPageview()
+
+// Track custom events
+document.getElementById('my-button')?.addEventListener('click', () => {
+  track('button_click', {
+    element: 'my-button',
+    page: window.location.pathname
+  })
+})
+
+// Track form submissions
+document.getElementById('contact-form')?.addEventListener('submit', () => {
+  track('form_submit', {
+    form: 'contact',
+    page: window.location.pathname
+  })
+})`,
+      rawCode: `import { init, trackPageview, track } from 'better-analytics'
 
 // Initialize Better Analytics
 init({
@@ -115,6 +191,36 @@ document.getElementById('contact-form')?.addEventListener('submit', () => {
     
     // Initialize
     init({
+      site: '${displayKey}'
+    })
+    
+    // Track page view
+    trackPageview()
+    
+    // Track interactions
+    window.trackEvent = (event, props) => track(event, props)
+  </script>
+</head>
+<body>
+  <h1>My Website</h1>
+  
+  <!-- Track button clicks -->
+  <button onclick="trackEvent('button_click', { button: 'hero-cta' })">
+    Get Started
+  </button>
+</body>
+</html>`,
+      rawCode: `<!DOCTYPE html>
+<html>
+<head>
+  <title>My Website</title>
+  
+  <!-- Better Analytics -->
+  <script type="module">
+    import { init, trackPageview, track } from './path/to/better-analytics.js'
+    
+    // Initialize
+    init({
       site: '${siteKey}'
     })
     
@@ -137,12 +243,3 @@ document.getElementById('contact-form')?.addEventListener('submit', () => {
     },
   }
 }
-
-/**
- * Get example environment variables for Better Analytics
- */
-export function getExampleEnvironment(siteKey: string, apiEndpoint: string) {
-  return {
-    'NEXT_PUBLIC_BA_SITE': siteKey,
-  };
-} 

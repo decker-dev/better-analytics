@@ -8,22 +8,40 @@ import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { cn } from "@repo/ui/lib/utils";
 
+interface SecretInputProps {
+  label: string;
+  placeholder: string;
+  value: string;
+  delay?: number;
+  isVisible?: boolean;
+  onVisibilityChange?: (visible: boolean) => void;
+}
+
 export default function SecretInput({
   label,
   placeholder,
   value,
   delay = 3000,
-}: {
-  label: string;
-  placeholder: string;
-  value: string;
-  delay?: number;
-}) {
+  isVisible: controlledIsVisible,
+  onVisibilityChange,
+}: SecretInputProps) {
   const id = useId();
-  const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [internalIsVisible, setInternalIsVisible] = useState<boolean>(false);
   const [isCopied, setIsCopied] = useState<boolean>(false);
 
-  const toggleVisibility = () => setIsVisible((prevState) => !prevState);
+  // Use controlled state if provided, otherwise use internal state
+  const isVisible =
+    controlledIsVisible !== undefined ? controlledIsVisible : internalIsVisible;
+
+  const toggleVisibility = () => {
+    const newVisibility = !isVisible;
+
+    if (onVisibilityChange) {
+      onVisibilityChange(newVisibility);
+    } else {
+      setInternalIsVisible(newVisibility);
+    }
+  };
 
   const handleCopy = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {

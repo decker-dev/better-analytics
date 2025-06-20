@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@repo/ui/components/button";
 import { ArrowRight } from "lucide-react";
 import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
@@ -14,7 +15,16 @@ interface OnboardingFlowProps {
 }
 
 export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
-  const codeExamples = getCodeExamples(site.siteKey);
+  const [isKeyVisible, setIsKeyVisible] = useState(false);
+  const codeExamples = getCodeExamples(site.siteKey, isKeyVisible);
+
+  // Transform code examples for the new CodeTabs format
+  const transformedCodeExamples = Object.fromEntries(
+    Object.entries(codeExamples).map(([key, value]) => [
+      key,
+      { display: value.code, copy: value.rawCode },
+    ]),
+  );
 
   return (
     <div className="text-white">
@@ -66,6 +76,8 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
                       label="Site Key"
                       placeholder="Enter your site key"
                       value={site.siteKey}
+                      isVisible={isKeyVisible}
+                      onVisibilityChange={setIsKeyVisible}
                     />
                   </div>
                 </div>
@@ -95,12 +107,7 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
                   {/* Code Examples */}
                   <div className="mb-6">
                     <CodeTabs
-                      codes={Object.fromEntries(
-                        Object.entries(codeExamples).map(([key, value]) => [
-                          key,
-                          value.code,
-                        ]),
-                      )}
+                      codes={transformedCodeExamples}
                       lang="typescript"
                       copyButton={true}
                       className="max-w-3xl"
