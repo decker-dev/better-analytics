@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getCodeExamples } from "../lib/code-examples";
 import type { Site } from "@/lib/db/schema";
+import SecretInput from "./secret-input";
 
 interface OnboardingFlowProps {
   site: Site;
@@ -73,54 +74,20 @@ export function OnboardingFlow({
               <div className="flex-1 -mt-1">
                 <div className="bg-gradient-to-r from-green-500/10 to-transparent border border-green-500/30 rounded-lg p-6 max-w-3xl">
                   <h2 className="text-xl font-semibold text-white mb-3">
-                    Site Created Successfully
+                    Add the site key to your project
                   </h2>
                   <p className="text-gray-300 mb-6 text-base">
-                    Your site is ready to collect analytics data
+                    Add the site key to your project to start collecting data
                   </p>
 
                   {/* Site Info */}
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-gray-400">Site Name:</span>
-                      <span className="font-mono">{site.name}</span>
-                    </div>
-
                     {/* Site Key */}
-                    <div className="bg-gray-800/80 rounded-md p-4 flex items-center justify-between font-mono text-sm">
-                      <div>
-                        <div className="text-gray-400 text-xs mb-1">
-                          Site Key
-                        </div>
-                        <span className="text-gray-300 tracking-wider">
-                          {showSiteKey
-                            ? site.siteKey
-                            : "•".repeat(site.siteKey.length)}
-                        </span>
-                      </div>
-                      <div className="flex gap-2 ml-4">
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setShowSiteKey(!showSiteKey)}
-                        >
-                          {showSiteKey ? (
-                            <EyeOff className="w-4 h-4 text-gray-400" />
-                          ) : (
-                            <Eye className="w-4 h-4 text-gray-400" />
-                          )}
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="ghost"
-                          onClick={handleCopySiteKey}
-                        >
-                          <Copy className="w-4 h-4 text-gray-400" />
-                        </Button>
-                      </div>
-                    </div>
+                    <SecretInput
+                      label="Site Key"
+                      placeholder="Enter your site key"
+                      value={site.siteKey}
+                    />
                   </div>
                 </div>
               </div>
