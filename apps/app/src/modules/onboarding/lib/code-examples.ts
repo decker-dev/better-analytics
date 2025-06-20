@@ -10,10 +10,7 @@ interface CodeExample {
  * @param siteKey - The BA_ site key to inject into examples
  * @param apiEndpoint - The API endpoint URL
  */
-export function getCodeExamples(siteKey: string, apiEndpoint: string): Record<string, CodeExample> {
-  const isLocalhost = apiEndpoint.includes('localhost');
-  const baseUrl = isLocalhost ? 'http://localhost:3000' : 'https://yourdomain.com';
-
+export function getCodeExamples(siteKey: string): Record<string, CodeExample> {
   return {
     'Next.js': {
       title: 'Next.js App Router',
@@ -29,34 +26,28 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Analytics 
-          site="${siteKey}"
-          api="${apiEndpoint}"
-        />
+        <Analytics site="${siteKey}" />
         {children}
       </body>
     </html>
   )
-}`
-    },
-
+}`},
     'React': {
       title: 'React Component',
       language: 'typescript',
       description: 'Add to your main App component',
       code: `import { useEffect } from 'react'
-import { init, track } from 'better-analytics'
+import { init, trackPageview, track } from 'better-analytics'
 
 function App() {
   useEffect(() => {
     // Initialize Better Analytics
     init({
-      endpoint: '${apiEndpoint}',
       site: '${siteKey}'
     })
     
-    // Track page view
-    track('pageview')
+    // Track initial page view
+    trackPageview()
   }, [])
 
   const handleButtonClick = () => {
@@ -82,16 +73,15 @@ function App() {
       title: 'Vanilla JavaScript',
       language: 'javascript',
       description: 'Add to your HTML file or main JS bundle',
-      code: `import { init, track } from 'better-analytics'
+      code: `import { init, trackPageview, track } from 'better-analytics'
 
 // Initialize Better Analytics
 init({
-  endpoint: '${apiEndpoint}',
   site: '${siteKey}'
 })
 
 // Track page view
-track('pageview')
+trackPageview()
 
 // Track custom events
 document.getElementById('my-button')?.addEventListener('click', () => {
@@ -121,16 +111,15 @@ document.getElementById('contact-form')?.addEventListener('submit', () => {
   
   <!-- Better Analytics -->
   <script type="module">
-    import { init, track } from 'https://cdn.jsdelivr.net/npm/better-analytics@latest/dist/index.js'
+    import { init, trackPageview, track } from './path/to/better-analytics.js'
     
     // Initialize
     init({
-      endpoint: '${apiEndpoint}',
       site: '${siteKey}'
     })
     
     // Track page view
-    track('pageview')
+    trackPageview()
     
     // Track interactions
     window.trackEvent = (event, props) => track(event, props)
@@ -146,55 +135,6 @@ document.getElementById('contact-form')?.addEventListener('submit', () => {
 </body>
 </html>`
     },
-
-    'Node.js': {
-      title: 'Node.js Server',
-      language: 'typescript',
-      description: 'Server-side tracking for API endpoints',
-      code: `import { track } from 'better-analytics'
-
-// Initialize in your server startup
-import { init } from 'better-analytics'
-
-init({
-  endpoint: '${apiEndpoint}',
-  site: '${siteKey}'
-})
-
-// Track API usage
-app.post('/api/users', async (req, res) => {
-  try {
-    // Your API logic here
-    const user = await createUser(req.body)
-    
-    // Track the event
-    track('user_created', {
-      userId: user.id,
-      plan: user.plan,
-      source: req.headers.referer
-    })
-    
-    res.json(user)
-  } catch (error) {
-    track('user_creation_failed', {
-      error: error.message,
-      body: req.body
-    })
-    res.status(500).json({ error: 'Failed to create user' })
-  }
-})
-
-// Track page renders (SSR)
-app.get('*', (req, res) => {
-  track('page_render', {
-    path: req.path,
-    userAgent: req.headers['user-agent'],
-    ip: req.ip
-  })
-  
-  // Your SSR logic
-})`
-    },
   }
 }
 
@@ -204,6 +144,5 @@ app.get('*', (req, res) => {
 export function getExampleEnvironment(siteKey: string, apiEndpoint: string) {
   return {
     'NEXT_PUBLIC_BA_SITE': siteKey,
-    'NEXT_PUBLIC_BA_API': apiEndpoint,
   };
 } 

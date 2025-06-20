@@ -55,11 +55,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
   return (
     <div className="min-h-screen bg-[#0c0c0c]">
       <Suspense fallback={<div>Loading...</div>}>
-        <OnboardingFlow
-          site={site}
-          orgSlug={orgSlug}
-          apiEndpoint="/api/collect"
-        />
+        <OnboardingFlow site={site} orgSlug={orgSlug} />
       </Suspense>
     </div>
   );

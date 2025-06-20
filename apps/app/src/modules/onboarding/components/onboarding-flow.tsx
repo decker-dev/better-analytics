@@ -1,11 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { Button } from "@repo/ui/components/button";
-import { Eye, EyeOff, Copy, CheckCircle, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { getCodeExamples } from "../lib/code-examples";
 import type { Site } from "@/lib/db/schema";
 import SecretInput from "./secret-input";
@@ -13,27 +11,10 @@ import SecretInput from "./secret-input";
 interface OnboardingFlowProps {
   site: Site;
   orgSlug: string;
-  apiEndpoint: string;
 }
 
-export function OnboardingFlow({
-  site,
-  orgSlug,
-  apiEndpoint,
-}: OnboardingFlowProps) {
-  const router = useRouter();
-  const [showSiteKey, setShowSiteKey] = useState(false);
-
-  const codeExamples = getCodeExamples(site.siteKey, apiEndpoint);
-
-  const handleCopySiteKey = async () => {
-    try {
-      await navigator.clipboard.writeText(site.siteKey);
-      // TODO: Add toast notification
-    } catch (error) {
-      console.error("Failed to copy site key:", error);
-    }
-  };
+export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
+  const codeExamples = getCodeExamples(site.siteKey);
 
   return (
     <div className="text-white">
@@ -65,9 +46,7 @@ export function OnboardingFlow({
             <div className="flex items-start gap-8">
               {/* Step Indicator */}
               <div className="relative z-10 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-black" />
-                </div>
+                <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center" />
               </div>
 
               {/* Content */}
@@ -99,9 +78,7 @@ export function OnboardingFlow({
             <div className="flex items-start gap-8">
               {/* Step Indicator */}
               <div className="relative z-10 flex-shrink-0">
-                <div className="w-8 h-8 rounded-full border-2 border-blue-500 bg-blue-500 flex items-center justify-center">
-                  <span className="text-sm font-medium text-white">2</span>
-                </div>
+                <div className="w-8 h-8 rounded-full border-2 border-blue-500 bg-blue-500 flex items-center justify-center" />
               </div>
 
               {/* Content */}
