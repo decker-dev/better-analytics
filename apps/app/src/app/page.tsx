@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@repo/ui/components/card";
 import Link from "next/link";
 import { Badge } from "@repo/ui/components/badge";
+import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
+import { CodeEditor } from "@repo/ui/components/animate-ui/components/code-editor";
 
 export default function HomePage() {
   return (
@@ -145,36 +147,74 @@ export default function HomePage() {
         {/* Code Example */}
         <div className="mt-20 text-center">
           <h2 className="text-3xl font-bold mb-8">Get started in seconds</h2>
-          <Card className="max-w-2xl mx-auto">
+          <Card className="mx-auto max-w-5xl">
             <CardContent className="p-6">
-              <div className="text-left">
-                <div className="text-sm text-muted-foreground mb-2">
-                  1. Install the package
-                </div>
-                <div className="bg-muted p-3 rounded font-mono text-sm mb-4">
-                  npm install better-analytics
-                </div>
-
-                <div className="text-sm text-muted-foreground mb-2">
-                  2. Add to your app
-                </div>
-                <div className="bg-muted p-3 rounded font-mono text-sm space-y-1">
-                  <div className="text-blue-600 dark:text-blue-400">import</div>
-                  <div>
-                    {" { Analytics } "}
-                    <span className="text-blue-600 dark:text-blue-400">
-                      from
-                    </span>
-                    {' "better-analytics/next";'}
+              <div className="text-left space-y-8">
+                <div className="w-full">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    1. Install the package
                   </div>
-                  <div className="mt-2">{'<Analytics site="my-app" />'}</div>
+                  <CodeTabs
+                    codes={{
+                      npm: "npm install better-analytics",
+                      pnpm: "pnpm add better-analytics",
+                      yarn: "yarn add better-analytics",
+                      bun: "bun add better-analytics",
+                    }}
+                    lang="bash"
+                    defaultValue="npm"
+                    copyButton={true}
+                    className="w-full"
+                  />
                 </div>
 
-                <div className="text-sm text-muted-foreground mb-2 mt-4">
-                  3. Track events
+                <div className="w-full">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    2. Add to your app
+                  </div>
+                  <CodeEditor
+                    lang="jsx"
+                    title="app/layout.tsx"
+                    copyButton={true}
+                    writing={false}
+                    className="w-full h-auto min-h-[280px]"
+                  >
+                    {`import { Analytics } from "better-analytics/next";
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <Analytics site="my-app" />
+        {children}
+      </body>
+    </html>
+  );
+}`}
+                  </CodeEditor>
                 </div>
-                <div className="bg-muted p-3 rounded font-mono text-sm">
-                  <div>{"track('signup_clicked');"}</div>
+
+                <div className="w-full">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    3. Track events anywhere
+                  </div>
+                  <CodeEditor
+                    lang="jsx"
+                    title="components/signup-button.tsx"
+                    copyButton={true}
+                    writing={false}
+                    className="w-full h-auto min-h-[180px]"
+                  >
+                    {`import { track } from "better-analytics/next";
+
+function SignupButton() {
+  return (
+    <button onClick={() => track('signup_clicked')}>
+      Sign Up
+    </button>
+  );
+}`}
+                  </CodeEditor>
                 </div>
               </div>
             </CardContent>

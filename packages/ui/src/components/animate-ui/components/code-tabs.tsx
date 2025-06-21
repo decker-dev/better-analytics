@@ -100,7 +100,7 @@ function CodeTabs({
     <Tabs
       data-slot="install-tabs"
       className={cn(
-        "w-full gap-0 bg-muted/50 rounded-xl border dark:border-white/20 overflow-hidden",
+        "w-full gap-0 bg-background rounded-xl border dark:border-white/20 overflow-hidden",
         className,
       )}
       {...props}
