@@ -1,5 +1,10 @@
 import { headers } from "next/headers";
-import { auth } from "@/modules/auth/lib/auth";
+import {
+  getCachedSession,
+  getCachedOrganizations,
+  getCachedFullOrganization,
+  getCachedInvitations,
+} from "@/modules/auth/lib/auth-cache";
 import {
   Card,
   CardContent,
@@ -19,29 +24,22 @@ export default async function OrganizationSettingsPage({
   const { orgSlug } = await params;
 
   // Middleware has already validated session and org access
-  // We can safely get session and organizations
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  const organizations = await auth.api.listOrganizations({
-    headers: await headers(),
-  });
+  // We can safely get session and organizations (cached)
+  const requestHeaders = await headers();
+  const session = await getCachedSession(requestHeaders);
+  const organizations = await getCachedOrganizations(requestHeaders);
 
   // Find the current organization (middleware guarantees it exists)
   const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;
 
-  // Get full organization details with members
-  const fullOrganization = await auth.api.getFullOrganization({
-    headers: await headers(),
-    query: { organizationId: currentOrg.id },
-  });
+  // Get full organization details with members (cached)
+  const fullOrganization = await getCachedFullOrganization(
+    requestHeaders,
+    currentOrg.id,
+  );
 
-  // Get pending invitations
-  const invitations = await auth.api.listInvitations({
-    headers: await headers(),
-    query: { organizationId: currentOrg.id },
-  });
+  // Get pending invitations (cached)
+  const invitations = await getCachedInvitations(requestHeaders, currentOrg.id);
 
   const currentUserRole = fullOrganization?.members?.find(
     (m) => m.userId === session!.user.id,

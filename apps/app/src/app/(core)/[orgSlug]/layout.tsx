@@ -1,6 +1,10 @@
 import { headers } from "next/headers";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSitesByOrg } from "@/lib/db/sites";
+import {
+  getCachedSession,
+  getCachedOrganizations,
+} from "@/modules/auth/lib/auth-cache";
 import Header from "@/components/header";
 import { Suspense } from "react";
 import { HeaderSkeleton } from "@/components/skeletons";
@@ -13,14 +17,10 @@ interface OrgLayoutProps {
 // Separate header loading for better Suspense handling
 async function HeaderContent({ orgSlug }: { orgSlug: string }) {
   // Middleware has already validated session and org access
-  // We can safely get session and organizations
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  const organizations = await auth.api.listOrganizations({
-    headers: await headers(),
-  });
+  // We can safely get session and organizations (cached)
+  const requestHeaders = await headers();
+  const session = await getCachedSession(requestHeaders);
+  const organizations = await getCachedOrganizations(requestHeaders);
 
   // Find the current organization (middleware guarantees it exists)
   const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { headers } from "next/headers";
-import { auth } from "@/modules/auth/lib/auth";
+import { getCachedSession, getCachedOrganizations } from "@/modules/auth/lib/auth-cache";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -33,9 +33,8 @@ export async function middleware(request: NextRequest) {
 
   // For all other routes, check authentication
   try {
-    const session = await auth.api.getSession({
-      headers: await headers()
-    });
+    const requestHeaders = await headers();
+    const session = await getCachedSession(requestHeaders);
 
     // Check if current path should redirect authenticated users
     const shouldRedirectIfAuthenticated = authRedirectRoutes.some(route =>
@@ -54,10 +53,8 @@ export async function middleware(request: NextRequest) {
 
     // If authenticated and on auth redirect routes, redirect to appropriate page
     if (session && shouldRedirectIfAuthenticated) {
-      // Get user's organizations
-      const organizations = await auth.api.listOrganizations({
-        headers: await headers(),
-      });
+      // Get user's organizations (cached)
+      const organizations = await getCachedOrganizations(requestHeaders);
 
       // If user has no organizations, redirect to onboarding
       if (!organizations || organizations.length === 0) {
@@ -84,10 +81,8 @@ export async function middleware(request: NextRequest) {
     if (orgRouteMatch) {
       const [, orgSlug] = orgRouteMatch;
 
-      // Get user's organizations
-      const organizations = await auth.api.listOrganizations({
-        headers: await headers(),
-      });
+      // Get user's organizations (cached)
+      const organizations = await getCachedOrganizations(requestHeaders);
 
       // If user has no organizations, redirect to onboarding
       if (!organizations || organizations.length === 0) {
