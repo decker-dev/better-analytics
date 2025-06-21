@@ -81,7 +81,7 @@ export default function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href={orgSlug ? `/${orgSlug}/settings` : "/settings"}>
+          <Link href={orgSlug ? `/${orgSlug}/settings` : ""}>
             <DropdownMenuItem>
               <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
               <span>Settings</span>

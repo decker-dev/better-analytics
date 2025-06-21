@@ -1,0 +1,226 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Screaming Architecture – **Modules-First Blueprint**
+
+This document describes a **generic, reusable project layout** that follows the *Screaming Architecture* pattern: the directory tree "shouts" the business language (modules) rather than technical layers.  
+Use it as a starting point for any full-stack TypeScript/Next.js project—adapt or extend each module as your product evolves.
+
+---
+
+## Core Principles
+
+1. **Modules are independent** – each one owns its schema, components, logic, and types.  
+2. **Limited cross-talk** – a module may only import from `core/` (shared code), **never** from a sibling module.  
+3. **Flat is better** – avoid deep paths like `modules/users/settings/lib/queries.ts`; one functional level is enough.  
+4. **High cohesion** – anything conceptually related to a module lives beside it (actions, hooks, UI, tests, docs).  
+
+---
+
+## Folder Structure
+
+<details>
+<summary>Click to expand tree</summary>
+
+```text
+src/
+├── modules/                          # Business modules (the "screams")
+│   ├── <feature-name>/               # e.g. analytics, users, billing …
+│   │   ├── components/               # UI pieces **local** to this module
+│   │   │   ├── views/                # page-level or route segments
+│   │   │   ├── widgets/              # cards, charts, tables, etc.
+│   │   │   └── shared/               # micro-components reused only here
+│   │   ├── lib/                      # pure business logic
+│   │   │   ├── schema.ts             # drizzle/prisma table defs
+│   │   │   ├── queries.ts            # type-safe DB queries
+│   │   │   ├── services.ts           # orchestration / domain logic
+│   │   │   └── validation.ts         # zod/yup schemas or helpers
+│   │   ├── actions/                  # Next 15 server actions (use-cases)
+│   │   │   └── <action>.ts
+│   │   ├── hooks/                    # React hooks scoped to this module
+│   │   │   └── use-<something>.ts
+│   │   ├── types/                    # Domain-specific TS types
+│   │   │   └── <feature>.ts
+│   │   └── tests/                    # Unit/integration tests (optional)
+│   │
+│   └── … (other modules)
+│
+├── core/                             # Cross-module shared layer
+│   ├── components/                   # Global UI kit
+│   │   ├── ui/                       # shadcn/ui or your own primitives
+│   │   ├── forms/                    # generic form inputs & wizards
+│   │   ├── layout/                   # app shells, nav bars, footers
+│   │   └── charts/                   # chart wrappers reused everywhere
+│   ├── lib/
+│   │   ├── db/                       # single DB entry point
+│   │   │   ├── index.ts              # drizzle/prisma client + schema merge
+│   │   │   ├── migrations/           # SQL or drizzle migrations
+│   │   │   └── types.ts              # exported DB types
+│   │   ├── auth/                     # global auth helpers/middleware
+│   │   ├── utils.ts                  # framework-agnostic helpers
+│   │   ├── constants.ts              # magic numbers / enums
+│   │   └── validations.ts            # cross-cutting schemas
+│   ├── hooks/                        # React hooks used by many modules
+│   │   ├── use-debounce.ts
+│   │   └── use-local-storage.ts
+│   ├── types/                        # Global TypeScript types
+│   │   ├── api.ts
+│   │   ├── env.ts
+│   │   └── common.ts
+│   └── constants/                    # Application-wide constant groups
+│
+├── app/                              # Next.js App Router
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── (route segments…)             # may import **only** from modules/core
+│
+└── public/                           # Static assets (logos, favicons, etc.)
+```
+
+</details>
+
+---
+
+## Database – Central Setup
+
+```typescript
+// core/lib/db/index.ts
+import { drizzle } from 'drizzle-orm/postgres-js';
+
+import { schema as userSchema }      from '@/modules/users/lib/schema';
+import { schema as orgSchema }       from '@/modules/organizations/lib/schema';
+import { schema as siteSchema }      from '@/modules/sites/lib/schema';
+import { schema as analyticsSchema } from '@/modules/analytics/lib/schema';
+import { schema as billingSchema }   from '@/modules/billing/lib/schema';
+
+// Merge every module's tables under a single connection:
+export const schema = {
+  ...userSchema,
+  ...orgSchema,
+  ...siteSchema,
+  ...analyticsSchema,
+  ...billingSchema,
+};
+
+export const db = drizzle(sql, { schema });
+```
+
+**Why one client?** It keeps transactions consistent and migrations simpler.
+If you ever split a module into its own microservice, move its tables and client with minimal friction.
+
+---
+
+## Example: Schema Inside a Module
+
+```typescript
+// modules/users/lib/schema.ts
+import {
+  pgTable, text, timestamp, uuid, boolean,
+} from 'drizzle-orm/pg-core';
+
+export const user = pgTable('user', {
+  id:   uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  email: text('email').unique().notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+
+export const session = pgTable('session', { /* … */ });
+
+export const schema = { user, session };
+
+export type User     = typeof user.$inferSelect;
+export type NewUser  = typeof user.$inferInsert;
+```
+
+---
+
+## Example: Queries Inside a Module
+
+```typescript
+// modules/sites/lib/queries.ts
+import { db } from '@/core/lib/db';
+import { sites } from './schema';
+import { eq } from 'drizzle-orm';
+import type { Site } from './schema';
+
+export const listSitesByOrg = (orgId: string): Promise<Site[]> =>
+  db.select().from(sites).where(eq(sites.organizationId, orgId));
+
+export const findSiteByKey = async (key: string): Promise<Site | null> => {
+  const [site] = await db.select().from(sites).where(eq(sites.key, key)).limit(1);
+  return site ?? null;
+};
+```
+
+---
+
+## Example: Server Action (Next 15)
+
+```typescript
+// modules/sites/actions/create-site.ts
+'use server';
+
+import { db } from '@/core/lib/db';
+import { sites } from '../lib/schema';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
+import { nanoid } from 'nanoid';
+
+export const createSite = async (data: FormData) => {
+  const name = data.get('name') as string;
+  const orgId = data.get('organizationId') as string;
+
+  const [site] = await db.insert(sites).values({
+    id: nanoid(),
+    name,
+    organizationId: orgId,
+    key: crypto.randomUUID(),
+  }).returning();
+
+  revalidatePath('/dashboard/sites');
+  redirect(`/dashboard/sites/${site.key}`);
+};
+```
+
+---
+
+## Naming Conventions
+
+| Item | Rule / Example |
+|------|----------------|
+| Modules | plural, descriptive – users, billing, analytics |
+| Components | PascalCase – UserProfile, SiteSettings |
+| Hooks | use + camelCase – useAuth, useInvoiceDownload |
+| Files | kebab-case – user-profile.tsx, invoice-table.tsx |
+| Types | PascalCase – User, Invoice, Organization |
+
+---
+
+## Server Actions vs API Routes
+
+| Use Server Actions ✅ | Use API Routes ⚠️ |
+|----------------------|-------------------|
+| Internal mutations returning UI data | Third-party webhooks (Stripe, GitHub) |
+| Auth-protected CRUD from your frontend | Endpoints consumed by external clients |
+| Revalidating or redirecting server-side | Requests needing custom middleware chains |
+
+---
+
+## When to Spin Off a New Module
+
+- It introduces >2 tightly related tables.
+- It has cohesive UI & business logic that a small team could own.
+- Its responsibilities are distinct enough to evolve into a microservice later.
+- Cross-module imports would otherwise multiply.
+
+---
+
+## Allowed Exceptions
+
+- API routes, middleware, tests, migrations may import from multiple modules.
+- Never place business logic in core/; keep that code inside its owning module.
+
+
