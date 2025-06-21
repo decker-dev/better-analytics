@@ -20,9 +20,12 @@ import {
 import Link from "next/link";
 import { useSession, signOut } from "@/modules/auth/lib/auth-client";
 import { redirect } from "next/navigation";
+import { useParams } from "next/navigation";
 
 export default function UserMenu() {
   const { data: session, isPending } = useSession();
+  const params = useParams();
+  const orgSlug = params?.orgSlug as string;
 
   const handleLogoutClick = () => {
     signOut();
@@ -78,7 +81,7 @@ export default function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href="/settings">
+          <Link href={orgSlug ? `/${orgSlug}/settings` : "/settings"}>
             <DropdownMenuItem>
               <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
               <span>Settings</span>
