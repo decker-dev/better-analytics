@@ -1,5 +1,4 @@
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSitesByOrg } from "@/lib/db/sites";
 import { SiteList } from "@/modules/sites/components/site-list";
@@ -32,26 +31,14 @@ async function SitesContent({
 export default async function SitesPage({ params }: SitesPageProps) {
   const { orgSlug } = await params;
 
-  // Get session
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  // Get user's organizations
+  // Middleware has already validated session and org access
+  // We can safely get organizations
   const organizations = await auth.api.listOrganizations({
     headers: await headers(),
   });
 
-  // Find the current organization
-  const currentOrg = organizations?.find((org) => org.slug === orgSlug);
-
-  if (!currentOrg) {
-    redirect("/");
-  }
+  // Find the current organization (middleware guarantees it exists)
+  const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;
 
   return (
     <Suspense fallback={<SiteListSkeleton />}>

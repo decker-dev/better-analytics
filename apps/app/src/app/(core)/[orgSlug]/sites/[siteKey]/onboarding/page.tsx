@@ -15,17 +15,14 @@ interface OnboardingPageProps {
 }
 
 async function getSiteData(orgSlug: string, siteKey: string) {
-  // Get user's organizations
+  // Middleware has already validated session and org access
+  // We only need to get org details and verify site ownership
   const organizations = await auth.api.listOrganizations({
     headers: await headers(),
   });
 
-  // Find the current organization
-  const organization = organizations?.find((org) => org.slug === orgSlug);
-
-  if (!organization) {
-    notFound();
-  }
+  // Find the current organization (middleware guarantees it exists)
+  const organization = organizations?.find((org) => org.slug === orgSlug)!;
 
   const [site] = await db
     .select()

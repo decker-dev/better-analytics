@@ -1,5 +1,5 @@
 import { headers } from "next/headers";
-import { redirect, notFound } from "next/navigation";
+import { notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
 import {
@@ -19,26 +19,14 @@ export default async function SiteSettingsPage({
 }: SiteSettingsPageProps) {
   const { orgSlug, siteKey } = await params;
 
-  // Get session
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/sign-in");
-  }
-
-  // Get user's organizations
+  // Middleware has already validated session and org access
+  // We only need to verify site ownership and get org details
   const organizations = await auth.api.listOrganizations({
     headers: await headers(),
   });
 
-  // Find the current organization
-  const currentOrg = organizations?.find((org) => org.slug === orgSlug);
-
-  if (!currentOrg) {
-    redirect("/");
-  }
+  // Find the current organization (middleware guarantees it exists)
+  const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;
 
   // Verify that the site exists and belongs to this organization
   const isOwner = await verifySiteOwnership(siteKey, currentOrg.id);
