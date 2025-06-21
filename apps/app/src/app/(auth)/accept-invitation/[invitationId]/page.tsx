@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { UserPlus } from "lucide-react";
-import { AcceptInvitationForm } from "@/modules/auth/components/accept-invitation-form";
+import { AcceptInvitationForm } from "@/modules/organization/components/accept-invitation-form";
 
 interface AcceptInvitationPageProps {
   params: Promise<{ invitationId: string }>;
