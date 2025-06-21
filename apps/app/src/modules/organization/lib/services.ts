@@ -13,11 +13,11 @@ export const getOrganizationBySlug = (organizations: Organization[], slug: strin
   return organizations.find(org => org.slug === slug);
 };
 
-export const getCurrentUserRole = (members: Member[], userId: string): "owner" | "admin" | "member" | undefined => {
+export const getCurrentUserRole = (members: Member[], userId: string): Member["role"] | undefined => {
   return members.find(member => member.userId === userId)?.role;
 };
 
-export const canManageOrganization = (role: "owner" | "admin" | "member"): boolean => {
+export const canManageOrganization = (role: Member["role"]): boolean => {
   return role === "owner" || role === "admin";
 };
 
@@ -30,11 +30,7 @@ export const formatOrganizationData = (
   const currentUserRole = getCurrentUserRole(members, currentUserId);
 
   return {
-    organization: {
-      id: organization.id,
-      name: organization.name,
-      slug: organization.slug,
-    },
+    organization,
     members,
     invitations,
     currentUserRole: currentUserRole || "member" as const,

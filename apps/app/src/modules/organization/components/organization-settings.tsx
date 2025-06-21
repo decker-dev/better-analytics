@@ -18,10 +18,9 @@ export const OrganizationSettings = ({
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Configuración de Organización</h1>
+        <h1 className="text-3xl font-bold">Organization Settings</h1>
         <p className="text-muted-foreground mt-2">
-          Administra la configuración de tu organización, miembros e
-          invitaciones
+          Manage your organization settings, members, and invitations
         </p>
       </div>
 
@@ -31,14 +30,14 @@ export const OrganizationSettings = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
-              Información General
+              General Information
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-gray-700">
-                  Nombre de la organización
+                  Organization name
                 </p>
                 <p className="mt-1 text-lg font-semibold">
                   {organization.name}
@@ -46,20 +45,20 @@ export const OrganizationSettings = ({
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-700">
-                  Identificador (slug)
+                  Identifier (slug)
                 </p>
                 <p className="mt-1 text-gray-600">{organization.slug}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-700">Tu rol</p>
+                <p className="text-sm font-medium text-gray-700">Your role</p>
                 <span className="mt-1 inline-flex px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
                   {currentUserRole}
                 </span>
               </div>
               {(currentUserRole === "owner" || currentUserRole === "admin") && (
                 <p className="text-sm text-muted-foreground">
-                  Como {currentUserRole}, puedes administrar esta organización e
-                  invitar nuevos miembros.
+                  As an {currentUserRole}, you can manage this organization and
+                  invite new members.
                 </p>
               )}
             </div>
@@ -76,7 +75,7 @@ export const OrganizationSettings = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5" />
-              Miembros ({members?.length || 0})
+              Members ({members?.length || 0})
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -103,7 +102,7 @@ export const OrganizationSettings = ({
                     </span>
                     {member.userId === currentUserId && (
                       <span className="text-xs text-muted-foreground">
-                        (Tú)
+                        (You)
                       </span>
                     )}
                   </div>
@@ -119,7 +118,7 @@ export const OrganizationSettings = ({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="h-5 w-5" />
-                Invitaciones Pendientes ({invitations.length})
+                Pending Invitations ({invitations.length})
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -136,7 +135,7 @@ export const OrganizationSettings = ({
                       <div>
                         <p className="font-medium">{invitation.email}</p>
                         <p className="text-sm text-muted-foreground">
-                          Invitado como {invitation.role} • {invitation.status}
+                          Invited as {invitation.role} • {invitation.status}
                         </p>
                       </div>
                     </div>

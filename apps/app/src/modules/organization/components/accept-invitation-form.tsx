@@ -43,7 +43,7 @@ export const AcceptInvitationForm = ({
       } else {
         setMessage({
           type: "success",
-          text: "¡Invitación aceptada exitosamente! Redirigiendo...",
+          text: "Invitation accepted successfully! Redirecting...",
         });
 
         // Redirect to the organization dashboard after a short delay
@@ -54,7 +54,7 @@ export const AcceptInvitationForm = ({
     } catch (error) {
       setMessage({
         type: "error",
-        text: `Error: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
       });
     } finally {
       setLoading(false);
@@ -79,17 +79,17 @@ export const AcceptInvitationForm = ({
         <Alert>
           <Mail className="h-4 w-4" />
           <AlertDescription>
-            Necesitas iniciar sesión para aceptar esta invitación.
+            You need to sign in to accept this invitation.
           </AlertDescription>
         </Alert>
 
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Esta invitación fue enviada a: <strong>{invitationEmail}</strong>
+            This invitation was sent to: <strong>{invitationEmail}</strong>
           </p>
           <Button onClick={handleSignIn} className="w-full">
             <LogIn className="h-4 w-4 mr-2" />
-            Iniciar Sesión para Aceptar
+            Sign In to Accept
           </Button>
         </div>
       </div>
@@ -101,22 +101,22 @@ export const AcceptInvitationForm = ({
       <div className="space-y-4">
         <Alert>
           <AlertDescription>
-            Esta invitación fue enviada a <strong>{invitationEmail}</strong>,
-            pero estás conectado con <strong>{userEmail}</strong>.
+            This invitation was sent to <strong>{invitationEmail}</strong>, but
+            you are signed in as <strong>{userEmail}</strong>.
           </AlertDescription>
         </Alert>
 
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">
-            Por favor, inicia sesión con la cuenta correcta o contacta al
-            administrador.
+            Please sign in with the correct account or contact the
+            administrator.
           </p>
           <Button
             variant="outline"
             onClick={() => router.push("/sign-in")}
             className="w-full"
           >
-            Cambiar Cuenta
+            Switch Account
           </Button>
         </div>
       </div>
@@ -127,7 +127,7 @@ export const AcceptInvitationForm = ({
     <div className="space-y-4">
       <div className="text-center">
         <p className="text-sm text-muted-foreground mb-4">
-          Conectado como: <strong>{userEmail}</strong>
+          Signed in as: <strong>{userEmail}</strong>
         </p>
       </div>
 
@@ -141,7 +141,7 @@ export const AcceptInvitationForm = ({
         ) : (
           <Check className="h-4 w-4 mr-2" />
         )}
-        Aceptar Invitación
+        Accept Invitation
       </Button>
 
       {message && (
@@ -172,8 +172,8 @@ export const AcceptInvitationForm = ({
       )}
 
       <div className="text-xs text-muted-foreground text-center">
-        Al aceptar esta invitación, te unirás a la organización con el rol
-        especificado.
+        By accepting this invitation, you will join the organization with the
+        specified role.
       </div>
     </div>
   );

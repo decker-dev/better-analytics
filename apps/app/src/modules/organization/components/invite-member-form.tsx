@@ -40,12 +40,12 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
     e.preventDefault();
 
     if (!email.trim()) {
-      setMessage({ type: "error", text: "Por favor, ingresa un email válido" });
+      setMessage({ type: "error", text: "Please enter a valid email" });
       return;
     }
 
     if (!email.includes("@")) {
-      setMessage({ type: "error", text: "Por favor, ingresa un email válido" });
+      setMessage({ type: "error", text: "Please enter a valid email" });
       return;
     }
 
@@ -64,7 +64,7 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
       } else {
         setMessage({
           type: "success",
-          text: `Invitación enviada exitosamente a ${email}`,
+          text: `Invitation sent successfully to ${email}`,
         });
         setEmail("");
         setRole("member");
@@ -72,7 +72,7 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
     } catch (error) {
       setMessage({
         type: "error",
-        text: `Error: ${error instanceof Error ? error.message : "Error desconocido"}`,
+        text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
       });
     } finally {
       setLoading(false);
@@ -84,37 +84,37 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UserPlus className="h-5 w-5" />
-          Invitar Nuevo Miembro
+          Invite New Member
         </CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleInviteMember} className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="email">Email del miembro</Label>
+            <Label htmlFor="email">Member email</Label>
             <Input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="ejemplo@empresa.com"
+              placeholder="example@company.com"
               disabled={loading}
               required
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="role">Rol</Label>
+            <Label htmlFor="role">Role</Label>
             <Select
               value={role}
               onValueChange={(value: "admin" | "member") => setRole(value)}
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona un rol" />
+                <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="member">Miembro</SelectItem>
-                <SelectItem value="admin">Administrador</SelectItem>
+                <SelectItem value="member">Member</SelectItem>
+                <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -129,7 +129,7 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
             ) : (
               <Mail className="h-4 w-4 mr-2" />
             )}
-            Enviar Invitación
+            Send Invitation
           </Button>
 
           {message && (
@@ -151,21 +151,21 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
 
           <div className="text-sm text-muted-foreground space-y-1">
             <p>
-              <strong>Roles disponibles:</strong>
+              <strong>Available roles:</strong>
             </p>
             <ul className="list-disc list-inside ml-2 space-y-1">
               <li>
-                <strong>Miembro:</strong> Puede ver sitios y estadísticas de la
-                organización
+                <strong>Member:</strong> Can view sites and analytics for the
+                organization
               </li>
               <li>
-                <strong>Administrador:</strong> Puede administrar la
-                organización e invitar nuevos miembros
+                <strong>Admin:</strong> Can manage the organization and invite
+                new members
               </li>
             </ul>
             <p className="mt-2">
-              El usuario recibirá un email con un enlace para aceptar la
-              invitación.
+              The user will receive an email with a link to accept the
+              invitation.
             </p>
           </div>
         </form>
