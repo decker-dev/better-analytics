@@ -1,5 +1,5 @@
 import { db, schema } from '@/lib/db';
-import { eq, and, sql, desc, asc } from 'drizzle-orm';
+import { eq, and, desc, gte, isNotNull, ne, sql } from 'drizzle-orm';
 
 export interface AnalyticsStats {
   totalPageViews: number;
@@ -74,7 +74,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
       and(
         eq(schema.events.site, siteKey),
         eq(schema.events.evt, 'pageview'),
-        sql`${schema.events.createdAt} >= ${oneWeekAgo}`
+        gte(schema.events.createdAt, oneWeekAgo)
       )
     );
 
@@ -86,7 +86,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
       and(
         eq(schema.events.site, siteKey),
         eq(schema.events.evt, 'pageview'),
-        sql`${schema.events.createdAt} >= ${oneDayAgo}`
+        gte(schema.events.createdAt, oneDayAgo)
       )
     );
 
@@ -103,7 +103,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        sql`${schema.events.loadTime} is not null`
+        isNotNull(schema.events.loadTime)
       )
     );
 
@@ -119,7 +119,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
       and(
         eq(schema.events.site, siteKey),
         eq(schema.events.evt, 'pageview'),
-        sql`${schema.events.pathname} is not null`
+        isNotNull(schema.events.pathname)
       )
     )
     .groupBy(schema.events.pathname, schema.events.pageTitle)
@@ -137,7 +137,8 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
       and(
         eq(schema.events.site, siteKey),
         eq(schema.events.evt, 'pageview'),
-        sql`${schema.events.ref} is not null and ${schema.events.ref} != ''`
+        isNotNull(schema.events.ref),
+        ne(schema.events.ref, '')
       )
     )
     .groupBy(schema.events.ref)
@@ -154,7 +155,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        sql`${schema.events.browser} is not null`
+        isNotNull(schema.events.browser)
       )
     )
     .groupBy(schema.events.browser)
@@ -171,7 +172,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        sql`${schema.events.os} is not null`
+        isNotNull(schema.events.os)
       )
     )
     .groupBy(schema.events.os)
@@ -189,7 +190,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        sql`${schema.events.deviceVendor} is not null`
+        isNotNull(schema.events.deviceVendor)
       )
     )
     .groupBy(schema.events.deviceVendor, schema.events.deviceModel)
@@ -206,7 +207,8 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        sql`${schema.events.screenWidth} is not null and ${schema.events.screenHeight} is not null`
+        isNotNull(schema.events.screenWidth),
+        isNotNull(schema.events.screenHeight)
       )
     )
     .groupBy(sql`concat(${schema.events.screenWidth}, 'x', ${schema.events.screenHeight})`)
@@ -223,7 +225,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        sql`${schema.events.language} is not null`
+        isNotNull(schema.events.language)
       )
     )
     .groupBy(schema.events.language)
