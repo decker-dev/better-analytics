@@ -1,7 +1,7 @@
 ---
 description: 
 globs: 
-alwaysApply: false
+alwaysApply: true
 ---
 # Screaming Architecture – **Modules-First Blueprint**
 
@@ -42,8 +42,8 @@ src/
 │   │   ├── hooks/                    # React hooks scoped to this module
 │   │   │   └── use-<something>.ts
 │   │   ├── types/                    # Domain-specific TS types
-│   │   │   └── <feature>.ts
-│   │   └── tests/                    # Unit/integration tests (optional)
+│   │       └── <feature>.ts
+│   │   
 │   │
 │   └── … (other modules)
 │
