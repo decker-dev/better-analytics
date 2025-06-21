@@ -10,6 +10,7 @@ import {
   getOrganizationBySlug,
   formatOrganizationData,
 } from "@/modules/organization/lib/services";
+import type { Invitation } from "@/modules/organization/types/organization";
 
 interface OrganizationSettingsPageProps {
   params: Promise<{ orgSlug: string }>;
@@ -41,7 +42,7 @@ export default async function OrganizationSettingsPage({
   // Format data using organization service
   const organizationData = formatOrganizationData(
     fullOrganization!,
-    invitations || [],
+    (invitations || []) as Invitation[],
     session!.user.id,
   );
 
