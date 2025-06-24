@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/db";
 import { sites } from "@/lib/db/schema";
@@ -51,9 +50,7 @@ export default async function OnboardingPage({ params }: OnboardingPageProps) {
 
   return (
     <div className="min-h-screen bg-[#0c0c0c]">
-      <Suspense fallback={<div>Loading...</div>}>
-        <OnboardingFlow site={site} orgSlug={orgSlug} />
-      </Suspense>
+      <OnboardingFlow site={site} orgSlug={orgSlug} />
     </div>
   );
 }

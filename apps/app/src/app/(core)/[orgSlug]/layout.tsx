@@ -6,16 +6,15 @@ import {
   getCachedOrganizations,
 } from "@/modules/auth/lib/auth-cache";
 import Header from "@/components/header";
-import { Suspense } from "react";
-import { HeaderSkeleton } from "@/components/skeletons";
 
 interface OrgLayoutProps {
   children: React.ReactNode;
   params: Promise<{ orgSlug: string }>;
 }
 
-// Separate header loading for better Suspense handling
-async function HeaderContent({ orgSlug }: { orgSlug: string }) {
+export default async function OrgLayout({ children, params }: OrgLayoutProps) {
+  const { orgSlug } = await params;
+
   // Middleware has already validated session and org access
   // We can safely get session and organizations (cached)
   const requestHeaders = await headers();
@@ -42,23 +41,13 @@ async function HeaderContent({ orgSlug }: { orgSlug: string }) {
   }));
 
   return (
-    <Header
-      organizations={organizations || []}
-      currentOrg={currentOrg}
-      sites={mappedSites}
-    />
-  );
-}
-
-export default async function OrgLayout({ children, params }: OrgLayoutProps) {
-  const { orgSlug } = await params;
-
-  return (
     <div className="min-h-screen">
       {/* Smart Header - detects context automatically */}
-      <Suspense fallback={<HeaderSkeleton />}>
-        <HeaderContent orgSlug={orgSlug} />
-      </Suspense>
+      <Header
+        organizations={organizations || []}
+        currentOrg={currentOrg}
+        sites={mappedSites}
+      />
 
       {/* Main Content */}
       <main>{children}</main>

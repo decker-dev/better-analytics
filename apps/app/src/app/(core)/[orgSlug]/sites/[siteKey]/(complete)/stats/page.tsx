@@ -11,52 +11,9 @@ import { TopPagesAndReferrers } from "@/modules/sites/components/analytics/top-p
 import { TechnologyStats } from "@/modules/sites/components/analytics/technology-stats";
 import { DeviceInfo } from "@/modules/sites/components/analytics/device-info";
 import { RecentActivity } from "@/modules/sites/components/analytics/recent-activity";
-import { Suspense } from "react";
-import { DashboardSkeleton } from "@/components/skeletons";
 
 interface SiteStatsPageProps {
   params: Promise<{ orgSlug: string; siteKey: string }>;
-}
-
-// Separate analytics data fetching into a component for better Suspense handling
-async function AnalyticsContent({
-  siteKey,
-  siteName,
-}: { siteKey: string; siteName: string }) {
-  // Fetch comprehensive analytics data for this site
-  const stats = await getComprehensiveStats(siteKey);
-
-  // Calculate bounce rate
-  const bounceRate = calculateBounceRate(
-    stats.totalPageViews,
-    stats.uniqueVisitors,
-  );
-
-  return (
-    <>
-      <div>
-        <h1 className="text-3xl font-bold">{siteName} Analytics</h1>
-        <p className="text-muted-foreground">
-          Analytics dashboard for {siteName}
-        </p>
-      </div>
-
-      {/* Key Metrics */}
-      <KeyMetrics stats={stats} bounceRate={bounceRate} />
-
-      {/* Top Pages and Referrers */}
-      <TopPagesAndReferrers stats={stats} />
-
-      {/* Technology Stats */}
-      <TechnologyStats stats={stats} />
-
-      {/* Device Information */}
-      <DeviceInfo stats={stats} />
-
-      {/* Recent Activity */}
-      <RecentActivity stats={stats} />
-    </>
-  );
 }
 
 export default async function SiteStatsPage({ params }: SiteStatsPageProps) {
@@ -83,11 +40,38 @@ export default async function SiteStatsPage({ params }: SiteStatsPageProps) {
     notFound();
   }
 
+  // Fetch comprehensive analytics data for this site
+  const stats = await getComprehensiveStats(siteKey);
+
+  // Calculate bounce rate
+  const bounceRate = calculateBounceRate(
+    stats.totalPageViews,
+    stats.uniqueVisitors,
+  );
+
   return (
     <div className="space-y-6">
-      <Suspense fallback={<DashboardSkeleton />}>
-        <AnalyticsContent siteKey={siteKey} siteName={site.name} />
-      </Suspense>
+      <div>
+        <h1 className="text-3xl font-bold">{site.name} Analytics</h1>
+        <p className="text-muted-foreground">
+          Analytics dashboard for {site.name}
+        </p>
+      </div>
+
+      {/* Key Metrics */}
+      <KeyMetrics stats={stats} bounceRate={bounceRate} />
+
+      {/* Top Pages and Referrers */}
+      <TopPagesAndReferrers stats={stats} />
+
+      {/* Technology Stats */}
+      <TechnologyStats stats={stats} />
+
+      {/* Device Information */}
+      <DeviceInfo stats={stats} />
+
+      {/* Recent Activity */}
+      <RecentActivity stats={stats} />
     </div>
   );
 }
