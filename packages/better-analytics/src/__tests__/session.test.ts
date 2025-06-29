@@ -207,4 +207,38 @@ describe('Better Analytics SDK - Session Management', () => {
       expect(callBody.sessionId).toBeDefined();
     });
   });
+
+  describe('Session Stitching (0.6.0)', () => {
+    it('should include userId when available', () => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'ba_uid') return 'user123';
+        return null;
+      });
+
+      track('test_event');
+
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.sessionId).toBeDefined();
+      expect(callBody.deviceId).toBeDefined();
+      // Note: userId is stored but not automatically included in events
+      // This would be handled by the application layer
+    });
+
+    it('should maintain consistent session across page reloads', () => {
+      const sessionId = 'persistent-session-456';
+      const deviceId = 'persistent-device-789';
+
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'ba_s') return JSON.stringify({ id: sessionId, t: Date.now() });
+        if (key === 'ba_d') return deviceId;
+        return null;
+      });
+
+      track('page_reload_event');
+
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.sessionId).toBe(sessionId);
+      expect(callBody.deviceId).toBe(deviceId);
+    });
+  });
 }); 

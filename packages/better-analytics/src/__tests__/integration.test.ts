@@ -5,6 +5,17 @@ import { init, initWithPageview, track, trackPageview, _resetConfig } from '../i
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
+// Helper to simulate realistic user behavior
+const simulateUserInteraction = () => ({
+  timestamp: Date.now(),
+  userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
+  location: {
+    href: 'https://example.com/products',
+    pathname: '/products',
+    hostname: 'example.com'
+  }
+});
+
 // Setup realistic browser environment
 const setupBrowserEnvironment = () => {
   Object.defineProperty(window, 'location', {
@@ -425,6 +436,64 @@ describe('Better Analytics SDK - Integration Tests', () => {
       expect(event.props.zero).toBe(0);
       expect(event.props.unicode).toBe('🚀💡✨');
       expect(event.props.very_long_string).toHaveLength(1000);
+    });
+  });
+
+  describe('Advanced Features (0.6.0)', () => {
+    it('should handle beforeSend middleware in real scenarios', () => {
+      const beforeSend = vi.fn((event) => {
+        // Add tracking context
+        if (event.data) {
+          event.data.props = {
+            ...event.data.props,
+            tracking_version: '1.0',
+            experiment_id: 'exp_123'
+          };
+        }
+        return event;
+      });
+
+      init({
+        site: 'test-site',
+        endpoint: '/api/analytics',
+        mode: 'production',
+        beforeSend
+      });
+
+      track('user_interaction', { action: 'click' });
+
+      expect(beforeSend).toHaveBeenCalled();
+      const event = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(event.props).toMatchObject({
+        action: 'click',
+        tracking_version: '1.0',
+        experiment_id: 'exp_123'
+      });
+    });
+
+    it('should handle A/B testing scenarios', () => {
+      init({ site: 'test-site', endpoint: '/api/analytics', mode: 'production' });
+
+      // Simulate A/B test assignment
+      const variant = Math.random() > 0.5 ? 'A' : 'B';
+
+      track('page_view', {
+        ab_test: 'checkout_flow',
+        variant: variant,
+        user_segment: 'premium'
+      });
+
+      track('conversion', {
+        ab_test: 'checkout_flow',
+        variant: variant,
+        value: 99.99
+      });
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+
+      const events = mockFetch.mock.calls.map(call => JSON.parse(call[1].body));
+      expect(events[0].props.variant).toBe(variant);
+      expect(events[1].props.variant).toBe(variant);
     });
   });
 }); 

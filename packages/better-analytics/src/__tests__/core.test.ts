@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { init, initWithPageview, track, trackPageview, _resetConfig } from '../index';
+import { init, initWithPageview, track, trackPageview, identify, _resetConfig } from '../index';
 
 // Mock fetch
 const mockFetch = vi.fn();
@@ -37,14 +37,13 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
   describe('Initialization', () => {
     it('should initialize without firing pageview', async () => {
-      init({ site: 'test-site' });
+      init({ site: 'test-site', mode: 'production' });
 
       expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should initialize and fire pageview with initWithPageview', async () => {
-      process.env.NODE_ENV = 'production';
-      initWithPageview({ site: 'test-site' });
+      initWithPageview({ site: 'test-site', mode: 'production' });
 
       expect(mockFetch).toHaveBeenCalledWith('https://better-analytics.app/api/collect', {
         method: 'POST',
@@ -56,8 +55,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should use custom endpoint when provided', async () => {
-      process.env.NODE_ENV = 'production';
-      initWithPageview({ site: 'test-site', endpoint: '/api/collect' });
+      initWithPageview({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
 
       expect(mockFetch).toHaveBeenCalledWith('/api/collect', {
         method: 'POST',
@@ -69,9 +67,8 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should handle multiple init calls by updating config', () => {
-      process.env.NODE_ENV = 'production';
-      init({ site: 'site1', endpoint: '/api/collect' });
-      init({ site: 'site2', endpoint: '/api/collect2' });
+      init({ site: 'site1', endpoint: '/api/collect', mode: 'production' });
+      init({ site: 'site2', endpoint: '/api/collect2', mode: 'production' });
 
       track('test_event');
 
@@ -81,8 +78,18 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should warn when not initialized', () => {
+      // Ensure SDK is completely reset - clear all global state
+      _resetConfig();
+
+      // Clear window.ba to avoid queue system interference
+      if (typeof window !== 'undefined') {
+        window.ba = undefined;
+        window.baq = undefined;
+      }
+
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
 
+      // Don't initialize, just try to track
       track('test_event');
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -96,7 +103,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => { });
 
       // Test with empty site identifier
-      init({ site: '', endpoint: '/api/collect' });
+      init({ site: '', endpoint: '/api/collect', mode: 'production' });
       track('test_event');
 
       expect(consoleSpy).toHaveBeenCalledWith(
@@ -183,8 +190,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
   describe('Event Tracking', () => {
     beforeEach(() => {
-      process.env.NODE_ENV = 'production';
-      init({ site: 'test-site', endpoint: '/api/collect' });
+      init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
     });
 
     it('should track custom events', async () => {
@@ -242,6 +248,86 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
   });
 
+  describe('User Identification (0.6.0)', () => {
+    beforeEach(() => {
+      init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
+    });
+
+    it('should track user identification', () => {
+      identify('user123', { email: 'user@example.com', plan: 'pro' });
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/collect', expect.any(Object));
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+
+      expect(callBody.event).toBe('identify');
+      expect(callBody.props).toMatchObject({
+        userId: 'user123',
+        email: 'user@example.com',
+        plan: 'pro'
+      });
+    });
+
+    it('should store userId in localStorage', () => {
+      const mockLocalStorage = {
+        setItem: vi.fn(),
+        getItem: vi.fn(),
+        removeItem: vi.fn()
+      };
+      Object.defineProperty(global, 'localStorage', {
+        value: mockLocalStorage,
+        writable: true,
+        configurable: true
+      });
+
+      identify('user123');
+
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('ba_uid', 'user123');
+    });
+  });
+
+  describe('BeforeSend Middleware (0.6.0)', () => {
+    it('should transform events with beforeSend', () => {
+      const beforeSend = vi.fn((event) => {
+        if (event.data) {
+          event.data.props = { ...event.data.props, transformed: true };
+        }
+        return event;
+      });
+
+      init({
+        site: 'test-site',
+        endpoint: '/api/collect',
+        mode: 'production',
+        beforeSend
+      });
+
+      track('test_event', { original: 'data' });
+
+      expect(beforeSend).toHaveBeenCalled();
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.props).toMatchObject({
+        original: 'data',
+        transformed: true
+      });
+    });
+
+    it('should cancel events when beforeSend returns null', () => {
+      const beforeSend = vi.fn(() => null);
+
+      init({
+        site: 'test-site',
+        endpoint: '/api/collect',
+        mode: 'production',
+        beforeSend
+      });
+
+      track('test_event');
+
+      expect(beforeSend).toHaveBeenCalled();
+      expect(mockFetch).not.toHaveBeenCalled();
+    });
+  });
+
   describe('Development Mode Logging', () => {
     beforeEach(() => {
       process.env.NODE_ENV = 'development';
@@ -278,8 +364,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
   describe('Error Handling', () => {
     beforeEach(() => {
-      process.env.NODE_ENV = 'production';
-      init({ site: 'test-site', endpoint: '/api/collect' });
+      init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
     });
 
     it('should handle network errors silently in production', async () => {

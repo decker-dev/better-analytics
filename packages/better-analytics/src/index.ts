@@ -399,7 +399,7 @@ export function track(event: string, props?: Record<string, unknown>): void {
     // Handle async beforeSend
     if (processedEvent instanceof Promise) {
       processedEvent.then(result => {
-        if (result && result.data) {
+        if (result?.data) {
           send(result.data);
         }
       });

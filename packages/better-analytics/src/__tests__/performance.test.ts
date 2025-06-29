@@ -191,7 +191,7 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
       ];
 
       for (const endpoint of invalidEndpoints) {
-        expect(() => init({ site: 'test', endpoint })).not.toThrow();
+        expect(() => init({ site: 'test', endpoint, mode: 'production' })).not.toThrow();
       }
     });
 
@@ -199,12 +199,46 @@ describe('Better Analytics SDK - Performance & Edge Cases', () => {
       _resetConfig();
       const longSite = 'x'.repeat(10000);
 
-      expect(() => init({ site: longSite, endpoint: '/api/collect' })).not.toThrow();
+      expect(() => init({ site: longSite, endpoint: '/api/collect', mode: 'production' })).not.toThrow();
 
       track('long_site_test');
 
       const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
       expect(callBody.site).toBe(longSite);
+    });
+  });
+
+  describe('Event Batching Performance (0.6.0)', () => {
+    it('should handle rapid fire events efficiently', () => {
+      const startTime = performance.now();
+
+      // Fire many events rapidly
+      for (let i = 0; i < 100; i++) {
+        track('rapid_fire', { index: i });
+      }
+
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      // Should complete quickly (under 100ms for 100 events)
+      expect(duration).toBeLessThan(100);
+      expect(mockFetch).toHaveBeenCalledTimes(100);
+    });
+
+    it('should handle concurrent tracking calls', async () => {
+      const promises = [];
+
+      for (let i = 0; i < 50; i++) {
+        promises.push(
+          new Promise<void>((resolve) => {
+            track('concurrent_event', { id: i });
+            resolve();
+          })
+        );
+      }
+
+      await Promise.all(promises);
+      expect(mockFetch).toHaveBeenCalledTimes(50);
     });
   });
 }); 

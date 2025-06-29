@@ -367,4 +367,67 @@ describe('Better Analytics SDK - User Journey Tests', () => {
       expect(errorEvent.props.page_url).toBeDefined();
     });
   });
+
+  describe('Advanced User Journey Features (0.6.0)', () => {
+    it('should track user journey with identify calls', () => {
+      init({ site: 'app', endpoint: '/api/analytics', mode: 'production' });
+
+      // Anonymous user starts journey
+      track('page_view', { page: 'landing' });
+
+      // User signs up
+      track('signup_completed', { method: 'email' });
+
+      // User becomes identified
+      track('identify', { userId: 'user_123', email: 'user@example.com' });
+
+      // Continued journey as identified user
+      track('feature_used', { feature: 'dashboard' });
+      track('upgrade_viewed', { plan: 'pro' });
+
+      expect(mockFetch).toHaveBeenCalledTimes(5);
+
+      const events = mockFetch.mock.calls.map(call => JSON.parse(call[1].body));
+
+      // All events should share same session
+      const sessionIds = events.map(e => e.sessionId);
+      const uniqueSessionIds = [...new Set(sessionIds)];
+      expect(uniqueSessionIds).toHaveLength(1);
+
+      // Identify event should have user info
+      const identifyEvent = events.find(e => e.event === 'identify');
+      expect(identifyEvent?.props).toMatchObject({
+        userId: 'user_123',
+        email: 'user@example.com'
+      });
+    });
+
+    it('should handle route computation for SPAs', () => {
+      // This would be tested more thoroughly in route computation tests
+      // but here we verify it works in user journey context
+      init({ site: 'spa', endpoint: '/api/analytics', mode: 'production' });
+
+      // Simulate SPA navigation
+      Object.defineProperty(window, 'location', {
+        value: {
+          href: 'https://spa.com/user/123/settings',
+          pathname: '/user/123/settings',
+          hostname: 'spa.com'
+        },
+        writable: true,
+        configurable: true
+      });
+
+      track('spa_navigation', {
+        from: '/dashboard',
+        to: '/user/123/settings',
+        route_pattern: '/user/[id]/settings'
+      });
+
+      expect(mockFetch).toHaveBeenCalledTimes(1);
+
+      const event = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(event.props.route_pattern).toBe('/user/[id]/settings');
+    });
+  });
 }); 

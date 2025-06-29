@@ -49,7 +49,8 @@ const mockNavigator = {
   language: 'en-US',
   languages: ['en-US', 'en'],
   doNotTrack: null,
-  connection: undefined
+  connection: undefined,
+  onLine: true
 };
 
 const mockScreen = {
@@ -147,6 +148,7 @@ export const resetAllMocks = () => {
   mockDocument.referrer = '';
   mockNavigator.userAgent = 'Mozilla/5.0 (Test Environment)';
   mockNavigator.language = 'en-US';
+  mockNavigator.onLine = true;
 };
 
 // Helper for creating realistic event data

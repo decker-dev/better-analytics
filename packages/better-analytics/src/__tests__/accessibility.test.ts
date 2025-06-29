@@ -133,7 +133,7 @@ describe('Better Analytics SDK - Accessibility & Privacy', () => {
       for (const language of languages) {
         _resetConfig();
         mockFetch.mockClear();
-        init({ site: 'test-site', endpoint: '/api/collect' });
+        init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
 
         Object.defineProperty(navigator, 'language', {
           value: language,
@@ -160,7 +160,7 @@ describe('Better Analytics SDK - Accessibility & Privacy', () => {
       for (const timezone of timezones) {
         _resetConfig();
         mockFetch.mockClear();
-        init({ site: 'test-site', endpoint: '/api/collect' });
+        init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
 
         const mockIntl = {
           DateTimeFormat: vi.fn().mockReturnValue({
@@ -232,6 +232,61 @@ describe('Better Analytics SDK - Accessibility & Privacy', () => {
       });
 
       expect(() => track('safari_itp_test')).not.toThrow();
+    });
+  });
+
+  describe('GDPR & Privacy Compliance (0.6.0)', () => {
+    it('should allow filtering personal data with beforeSend', () => {
+      _resetConfig();
+
+      const beforeSend = vi.fn((event) => {
+        // Remove potentially personal data
+        if (event.data?.props) {
+          const { email, name, ...safeProps } = event.data.props as Record<string, unknown>;
+          event.data.props = safeProps;
+        }
+        return event;
+      });
+
+      init({
+        site: 'test-site',
+        endpoint: '/api/collect',
+        mode: 'production',
+        beforeSend
+      });
+
+      track('user_action', {
+        email: 'user@example.com',
+        name: 'John Doe',
+        action: 'click_button'
+      });
+
+      expect(beforeSend).toHaveBeenCalled();
+      const callBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callBody.props).not.toHaveProperty('email');
+      expect(callBody.props).not.toHaveProperty('name');
+      expect(callBody.props).toHaveProperty('action');
+    });
+
+    it('should respect user consent by canceling events', () => {
+      _resetConfig();
+
+      const beforeSend = vi.fn(() => {
+        // Simulate user hasn't given consent
+        return null; // Cancel all events
+      });
+
+      init({
+        site: 'test-site',
+        endpoint: '/api/collect',
+        mode: 'production',
+        beforeSend
+      });
+
+      track('consent_required_event');
+
+      expect(beforeSend).toHaveBeenCalled();
+      expect(mockFetch).not.toHaveBeenCalled();
     });
   });
 }); 

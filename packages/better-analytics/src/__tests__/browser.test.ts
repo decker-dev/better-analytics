@@ -335,4 +335,44 @@ describe('Better Analytics SDK - Browser Features', () => {
       expect(callBody.referrer).toBe('');
     });
   });
+
+  describe('Offline Support (0.6.0)', () => {
+    it('should queue events when offline', () => {
+      // Mock navigator.onLine
+      Object.defineProperty(navigator, 'onLine', {
+        value: false,
+        writable: true,
+        configurable: true
+      });
+
+      const mockLocalStorage = {
+        getItem: vi.fn(),
+        setItem: vi.fn()
+      };
+      Object.defineProperty(global, 'localStorage', {
+        value: mockLocalStorage,
+        writable: true,
+        configurable: true
+      });
+
+      track('offline_event');
+
+      // Should not make fetch call when offline
+      expect(mockFetch).not.toHaveBeenCalled();
+      // Should save to localStorage
+      expect(mockLocalStorage.setItem).toHaveBeenCalled();
+    });
+
+    it('should send events when online', () => {
+      Object.defineProperty(navigator, 'onLine', {
+        value: true,
+        writable: true,
+        configurable: true
+      });
+
+      track('online_event');
+
+      expect(mockFetch).toHaveBeenCalledWith('/api/collect', expect.any(Object));
+    });
+  });
 }); 
