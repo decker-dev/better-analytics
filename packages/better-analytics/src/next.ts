@@ -148,19 +148,13 @@ function AnalyticsComponent(props: AnalyticsProps): null {
  * 
  * Similar to Vercel Analytics - just add to your layout and it works automatically
  */
-export function Analytics(props: AnalyticsProps = {}): null {
+export function Analytics(props: AnalyticsProps = {}): React.ReactElement | null {
   // Wrap in Suspense to handle SSR and avoid hydration issues
-  const SuspendedAnalytics = () => {
-    return React.createElement(
-      Suspense,
-      { fallback: null },
-      React.createElement(AnalyticsComponent, props)
-    );
-  };
-
-  // Create element but it will return null anyway
-  SuspendedAnalytics();
-  return null;
+  return React.createElement(
+    Suspense,
+    { fallback: null },
+    React.createElement(AnalyticsComponent, props)
+  );
 }
 
 // Re-export everything from the core module for convenience
