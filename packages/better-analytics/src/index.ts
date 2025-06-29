@@ -4,6 +4,8 @@
 interface AnalyticsConfig {
   endpoint?: string;
   site: string;
+  mode?: 'auto' | 'development' | 'production';
+  debug?: boolean;
 }
 
 interface EventData {
@@ -62,7 +64,57 @@ interface NavigatorWithConnection extends Navigator {
   connection?: NetworkConnection;
 }
 
+type Mode = 'development' | 'production';
+
 let config: AnalyticsConfig | null = null;
+let currentMode: Mode = 'production';
+
+/**
+ * Detect the current environment
+ */
+function detectEnvironment(): Mode {
+  try {
+    const env = process.env.NODE_ENV;
+    if (env === 'development' || env === 'test') {
+      return 'development';
+    }
+  } catch (e) {
+    // do nothing, this is okay
+  }
+  return 'production';
+}
+
+/**
+ * Set the current mode
+ */
+function setMode(mode: AnalyticsConfig['mode'] = 'auto'): void {
+  if (mode === 'auto') {
+    currentMode = detectEnvironment();
+    return;
+  }
+  currentMode = mode;
+}
+
+/**
+ * Get the current mode
+ */
+function getMode(): Mode {
+  return currentMode;
+}
+
+/**
+ * Check if we're in development mode
+ */
+function isDevelopment(): boolean {
+  return getMode() === 'development';
+}
+
+/**
+ * Check if we're in production mode
+ */
+function isProduction(): boolean {
+  return getMode() === 'production';
+}
 
 /**
  * Extract UTM parameters from a URL
@@ -286,6 +338,16 @@ function getBrowserInfo(): {
  */
 export function init(options: AnalyticsConfig): void {
   config = options;
+  setMode(options.mode);
+
+  // Log initialization in development
+  if (isDevelopment() && (config.debug !== false)) {
+    const endpoint = config.endpoint || 'https://better-analytics.app/api/collect (default)';
+    console.log('🚀 Better Analytics initialized in development mode');
+    console.log('📍 Endpoint:', endpoint);
+    console.log('🏷️ Site:', config.site);
+    console.log('🔍 Events will be logged to console, not sent to server');
+  }
 }
 
 /**
@@ -294,6 +356,7 @@ export function init(options: AnalyticsConfig): void {
  */
 export function initWithPageview(options: AnalyticsConfig): void {
   config = options;
+  setMode(options.mode);
   trackPageview();
 }
 
@@ -345,12 +408,22 @@ export function track(event: string, props?: Record<string, unknown>): void {
 }
 
 /**
- * Send event data to the configured endpoint
+ * Send event data to the configured endpoint or log in development
  * @param data Event data to send
  */
 async function send(data: EventData): Promise<void> {
   if (!config) return;
 
+  // In development mode, just log to console
+  if (isDevelopment()) {
+    const endpoint = config.endpoint || 'https://better-analytics.app/api/collect (default)';
+    console.log('📊 Better Analytics Event:', data.event);
+    console.log('📍 Endpoint:', endpoint);
+    console.log('📦 Data:', data);
+    return;
+  }
+
+  // In production mode, send to server
   try {
     // Use default SaaS endpoint if no custom endpoint provided
     const endpoint = config.endpoint || 'https://better-analytics.app/api/collect';
@@ -366,8 +439,8 @@ async function send(data: EventData): Promise<void> {
       body: payload,
     });
   } catch (error) {
-    // Silently fail in production, log in development
-    if (process.env.NODE_ENV === 'development') {
+    // Silently fail in production, but log in development
+    if (isDevelopment()) {
       console.error('Better Analytics: Failed to send event', error);
     }
   }
@@ -379,6 +452,7 @@ async function send(data: EventData): Promise<void> {
  */
 export function _resetConfig(): void {
   config = null;
+  currentMode = 'production';
 }
 
 // Export types for TypeScript users

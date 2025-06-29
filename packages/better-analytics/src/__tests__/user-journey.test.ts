@@ -74,7 +74,7 @@ describe('Better Analytics SDK - User Journey Tests', () => {
         configurable: true
       });
 
-      init({ site: 'myapp', endpoint: '/api/analytics' });
+      init({ site: 'myapp', endpoint: '/api/analytics', mode: 'production' });
 
       // 1. Landing page view
       trackPageview();
@@ -140,7 +140,7 @@ describe('Better Analytics SDK - User Journey Tests', () => {
 
   describe('E-commerce Purchase Funnel', () => {
     it('should track complete purchase funnel with cart abandonment recovery', () => {
-      init({ site: 'store', endpoint: '/api/analytics' });
+      init({ site: 'store', endpoint: '/api/analytics', mode: 'production' });
 
       // Product discovery
       track('product_search', {
@@ -194,7 +194,7 @@ describe('Better Analytics SDK - User Journey Tests', () => {
 
       // Recovery email clicked (different session)
       _resetConfig();
-      init({ site: 'store', endpoint: '/api/analytics' });
+      init({ site: 'store', endpoint: '/api/analytics', mode: 'production' });
 
       track('email_clicked', {
         email_type: 'cart_recovery',
@@ -215,7 +215,7 @@ describe('Better Analytics SDK - User Journey Tests', () => {
 
   describe('Content Engagement Tracking', () => {
     it('should track blog reading behavior with scroll depth', () => {
-      init({ site: 'blog', endpoint: '/api/analytics' });
+      init({ site: 'blog', endpoint: '/api/analytics', mode: 'production' });
 
       // Article pageview
       trackPageview();
@@ -282,7 +282,7 @@ describe('Better Analytics SDK - User Journey Tests', () => {
         configurable: true
       });
 
-      init({ site: 'mobile_app', endpoint: '/api/analytics' });
+      init({ site: 'mobile_app', endpoint: '/api/analytics', mode: 'production' });
 
       // App session start
       track('app_session_start', {
@@ -327,7 +327,7 @@ describe('Better Analytics SDK - User Journey Tests', () => {
 
   describe('Error and Performance Tracking', () => {
     it('should track JavaScript errors and performance issues', () => {
-      init({ site: 'app', endpoint: '/api/analytics' });
+      init({ site: 'app', endpoint: '/api/analytics', mode: 'production' });
 
       // JavaScript error
       track('javascript_error', {

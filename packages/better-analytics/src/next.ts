@@ -60,6 +60,8 @@ export function Analytics(props: AnalyticsProps = {}): null {
     if (analyticsSite) {
       const config: AnalyticsConfig = {
         site: analyticsSite,
+        mode: mode || 'auto',
+        debug: debug,
         ...(analyticsEndpoint && { endpoint: analyticsEndpoint })
       };
       init(config);
@@ -87,7 +89,7 @@ export function Analytics(props: AnalyticsProps = {}): null {
         }
       }
     }
-  }, [api, endpoint, site, urlEnvVar, siteEnvVar, debug]);
+  }, [api, endpoint, site, urlEnvVar, siteEnvVar, mode, debug]);
 
   // Track page changes
   useEffect(() => {

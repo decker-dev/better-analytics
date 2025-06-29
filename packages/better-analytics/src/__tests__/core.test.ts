@@ -22,6 +22,8 @@ Object.defineProperty(navigator, 'userAgent', {
 });
 
 describe('Better Analytics SDK - Core Functionality', () => {
+  const originalEnv = process.env.NODE_ENV;
+
   beforeEach(() => {
     mockFetch.mockClear();
     mockFetch.mockResolvedValue(new Response('', { status: 200 }));
@@ -30,6 +32,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    process.env.NODE_ENV = originalEnv;
   });
 
   describe('Initialization', () => {
@@ -40,6 +43,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should initialize and fire pageview with initWithPageview', async () => {
+      process.env.NODE_ENV = 'production';
       initWithPageview({ site: 'test-site' });
 
       expect(mockFetch).toHaveBeenCalledWith('https://better-analytics.app/api/collect', {
@@ -52,6 +56,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should use custom endpoint when provided', async () => {
+      process.env.NODE_ENV = 'production';
       initWithPageview({ site: 'test-site', endpoint: '/api/collect' });
 
       expect(mockFetch).toHaveBeenCalledWith('/api/collect', {
@@ -64,6 +69,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
 
     it('should handle multiple init calls by updating config', () => {
+      process.env.NODE_ENV = 'production';
       init({ site: 'site1', endpoint: '/api/collect' });
       init({ site: 'site2', endpoint: '/api/collect2' });
 
@@ -101,8 +107,83 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
   });
 
+  describe('Mode Detection and Behavior', () => {
+    it('should auto-detect development mode from NODE_ENV', () => {
+      process.env.NODE_ENV = 'development';
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+      init({ site: 'test-site', endpoint: '/api/collect' });
+      track('test_event');
+
+      // Should log to console, not send to API
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'test_event');
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should auto-detect production mode from NODE_ENV', () => {
+      process.env.NODE_ENV = 'production';
+
+      init({ site: 'test-site', endpoint: '/api/collect' });
+      track('test_event');
+
+      // Should send to API
+      expect(mockFetch).toHaveBeenCalledWith('/api/collect', expect.any(Object));
+    });
+
+    it('should override mode when explicitly set to development', () => {
+      process.env.NODE_ENV = 'production';
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+      init({ site: 'test-site', endpoint: '/api/collect', mode: 'development' });
+      track('test_event');
+
+      // Should log to console despite NODE_ENV=production
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'test_event');
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should override mode when explicitly set to production', () => {
+      process.env.NODE_ENV = 'development';
+
+      init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
+      track('test_event');
+
+      // Should send to API despite NODE_ENV=development
+      expect(mockFetch).toHaveBeenCalledWith('/api/collect', expect.any(Object));
+    });
+
+    it('should log initialization info in development mode with debug enabled', () => {
+      process.env.NODE_ENV = 'development';
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+      init({ site: 'test-site', endpoint: '/api/collect', debug: true });
+
+      expect(consoleSpy).toHaveBeenCalledWith('🚀 Better Analytics initialized in development mode');
+      expect(consoleSpy).toHaveBeenCalledWith('📍 Endpoint:', '/api/collect');
+      expect(consoleSpy).toHaveBeenCalledWith('🏷️ Site:', 'test-site');
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should not log initialization info when debug is disabled', () => {
+      process.env.NODE_ENV = 'development';
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+      init({ site: 'test-site', endpoint: '/api/collect', debug: false });
+
+      expect(consoleSpy).not.toHaveBeenCalled();
+
+      consoleSpy.mockRestore();
+    });
+  });
+
   describe('Event Tracking', () => {
     beforeEach(() => {
+      process.env.NODE_ENV = 'production';
       init({ site: 'test-site', endpoint: '/api/collect' });
     });
 
@@ -161,8 +242,43 @@ describe('Better Analytics SDK - Core Functionality', () => {
     });
   });
 
+  describe('Development Mode Logging', () => {
+    beforeEach(() => {
+      process.env.NODE_ENV = 'development';
+    });
+
+    it('should log events to console in development mode', () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+      init({ site: 'test-site', endpoint: '/api/collect' });
+      track('dev_event', { test: 'data' });
+
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'dev_event');
+      expect(consoleSpy).toHaveBeenCalledWith('📍 Endpoint:', '/api/collect');
+      expect(consoleSpy).toHaveBeenCalledWith('📦 Data:', expect.objectContaining({
+        event: 'dev_event',
+        props: { test: 'data' }
+      }));
+
+      consoleSpy.mockRestore();
+    });
+
+    it('should log default SaaS endpoint in development mode', () => {
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+      init({ site: 'test-site' }); // No custom endpoint
+      track('dev_event');
+
+      expect(consoleSpy).toHaveBeenCalledWith('📍 Endpoint:', 'https://better-analytics.app/api/collect (default)');
+
+      consoleSpy.mockRestore();
+    });
+  });
+
   describe('Error Handling', () => {
     beforeEach(() => {
+      process.env.NODE_ENV = 'production';
       init({ site: 'test-site', endpoint: '/api/collect' });
     });
 
@@ -170,38 +286,30 @@ describe('Better Analytics SDK - Core Functionality', () => {
       mockFetch.mockRejectedValue(new Error('Network error'));
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
-      // Mock production environment
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'production';
-
       expect(() => track('test_event')).not.toThrow();
 
       // Allow async error handling
       await new Promise(resolve => setTimeout(resolve, 0));
       expect(consoleErrorSpy).not.toHaveBeenCalled();
 
-      // Restore
-      process.env.NODE_ENV = originalEnv;
       consoleErrorSpy.mockRestore();
     });
 
-    it('should log network errors in development', async () => {
-      mockFetch.mockRejectedValue(new Error('Network error'));
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => { });
-
-      // Mock development environment
-      const originalEnv = process.env.NODE_ENV;
+    it('should detect development mode from NODE_ENV and show appropriate behavior', async () => {
+      // Test that development mode is detected correctly and behaves as expected
       process.env.NODE_ENV = 'development';
+      _resetConfig();
+      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
+      // In development mode with auto-detection, events should be logged, not sent
+      init({ site: 'test-site', endpoint: '/api/collect', mode: 'auto' });
       track('test_event');
 
-      // Allow async error handling
-      await new Promise(resolve => setTimeout(resolve, 0));
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      // Should log to console, not make fetch calls
+      expect(mockFetch).not.toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'test_event');
 
-      // Restore
-      process.env.NODE_ENV = originalEnv;
-      consoleErrorSpy.mockRestore();
+      consoleSpy.mockRestore();
     });
   });
 }); 

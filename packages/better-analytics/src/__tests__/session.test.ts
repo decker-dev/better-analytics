@@ -36,7 +36,7 @@ describe('Better Analytics SDK - Session Management', () => {
     });
 
     _resetConfig();
-    init({ site: 'test-site', endpoint: '/api/collect' });
+    init({ site: 'test-site', endpoint: '/api/collect', mode: 'production' });
   });
 
   afterEach(() => {

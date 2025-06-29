@@ -35,6 +35,14 @@ track('button_click', { button: 'signup' });
 // Or use your own endpoint
 init({ site: 'my-app', endpoint: '/api/collect' });
 
+// Override environment detection (useful for testing)
+init({ site: 'my-app', mode: 'development' }); // Forces development mode
+init({ site: 'my-app', mode: 'production' });  // Forces production mode
+init({ site: 'my-app', mode: 'auto' });        // Auto-detect (default)
+
+// Enable debug logging
+init({ site: 'my-app', debug: true });
+
 // Or initialize with automatic pageview
 import { initWithPageview } from "better-analytics";
 initWithPageview({ site: 'my-app' });
@@ -327,6 +335,85 @@ Example payload with rich metadata:
 ```
 
 **Smart Payload Optimization**: Only data that's actually available is included in the payload, minimizing bandwidth usage.
+
+## Development vs Production Behavior
+
+Better Analytics automatically detects your environment and behaves differently:
+
+### Development Mode
+- **Events are logged to console** instead of being sent to your API
+- **Rich debug information** is displayed in the console
+- **No network requests** are made to your analytics endpoint
+- **Perfect for debugging** and verifying your tracking implementation
+
+```javascript
+// In development (NODE_ENV=development)
+init({ site: 'my-app' });
+track('button_click', { button: 'signup' });
+
+// Console output:
+// 🚀 Better Analytics initialized in development mode
+// 📍 Endpoint: https://better-analytics.app/api/collect (default)
+// 🏷️ Site: my-app
+// 🔍 Events will be logged to console, not sent to server
+// 📊 Better Analytics Event: button_click
+// 📦 Data: { event: 'button_click', props: { button: 'signup' }, ... }
+```
+
+### Production Mode
+- **Events are sent** to your configured endpoint or Better Analytics SaaS
+- **Silent operation** with no console logging
+- **Optimized for performance** and minimal overhead
+
+```javascript
+// In production (NODE_ENV=production)
+init({ site: 'my-app' });
+track('button_click', { button: 'signup' });
+
+// No console output, event sent to API
+```
+
+### Manual Mode Override
+
+You can override the automatic detection:
+
+```javascript
+// Force development mode (even in production)
+init({ site: 'my-app', mode: 'development' });
+
+// Force production mode (even in development)
+init({ site: 'my-app', mode: 'production' });
+
+// Auto-detect based on NODE_ENV (default)
+init({ site: 'my-app', mode: 'auto' });
+```
+
+### Debug Mode
+
+Enable additional logging in any environment:
+
+```javascript
+init({ site: 'my-app', debug: true });
+
+// Shows configuration details and enhanced logging
+```
+
+### Next.js Component
+
+The Analytics component also supports mode and debug props:
+
+```jsx
+import { Analytics } from "better-analytics/next";
+
+// Development mode with debug logging
+<Analytics site="my-app" mode="development" debug={true} />
+
+// Production mode (override auto-detection)
+<Analytics site="my-app" mode="production" />
+
+// Auto-detect with debug info
+<Analytics site="my-app" debug={true} />
+```
 
 ## Server-side Endpoint
 

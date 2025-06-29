@@ -1,5 +1,75 @@
 # better-analytics
 
+## 0.5.0
+
+### Major Changes
+
+- **Development vs Production Mode Handling**: Similar to Vercel Analytics, events are now only logged to console in development mode instead of being sent to the API
+- **Smart Environment Detection**: Automatically detects `NODE_ENV` to determine behavior
+- **Manual Mode Override**: Force development or production mode regardless of environment
+- **Enhanced Debug Mode**: Rich logging and configuration details in development
+
+### Breaking Changes
+
+None - all existing APIs remain unchanged.
+
+### New Features
+
+#### Development Mode (NODE_ENV=development)
+```javascript
+init({ site: 'my-app' });
+track('button_click', { button: 'signup' });
+
+// Console output (no API calls):
+// 🚀 Better Analytics initialized in development mode
+// 📊 Better Analytics Event: button_click
+// 📦 Data: { event: 'button_click', props: { button: 'signup' }, ... }
+```
+
+#### Production Mode (NODE_ENV=production)
+```javascript
+init({ site: 'my-app' });
+track('button_click', { button: 'signup' });
+
+// Silent operation, events sent to API
+```
+
+#### Manual Mode Override
+```javascript
+// Force development mode (logs to console)
+init({ site: 'my-app', mode: 'development' });
+
+// Force production mode (sends to API)
+init({ site: 'my-app', mode: 'production' });
+
+// Auto-detect based on NODE_ENV (default)
+init({ site: 'my-app', mode: 'auto' });
+```
+
+#### Enhanced Debug Mode
+```javascript
+// Enable debug logging in any environment
+init({ site: 'my-app', debug: true });
+
+// Next.js component
+<Analytics site="my-app" mode="development" debug={true} />
+```
+
+### Configuration Changes
+
+- **mode**: New optional parameter (`'auto' | 'development' | 'production'`)
+- **debug**: New optional parameter for enhanced logging
+- All existing parameters remain unchanged
+
+### Developer Experience
+
+- **Perfect for Development**: No unwanted API calls during development
+- **Easy Debugging**: Rich console output shows exactly what data is being tracked
+- **Production Ready**: Silent, optimized operation in production
+- **Flexible Override**: Manual control when needed for testing
+
+This update significantly improves the development experience while maintaining all existing functionality.
+
 ## 0.4.0
 
 ### Major Changes

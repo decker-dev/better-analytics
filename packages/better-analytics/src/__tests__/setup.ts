@@ -8,6 +8,10 @@ import { vi } from 'vitest';
 // Global mocks that all tests need
 global.fetch = vi.fn();
 
+// Set NODE_ENV to production by default for tests so API calls are made
+// Individual tests can override this when testing development mode behavior
+process.env.NODE_ENV = 'production';
+
 // Enhanced browser environment setup
 const mockWindow = {
   location: {
