@@ -1,6 +1,6 @@
 {
   "name": "better-analytics",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Micro-analytics JavaScript SDK for tracking page views and events",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -16,14 +16,19 @@
       "require": "./dist/next.cjs",
       "types": "./dist/next.d.ts"
     },
+    "./server": {
+      "import": "./dist/server.js",
+      "require": "./dist/server.cjs",
+      "types": "./dist/server.d.ts"
+    },
     "./package.json": "./package.json"
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/next.ts --format esm,cjs --dts --minify",
-    "dev": "tsup src/index.ts src/next.ts --format esm,cjs --dts --watch",
+    "build": "tsup src/index.ts src/next.ts src/server.ts --format esm,cjs --dts --minify",
+    "dev": "tsup src/index.ts src/next.ts src/server.ts --format esm,cjs --dts --watch",
     "lint": "echo 'No linting configured'",
     "check-types": "tsc --noEmit",
     "test": "vitest run"
@@ -34,7 +39,9 @@
     "sdk",
     "javascript",
     "nextjs",
-    "react"
+    "react",
+    "server-side",
+    "edge-functions"
   ],
   "license": "MIT",
   "peerDependencies": {
@@ -57,6 +64,8 @@
     "jsdom": "^23.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
     "vitest": "^1.0.0"
   }
 }

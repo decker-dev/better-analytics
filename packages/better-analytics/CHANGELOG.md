@@ -1,5 +1,94 @@
 # better-analytics
 
+## 0.6.0
+
+### Major Features
+
+- **🖥️ Server-Side Tracking**: Complete server-side analytics for Node.js, Edge Functions, Cloudflare Workers
+- **🔄 beforeSend Middleware**: Transform or filter events before sending
+- **📱 Offline Support**: Automatic retry with localStorage queue
+- **🚦 Route Computation**: Automatic route pattern detection for SPAs (e.g., `/user/[id]`)
+- **📦 Event Batching**: Server-side performance optimization
+- **👤 User Identification**: New `identify()` API for user tracking
+- **⏱️ Queue System**: Capture events before SDK initialization
+- **🔗 Session Stitching**: Maintain session continuity between client and server
+
+### New APIs
+
+#### Client-Side
+```javascript
+// Initialize with beforeSend
+init({
+  site: 'my-app',
+  beforeSend: (event) => {
+    if (event.url?.includes('/admin')) return null;
+    return event;
+  }
+});
+
+// Identify users
+identify('user123', {
+  email: 'user@example.com',
+  plan: 'pro'
+});
+
+// Compute route patterns
+computeRoute('/user/123', { id: '123' }); // Returns: '/user/[id]'
+```
+
+#### Server-Side
+```javascript
+import { initServer, trackServer } from "better-analytics/server";
+
+// Initialize with batching
+initServer({
+  site: 'my-app',
+  batch: { size: 50, interval: 5000 }
+});
+
+// Track from API routes
+await trackServer('api_call', props, {
+  request,
+  user: { id: 'user123', sessionId: 'session456' }
+});
+
+// Express.js middleware
+app.use(expressMiddleware());
+```
+
+### Framework Improvements
+
+#### Next.js
+- **Suspense Support**: Proper SSR handling
+- **Route Computation**: Automatic dynamic route detection
+- **Enhanced Debugging**: Rich console output with route info
+
+```jsx
+<Analytics 
+  site="my-app"
+  beforeSend={(event) => event}
+  mode="production"
+  debug={true}
+/>
+```
+
+### Technical Improvements
+
+- **Modular Architecture**: Separate entry points for client/server
+- **Tree-Shakeable**: Import only what you need
+- **TypeScript First**: Complete type definitions
+- **Zero Breaking Changes**: Full backward compatibility
+
+### Package Structure
+
+```
+better-analytics/          # Client SDK
+better-analytics/next      # Next.js component
+better-analytics/server    # Server SDK (NEW)
+```
+
+This release transforms Better Analytics from a simple client-side tracker to a complete analytics solution suitable for modern full-stack applications.
+
 ## 0.5.0
 
 ### Major Changes

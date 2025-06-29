@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect } from 'react';
-import { init, trackPageview } from './index';
-import { usePathname } from 'next/navigation';
-import type { AnalyticsConfig } from './index';
+import React, { useEffect, Suspense } from 'react';
+import { init, trackPageview, computeRoute } from './index';
+import { usePathname, useParams, useSearchParams } from 'next/navigation';
+import type { AnalyticsConfig, BeforeSend, BeforeSendEvent, RouteInfo } from './types';
 
 export interface AnalyticsProps {
   /** API endpoint to send analytics data to (optional, defaults to Better Analytics SaaS) */
@@ -21,22 +21,43 @@ export interface AnalyticsProps {
   /** Enable debug mode to log events to console */
   debug?: boolean;
   /** Modify event data before sending - return null to ignore event */
-  beforeSend?: (event: unknown) => unknown | null;
+  beforeSend?: BeforeSend;
 }
 
 /**
- * Analytics component that automatically tracks page views in Next.js applications
- * 
- * Usage:
- *   <Analytics site="my-site" />  // Uses Better Analytics SaaS (default) with your site ID
- *   <Analytics site="my-site" api="/api/collect" />  // Custom endpoint with site ID
- *   <Analytics />  // Uses NEXT_PUBLIC_BA_SITE (required) and optional NEXT_PUBLIC_BA_URL
- *   <Analytics urlEnvVar="CUSTOM_URL" siteEnvVar="CUSTOM_SITE" />  // Custom env vars
- * 
- * Similar to Vercel Analytics - just add to your layout and it works automatically
+ * Get route information for Next.js pages
  */
-export function Analytics(props: AnalyticsProps = {}): null {
+function useRoute(): RouteInfo | null {
   const pathname = usePathname();
+  const params = useParams();
+  const searchParams = useSearchParams();
+
+  if (!pathname) return null;
+
+  // Until we have route parameters, we don't compute the route
+  if (!params) {
+    return { route: pathname, path: pathname };
+  }
+
+  // In Next.js@13, useParams() could return an empty object for pages router
+  const finalParams = Object.keys(params).length
+    ? params
+    : Object.fromEntries(searchParams.entries());
+
+  const route = computeRoute(pathname, finalParams as Record<string, string | string[]>);
+
+  return {
+    route: route || pathname,
+    path: pathname,
+    params: finalParams as Record<string, string | string[]>
+  };
+}
+
+/**
+ * Internal analytics component with hooks
+ */
+function AnalyticsComponent(props: AnalyticsProps): null {
+  const routeInfo = useRoute();
   const { api, endpoint, site, urlEnvVar, siteEnvVar, mode, debug, beforeSend } = props;
 
   // Auto-initialize when component mounts with provided config
@@ -62,6 +83,7 @@ export function Analytics(props: AnalyticsProps = {}): null {
         site: analyticsSite,
         mode: mode || 'auto',
         debug: debug,
+        beforeSend: beforeSend,
         ...(analyticsEndpoint && { endpoint: analyticsEndpoint })
       };
       init(config);
@@ -75,6 +97,9 @@ export function Analytics(props: AnalyticsProps = {}): null {
           [urlEnvName]: getEnvVar(urlEnvName),
           [siteEnvName]: getEnvVar(siteEnvName)
         });
+        if (beforeSend) {
+          console.log('🔄 beforeSend middleware configured');
+        }
       }
     } else if (typeof window !== 'undefined') {
       // Show warning in development or when debug is enabled
@@ -89,21 +114,67 @@ export function Analytics(props: AnalyticsProps = {}): null {
         }
       }
     }
-  }, [api, endpoint, site, urlEnvVar, siteEnvVar, mode, debug]);
+  }, [api, endpoint, site, urlEnvVar, siteEnvVar, mode, debug, beforeSend]);
 
   // Track page changes
   useEffect(() => {
-    trackPageview();
+    if (!routeInfo) return;
+
+    // Track pageview with computed route
+    trackPageview(routeInfo.path);
 
     if (debug && typeof window !== 'undefined') {
-      console.log('📊 Better Analytics: Page view tracked -', pathname);
+      console.log('📊 Better Analytics: Page view tracked');
+      console.log('📍 Path:', routeInfo.path);
+      console.log('🔀 Route:', routeInfo.route);
+      if (routeInfo.params && Object.keys(routeInfo.params).length > 0) {
+        console.log('📌 Params:', routeInfo.params);
+      }
     }
-  }, [pathname, debug]);
+  }, [routeInfo?.path, debug]);
 
   // This component doesn't render anything
   return null;
 }
 
+/**
+ * Analytics component that automatically tracks page views in Next.js applications
+ * 
+ * Usage:
+ *   <Analytics site="my-site" />  // Uses Better Analytics SaaS (default) with your site ID
+ *   <Analytics site="my-site" api="/api/collect" />  // Custom endpoint with site ID
+ *   <Analytics />  // Uses NEXT_PUBLIC_BA_SITE (required) and optional NEXT_PUBLIC_BA_URL
+ *   <Analytics urlEnvVar="CUSTOM_URL" siteEnvVar="CUSTOM_SITE" />  // Custom env vars
+ * 
+ * Similar to Vercel Analytics - just add to your layout and it works automatically
+ */
+export function Analytics(props: AnalyticsProps = {}): null {
+  // Wrap in Suspense to handle SSR and avoid hydration issues
+  const SuspendedAnalytics = () => {
+    return React.createElement(
+      Suspense,
+      { fallback: null },
+      React.createElement(AnalyticsComponent, props)
+    );
+  };
+
+  // Create element but it will return null anyway
+  SuspendedAnalytics();
+  return null;
+}
+
 // Re-export everything from the core module for convenience
-export { init, initWithPageview, track, trackPageview } from './index';
-export type { AnalyticsConfig, EventData } from './index'; 
+export { init, initWithPageview, track, trackPageview, identify, computeRoute } from './index';
+export type { AnalyticsConfig, EventData, BeforeSend, BeforeSendEvent, RouteInfo } from './types';
+
+// Re-export server functionality for Next.js users
+export {
+  initServer,
+  trackServer,
+  trackPageviewServer,
+  identifyServer,
+  stitchSession,
+  type ServerEventData,
+  type ServerTrackOptions,
+  type ServerAnalyticsConfig,
+} from './server'; 

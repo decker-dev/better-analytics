@@ -1,73 +1,31 @@
 // Better Analytics SDK - Micro-analytics JavaScript SDK
 // Framework-agnostic, < 2KB gzip, tree-shakable
 
-interface AnalyticsConfig {
-  endpoint?: string;
-  site: string;
-  mode?: 'auto' | 'development' | 'production';
-  debug?: boolean;
-}
+import type {
+  AnalyticsConfig,
+  EventData,
+  Mode,
+  NavigatorWithConnection,
+  BeforeSend,
+  BeforeSendEvent,
+  RouteInfo,
+} from './types';
 
-interface EventData {
-  // Core event data
-  event: string;
-  timestamp: number;
-  site?: string;
+import {
+  initQueue,
+  processQueue,
+  getOfflineEvents,
+  clearOfflineEvents,
+  saveOfflineEvents,
+  type QueuedEvent,
+} from './queue';
 
-  // Page context
-  url: string;
-  referrer: string;
-
-  // Session & User
-  sessionId?: string;
-  deviceId?: string;
-  userId?: string;
-
-  // Device & Browser (only send if available)
-  device?: {
-    userAgent?: string;
-    screenWidth?: number;
-    screenHeight?: number;
-    viewportWidth?: number;
-    viewportHeight?: number;
-    language?: string;
-    timezone?: string;
-    connectionType?: string;
-  };
-
-  // Page info (only send if available)
-  page?: {
-    title?: string;
-    pathname?: string;
-    hostname?: string;
-    loadTime?: number;
-  };
-
-  // UTM parameters (only send if present)
-  utm?: {
-    source?: string;
-    medium?: string;
-    campaign?: string;
-    term?: string;
-    content?: string;
-  };
-
-  // Custom properties from user
-  props?: Record<string, unknown>;
-}
-
-interface NetworkConnection {
-  effectiveType?: string;
-}
-
-interface NavigatorWithConnection extends Navigator {
-  connection?: NetworkConnection;
-}
-
-type Mode = 'development' | 'production';
+// Re-export types for convenience
+export type { AnalyticsConfig, EventData, BeforeSend, BeforeSendEvent, RouteInfo };
 
 let config: AnalyticsConfig | null = null;
 let currentMode: Mode = 'production';
+let beforeSendHandler: BeforeSend | undefined;
 
 /**
  * Detect the current environment
@@ -213,15 +171,6 @@ function getDeviceId(): string {
 }
 
 /**
- * Generate a session ID that lasts approximately 30 minutes
- * @deprecated Use getSessionId() instead
- */
-function generateSessionId(): string {
-  // Keep for backward compatibility
-  return getSessionId();
-}
-
-/**
  * Get additional browser/device information
  */
 function getBrowserInfo(): {
@@ -339,6 +288,37 @@ function getBrowserInfo(): {
 export function init(options: AnalyticsConfig): void {
   config = options;
   setMode(options.mode);
+  beforeSendHandler = options.beforeSend;
+
+  // Initialize queue system
+  initQueue();
+
+  // Process offline events if any
+  const offlineEvents = getOfflineEvents();
+  if (offlineEvents.length > 0) {
+    clearOfflineEvents();
+    for (const event of offlineEvents) {
+      if (event.type === 'track' && event.event) {
+        track(event.event, event.props);
+      } else if (event.type === 'pageview') {
+        trackPageview();
+      }
+    }
+  }
+
+  // Process queued events
+  processQueue((event: QueuedEvent) => {
+    if (event.type === 'track' && event.event) {
+      track(event.event, event.props);
+    } else if (event.type === 'pageview') {
+      trackPageview();
+    } else if (event.type === 'identify') {
+      const userId = event.props?.userId as string;
+      if (userId) {
+        identify(userId, event.props);
+      }
+    }
+  });
 
   // Log initialization in development
   if (isDevelopment() && (config.debug !== false)) {
@@ -355,16 +335,15 @@ export function init(options: AnalyticsConfig): void {
  * @param options Configuration options
  */
 export function initWithPageview(options: AnalyticsConfig): void {
-  config = options;
-  setMode(options.mode);
+  init(options);
   trackPageview();
 }
 
 /**
  * Track a page view event
  */
-export function trackPageview(): void {
-  track('pageview');
+export function trackPageview(path?: string): void {
+  track('pageview', path ? { path } : undefined);
 }
 
 /**
@@ -373,7 +352,12 @@ export function trackPageview(): void {
  * @param props Optional event properties
  */
 export function track(event: string, props?: Record<string, unknown>): void {
+  // Queue event if SDK not initialized
   if (!config) {
+    if (typeof window !== 'undefined' && window.ba) {
+      window.ba('track', event, props);
+      return;
+    }
     console.warn('Better Analytics: SDK not initialized. Call init() first.');
     return;
   }
@@ -404,7 +388,51 @@ export function track(event: string, props?: Record<string, unknown>): void {
     ...(props && { props }),
   };
 
+  // Apply beforeSend if configured
+  if (beforeSendHandler) {
+    const beforeSendEvent: BeforeSendEvent = event === 'pageview'
+      ? { type: 'pageview', url: eventData.url, path: props?.path as string | undefined, data: eventData }
+      : { type: 'event', name: event, url: eventData.url, data: eventData };
+
+    const processedEvent = beforeSendHandler(beforeSendEvent);
+
+    // Handle async beforeSend
+    if (processedEvent instanceof Promise) {
+      processedEvent.then(result => {
+        if (result && result.data) {
+          send(result.data);
+        }
+      });
+      return;
+    }
+
+    // Handle sync beforeSend
+    if (!processedEvent) return; // Event cancelled
+    if (processedEvent.data) {
+      send(processedEvent.data);
+      return;
+    }
+  }
+
   send(eventData);
+}
+
+/**
+ * Identify a user
+ * @param userId User identifier
+ * @param traits Optional user traits
+ */
+export function identify(userId: string, traits?: Record<string, unknown>): void {
+  // Store userId for future events
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.setItem('ba_uid', userId);
+    } catch {
+      // Ignore
+    }
+  }
+
+  track('identify', { userId, ...traits });
 }
 
 /**
@@ -420,6 +448,19 @@ async function send(data: EventData): Promise<void> {
     console.log('📊 Better Analytics Event:', data.event);
     console.log('📍 Endpoint:', endpoint);
     console.log('📦 Data:', data);
+    return;
+  }
+
+  // Check if online
+  if (typeof window !== 'undefined' && !navigator.onLine) {
+    // Save event for later
+    const queuedEvent: QueuedEvent = {
+      type: data.event === 'pageview' ? 'pageview' : 'track',
+      event: data.event,
+      props: data.props,
+      timestamp: data.timestamp,
+    };
+    saveOfflineEvents([queuedEvent]);
     return;
   }
 
@@ -439,10 +480,72 @@ async function send(data: EventData): Promise<void> {
       body: payload,
     });
   } catch (error) {
-    // Silently fail in production, but log in development
+    // Save failed event for retry
+    if (typeof window !== 'undefined') {
+      const queuedEvent: QueuedEvent = {
+        type: data.event === 'pageview' ? 'pageview' : 'track',
+        event: data.event,
+        props: data.props,
+        timestamp: data.timestamp,
+        retries: 1,
+      };
+      saveOfflineEvents([queuedEvent]);
+    }
+
+    // Log error in development
     if (isDevelopment()) {
       console.error('Better Analytics: Failed to send event', error);
     }
+  }
+}
+
+/**
+ * Compute route pattern from path and params (for SPAs)
+ * @param pathname Current pathname
+ * @param params Route parameters
+ */
+export function computeRoute(
+  pathname: string | null,
+  params: Record<string, string | string[]> | null
+): string | null {
+  if (!pathname || !params) return pathname;
+
+  let result = pathname;
+  try {
+    const entries = Object.entries(params);
+
+    // Sort by value length (longest first) to avoid partial replacements
+    entries.sort(([, a], [, b]) => {
+      const aLength = Array.isArray(a) ? a.join('/').length : a.length;
+      const bLength = Array.isArray(b) ? b.join('/').length : b.length;
+      return bLength - aLength;
+    });
+
+    // Replace simple values first
+    for (const [key, value] of entries) {
+      if (!Array.isArray(value)) {
+        const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`/${escaped}(?=/|$)`, 'g');
+        if (regex.test(result)) {
+          result = result.replace(regex, `/[${key}]`);
+        }
+      }
+    }
+
+    // Replace array values (catch-all routes)
+    for (const [key, value] of entries) {
+      if (Array.isArray(value)) {
+        const escaped = value.join('/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`/${escaped}(?=/|$)`, 'g');
+        if (regex.test(result)) {
+          result = result.replace(regex, `/[...${key}]`);
+        }
+      }
+    }
+
+    return result;
+  } catch {
+    return pathname;
   }
 }
 
@@ -453,7 +556,5 @@ async function send(data: EventData): Promise<void> {
 export function _resetConfig(): void {
   config = null;
   currentMode = 'production';
-}
-
-// Export types for TypeScript users
-export type { AnalyticsConfig, EventData }; 
+  beforeSendHandler = undefined;
+} 
