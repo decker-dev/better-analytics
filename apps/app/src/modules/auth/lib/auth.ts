@@ -35,7 +35,7 @@ export const auth = betterAuth({
         // Send an email to the user with a magic link using Resend
         try {
           await resend.emails.send({
-            from: 'Acme <onboarding@resend.dev>',
+            from: 'Onboarding <no-reply@transactional.better-analytics.app>',
             to: data.email,
             subject: 'Sign in to your account',
             html: `<p>Click <a href="${data.url}">here</a> to sign in.</p>`,
@@ -52,7 +52,7 @@ export const auth = betterAuth({
         try {
           const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/accept-invitation/${data.id}`;
           await resend.emails.send({
-            from: 'Better Analytics <onboarding@resend.dev>',
+            from: 'Onboarding <no-reply@transactional.better-analytics.app>',
             to: data.email,
             subject: `Invitación a unirse a ${data.organization.name}`,
             html: `
