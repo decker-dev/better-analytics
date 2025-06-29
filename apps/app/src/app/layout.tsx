@@ -38,7 +38,7 @@ export default function RootLayout({
         >
           {children}
         </ThemeProvider>
-        <Analytics api="/api/collect" site={env.NEXT_PUBLIC_BA_SITE} />
+        <Analytics endpoint="/api/collect" />
       </body>
     </html>
   );
