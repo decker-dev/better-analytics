@@ -42,8 +42,8 @@ importers:
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.8.2)(zod@3.25.56)
       better-analytics:
-        specifier: ^0.3.0
-        version: 0.3.0(next@15.4.0-canary.90(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
+        specifier: ^0.4.0
+        version: 0.4.0(next@15.4.0-canary.90(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0)
       better-auth:
         specifier: ^1.2.9
         version: 1.2.9
@@ -2599,8 +2599,8 @@ packages:
       react:
         optional: true
 
-  better-analytics@0.3.0:
-    resolution: {integrity: sha512-vD9Wjl+7ORR9acyC1/k5It9aCLMM9JEi4D48umJhGROjjcAuOdWsKE72JTJZzE27t2aOqBS3wNFZd+k8fSqmvA==}
+  better-analytics@0.4.0:
+    resolution: {integrity: sha512-XukXBHRvD07BwsNOUKF6b0dakU0QcKQBVvWEEY5Rj1NctAB6iQ6O+Pp+VdVUH7nBP0FfQekVn/IIwMpf64eNfQ==}
     peerDependencies:
       next: '>=13'
       react: '>=18'
@@ -7087,7 +7087,7 @@ snapshots:
       next: 15.3.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
 
-  better-analytics@0.3.0(next@15.4.0-canary.90(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
+  better-analytics@0.4.0(next@15.4.0-canary.90(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react@19.1.0):
     optionalDependencies:
       next: 15.4.0-canary.90(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
