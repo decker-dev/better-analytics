@@ -102,6 +102,9 @@ importers:
         specifier: ^3.25.56
         version: 3.25.56
     devDependencies:
+      '@react-email/render':
+        specifier: 1.0.1
+        version: 1.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -7394,6 +7397,14 @@ snapshots:
       js-beautify: 1.15.4
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
+      react-promise-suspense: 0.3.4
+
+  '@react-email/render@1.0.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)':
+    dependencies:
+      html-to-text: 9.0.5
+      js-beautify: 1.15.4
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
       react-promise-suspense: 0.3.4
 
   '@react-email/render@1.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
