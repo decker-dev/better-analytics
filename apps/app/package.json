@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack --port 3011",
-    "build": "next build --turbopack",
+    "build": "pnpm run db:migrate && next build --turbopack",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit",
