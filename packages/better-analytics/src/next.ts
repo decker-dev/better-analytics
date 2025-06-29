@@ -88,12 +88,12 @@ function AnalyticsComponent(props: AnalyticsProps): null {
       };
       init(config);
 
-      // Log debug info if enabled
+      // Log debug info if enabled (additional Next.js specific info)
       if (debug && typeof window !== 'undefined') {
-        const effectiveEndpoint = analyticsEndpoint || 'https://better-analytics.app/api/collect (default)';
-        console.log('🚀 Better Analytics initialized with endpoint:', effectiveEndpoint, 'site:', analyticsSite);
-        console.log('📦 Sources - URL:', api || endpoint ? 'prop' : analyticsEndpoint ? `env(${urlEnvName})` : 'default SaaS', 'Site:', site ? 'prop' : `env(${siteEnvName})`);
-        console.log('🔍 Debug env vars:', {
+        console.log('📦 Next.js Analytics Sources:');
+        console.log('  URL:', api || endpoint ? 'prop' : analyticsEndpoint ? `env(${urlEnvName})` : 'default SaaS');
+        console.log('  Site:', site ? 'prop' : `env(${siteEnvName})`);
+        console.log('🔍 Environment variables:', {
           [urlEnvName]: getEnvVar(urlEnvName),
           [siteEnvName]: getEnvVar(siteEnvName)
         });
@@ -124,11 +124,11 @@ function AnalyticsComponent(props: AnalyticsProps): null {
     trackPageview(routeInfo.path);
 
     if (debug && typeof window !== 'undefined') {
-      console.log('📊 Better Analytics: Page view tracked');
-      console.log('📍 Path:', routeInfo.path);
-      console.log('🔀 Route:', routeInfo.route);
+      console.log('📊 Next.js Analytics: Page view tracked');
+      console.log('  📍 Path:', routeInfo.path);
+      console.log('  🔀 Route:', routeInfo.route);
       if (routeInfo.params && Object.keys(routeInfo.params).length > 0) {
-        console.log('📌 Params:', routeInfo.params);
+        console.log('  📌 Params:', routeInfo.params);
       }
     }
   }, [routeInfo?.path, debug]);

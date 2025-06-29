@@ -320,13 +320,25 @@ export function init(options: AnalyticsConfig): void {
     }
   });
 
-  // Log initialization in development
-  if (isDevelopment() && (config.debug !== false)) {
+  // Log initialization - always in development, only with debug in production
+  if (isDevelopment() && config.debug !== false) {
+    const mode = isDevelopment() ? 'development' : 'production';
+    console.log(`🚀 Better Analytics initialized in ${mode} mode`);
+
+    // Extra debug info only if explicitly enabled
+    if (config.debug) {
+      const endpoint = config.endpoint || 'https://better-analytics.app/api/collect (default)';
+      console.log('📍 Endpoint:', endpoint);
+      console.log('🏷️ Site:', config.site);
+      console.log('🔍 Events will be logged to console, not sent to server');
+    }
+  } else if (config.debug) {
+    // Production with debug enabled
     const endpoint = config.endpoint || 'https://better-analytics.app/api/collect (default)';
-    console.log('🚀 Better Analytics initialized in development mode');
+    console.log('🚀 Better Analytics initialized in production mode');
     console.log('📍 Endpoint:', endpoint);
     console.log('🏷️ Site:', config.site);
-    console.log('🔍 Events will be logged to console, not sent to server');
+    console.log('🔍 Debug mode enabled - events will be logged AND sent to server');
   }
 }
 
@@ -444,11 +456,21 @@ async function send(data: EventData): Promise<void> {
 
   // In development mode, just log to console
   if (isDevelopment()) {
-    const endpoint = config.endpoint || 'https://better-analytics.app/api/collect (default)';
-    console.log('📊 Better Analytics Event:', data.event);
-    console.log('📍 Endpoint:', endpoint);
     console.log('📦 Data:', data);
+
+    // Extra debug info only if explicitly enabled
+    if (config.debug) {
+      const endpoint = config.endpoint || 'https://better-analytics.app/api/collect (default)';
+      console.log('📊 Better Analytics Event:', data.event);
+      console.log('📍 Endpoint:', endpoint);
+    }
     return;
+  }
+
+  // In production with debug enabled, log AND send
+  if (config.debug) {
+    console.log('📊 Better Analytics Event (debug):', data.event);
+    console.log('📦 Data:', data);
   }
 
   // Check if online
