@@ -124,7 +124,10 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
       // Should log to console, not send to API
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'test_event');
+      expect(consoleSpy).toHaveBeenCalledWith('🚀 Better Analytics initialized in development mode');
+      expect(consoleSpy).toHaveBeenCalledWith('📦 Data:', expect.objectContaining({
+        event: 'test_event'
+      }));
 
       consoleSpy.mockRestore();
     });
@@ -148,7 +151,10 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
       // Should log to console despite NODE_ENV=production
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'test_event');
+      expect(consoleSpy).toHaveBeenCalledWith('🚀 Better Analytics initialized in development mode');
+      expect(consoleSpy).toHaveBeenCalledWith('📦 Data:', expect.objectContaining({
+        event: 'test_event'
+      }));
 
       consoleSpy.mockRestore();
     });
@@ -340,8 +346,7 @@ describe('Better Analytics SDK - Core Functionality', () => {
       track('dev_event', { test: 'data' });
 
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'dev_event');
-      expect(consoleSpy).toHaveBeenCalledWith('📍 Endpoint:', '/api/collect');
+      expect(consoleSpy).toHaveBeenCalledWith('🚀 Better Analytics initialized in development mode');
       expect(consoleSpy).toHaveBeenCalledWith('📦 Data:', expect.objectContaining({
         event: 'dev_event',
         props: { test: 'data' }
@@ -350,13 +355,17 @@ describe('Better Analytics SDK - Core Functionality', () => {
       consoleSpy.mockRestore();
     });
 
-    it('should log default SaaS endpoint in development mode', () => {
+    it('should log default SaaS endpoint in development mode with debug', () => {
       const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
-      init({ site: 'test-site' }); // No custom endpoint
+      init({ site: 'test-site', debug: true }); // No custom endpoint, but with debug
       track('dev_event');
 
+      expect(consoleSpy).toHaveBeenCalledWith('🚀 Better Analytics initialized in development mode');
       expect(consoleSpy).toHaveBeenCalledWith('📍 Endpoint:', 'https://better-analytics.app/api/collect (default)');
+      expect(consoleSpy).toHaveBeenCalledWith('📦 Data:', expect.objectContaining({
+        event: 'dev_event'
+      }));
 
       consoleSpy.mockRestore();
     });
@@ -392,7 +401,10 @@ describe('Better Analytics SDK - Core Functionality', () => {
 
       // Should log to console, not make fetch calls
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(consoleSpy).toHaveBeenCalledWith('📊 Better Analytics Event:', 'test_event');
+      expect(consoleSpy).toHaveBeenCalledWith('🚀 Better Analytics initialized in development mode');
+      expect(consoleSpy).toHaveBeenCalledWith('📦 Data:', expect.objectContaining({
+        event: 'test_event'
+      }));
 
       consoleSpy.mockRestore();
     });
