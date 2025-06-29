@@ -9,6 +9,7 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { db } from '@/lib/db';
 import { Resend } from 'resend';
 import { env } from '@/env';
+import { renderMagicLinkEmail, renderInvitationEmail } from './email-helpers';
 
 const resend = new Resend(env.RESEND_API_KEY);
 
@@ -34,11 +35,16 @@ export const auth = betterAuth({
       async sendMagicLink(data) {
         // Send an email to the user with a magic link using Resend
         try {
+          const emailHtml = renderMagicLinkEmail({
+            magicLink: data.url,
+            email: data.email,
+          });
+
           await resend.emails.send({
-            from: 'Onboarding <no-reply@transactional.better-analytics.app>',
+            from: 'Better Analytics <no-reply@transactional.better-analytics.app>',
             to: data.email,
-            subject: 'Sign in to your account',
-            html: `<p>Click <a href="${data.url}">here</a> to sign in.</p>`,
+            subject: 'Sign in to Better Analytics',
+            html: emailHtml,
           });
         } catch (error) {
           console.error('Failed to send magic link email:', error);
@@ -51,30 +57,20 @@ export const auth = betterAuth({
         // Send an invitation email to the user using Resend
         try {
           const inviteLink = `${env.NEXT_PUBLIC_APP_URL}/accept-invitation/${data.id}`;
+          const emailHtml = renderInvitationEmail({
+            invitationLink: inviteLink,
+            organizationName: data.organization.name,
+            inviterName: data.inviter.user.name,
+            inviterEmail: data.inviter.user.email,
+            userEmail: data.email,
+            role: data.role,
+          });
+
           await resend.emails.send({
-            from: 'Onboarding <no-reply@transactional.better-analytics.app>',
+            from: 'Better Analytics <no-reply@transactional.better-analytics.app>',
             to: data.email,
-            subject: `Invitación a unirse a ${data.organization.name}`,
-            html: `
-              <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                <h2>Has sido invitado a unirse a ${data.organization.name}</h2>
-                <p>Hola,</p>
-                <p>${data.inviter.user.name} (${data.inviter.user.email}) te ha invitado a unirse a la organización <strong>${data.organization.name}</strong> en Better Analytics.</p>
-                <p>Tu rol será: <strong>${data.role}</strong></p>
-                <p>Para aceptar la invitación, haz clic en el siguiente enlace:</p>
-                <p style="margin: 20px 0;">
-                  <a href="${inviteLink}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                    Aceptar Invitación
-                  </a>
-                </p>
-                <p style="color: #666; font-size: 14px;">
-                  Si no esperabas esta invitación, puedes ignorar este email.
-                </p>
-                <p style="color: #666; font-size: 14px;">
-                  Este enlace expirará en 48 horas.
-                </p>
-              </div>
-            `,
+            subject: `You've been invited to join ${data.organization.name}`,
+            html: emailHtml,
           });
         } catch (error) {
           console.error('Failed to send invitation email:', error);
