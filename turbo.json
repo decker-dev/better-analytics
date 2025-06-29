@@ -38,6 +38,10 @@
         "NEON_PROJECT_ID"
       ]
     },
+    "@repo/email#build": {
+      "dependsOn": ["^build"],
+      "outputs": [".react-email/**"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },

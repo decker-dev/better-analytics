@@ -1,0 +1,15 @@
+{
+	"extends": "@repo/typescript-config/react-library.json",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"jsx": "react-jsx",
+		"allowSyntheticDefaultImports": true,
+		"paths": {
+			"@/*": ["./src/*"],
+			"@commet/ui/*": ["../ui/src/*"],
+			"react": ["./node_modules/@types/react"]
+		}
+	},
+	"include": ["."],
+	"exclude": ["node_modules"]
+}
