@@ -8,7 +8,7 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "app#build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
       "env": [
@@ -39,7 +39,7 @@
       ]
     },
     "@repo/email#build": {
-      "dependsOn": ["^build"],
+      "dependsOn": [],
       "outputs": [".react-email/**"]
     },
     "lint": {
