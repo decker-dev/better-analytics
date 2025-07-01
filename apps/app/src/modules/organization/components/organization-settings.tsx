@@ -7,6 +7,7 @@ import {
 import { Settings, Users, Mail } from "lucide-react";
 import { InviteMemberForm } from "@/modules/organization/components/invite-member-form";
 import type { OrganizationSettingsProps } from "../types/organization";
+import { UpdateOrganizationForm } from "./update-organization-form";
 
 export const OrganizationSettings = ({
   organization,
@@ -15,6 +16,8 @@ export const OrganizationSettings = ({
   currentUserRole,
   currentUserId,
 }: OrganizationSettingsProps) => {
+  const canManage = currentUserRole === "owner" || currentUserRole === "admin";
+
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-8">
       <div>
@@ -25,50 +28,46 @@ export const OrganizationSettings = ({
       </div>
 
       <div className="grid gap-6">
-        {/* Organization Basic Info */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="h-5 w-5" />
-              General Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-gray-700">
-                  Organization name
-                </p>
-                <p className="mt-1 text-lg font-semibold">
-                  {organization.name}
-                </p>
+        {/* Organization Management */}
+        {canManage ? (
+          <UpdateOrganizationForm organization={organization} />
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                General Information
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">
+                    Organization name
+                  </p>
+                  <p className="mt-1 text-lg font-semibold">
+                    {organization.name}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">
+                    Identifier (slug)
+                  </p>
+                  <p className="mt-1 text-gray-600">{organization.slug}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Your role</p>
+                  <span className="mt-1 inline-flex px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    {currentUserRole}
+                  </span>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-700">
-                  Identifier (slug)
-                </p>
-                <p className="mt-1 text-gray-600">{organization.slug}</p>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-700">Your role</p>
-                <span className="mt-1 inline-flex px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                  {currentUserRole}
-                </span>
-              </div>
-              {(currentUserRole === "owner" || currentUserRole === "admin") && (
-                <p className="text-sm text-muted-foreground">
-                  As an {currentUserRole}, you can manage this organization and
-                  invite new members.
-                </p>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Invite Member Form - Only for admin and owner */}
-        {(currentUserRole === "owner" || currentUserRole === "admin") && (
-          <InviteMemberForm organizationId={organization.id} />
-        )}
+        {canManage && <InviteMemberForm organizationId={organization.id} />}
 
         {/* Members Section */}
         <Card>
