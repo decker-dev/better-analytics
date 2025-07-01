@@ -6,6 +6,7 @@ import { auth } from "@/modules/auth/lib/auth";
  */
 export async function getCachedSession(headers: Headers) {
   "use cache";
+  "cache tags: session, auth-cache";
   return await auth.api.getSession({ headers });
 }
 
@@ -15,6 +16,7 @@ export async function getCachedSession(headers: Headers) {
  */
 export async function getCachedOrganizations(headers: Headers) {
   "use cache";
+  "cache tags: organizations, auth-cache";
   return await auth.api.listOrganizations({ headers });
 }
 
@@ -24,6 +26,7 @@ export async function getCachedOrganizations(headers: Headers) {
  */
 export async function getCachedFullOrganization(headers: Headers, organizationId: string) {
   "use cache";
+  "cache tags: organization, auth-cache";
   return await auth.api.getFullOrganization({
     headers,
     query: { organizationId },
@@ -36,6 +39,7 @@ export async function getCachedFullOrganization(headers: Headers, organizationId
  */
 export async function getCachedInvitations(headers: Headers, organizationId: string) {
   "use cache";
+  "cache tags: invitations, auth-cache";
   return await auth.api.listInvitations({
     headers,
     query: { organizationId },

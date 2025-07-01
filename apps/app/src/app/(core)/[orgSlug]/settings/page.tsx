@@ -1,10 +1,12 @@
 import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import {
   getCachedSession,
   getCachedOrganizations,
   getCachedFullOrganization,
   getCachedInvitations,
 } from "@/modules/auth/lib/auth-cache";
+import { auth } from "@/modules/auth/lib/auth";
 import { OrganizationSettings } from "@/modules/organization/components/organization-settings";
 import {
   getOrganizationBySlug,
@@ -27,8 +29,22 @@ export default async function OrganizationSettingsPage({
   const session = await getCachedSession(requestHeaders);
   const organizations = await getCachedOrganizations(requestHeaders);
 
-  // Find the current organization (middleware guarantees it exists)
-  const currentOrg = getOrganizationBySlug(organizations!, orgSlug)!;
+  // Find the current organization (middleware guarantees it exists, but handle edge cases)
+  let currentOrg = getOrganizationBySlug(organizations!, orgSlug);
+
+  // If currentOrg is not found, this could be due to cache timing after a redirect
+  // Try to fetch fresh data
+  if (!currentOrg) {
+    const freshOrganizations = await auth.api.listOrganizations({
+      headers: requestHeaders,
+    });
+    currentOrg = getOrganizationBySlug(freshOrganizations!, orgSlug);
+
+    if (!currentOrg) {
+      // Organization truly doesn't exist or user doesn't have access
+      notFound();
+    }
+  }
 
   // Get full organization details with members (cached)
   const fullOrganization = await getCachedFullOrganization(
