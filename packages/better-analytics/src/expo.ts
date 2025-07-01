@@ -7,10 +7,10 @@ import * as Localization from 'expo-localization';
 import * as Network from 'expo-network';
 import type { AnalyticsConfig, MobileEventData, MobileDeviceInfo, BeforeSend } from './types';
 
-// Re-export only Expo-relevant types for Expo users
-export type { MobileEventData as EventData, MobileDeviceInfo as DeviceInfo } from './types';
+// Export types specific to Expo
+export type { MobileEventData, MobileDeviceInfo } from './types';
 
-// Expo specific types
+// Expo specific configuration interface
 export interface ExpoAnalyticsConfig extends Omit<AnalyticsConfig, 'endpoint'> {
   /** API endpoint to send analytics data to */
   endpoint?: string;
@@ -20,7 +20,7 @@ export interface ExpoAnalyticsConfig extends Omit<AnalyticsConfig, 'endpoint'> {
   userAgent?: string;
   /** Custom app version */
   appVersion?: string;
-  /** Track navigation events automatically */
+  /** Track navigation events automatically using Expo Router (default: true) */
   trackNavigation?: boolean;
 }
 
@@ -30,12 +30,11 @@ export interface AnalyticsProviderProps extends ExpoAnalyticsConfig {
 
 // Global state for Expo
 let expoConfig: ExpoAnalyticsConfig | null = null;
-const navigationRef: React.RefObject<unknown> | null = null;
 
 /**
  * Initialize Expo analytics
  */
-export function initExpo(config: ExpoAnalyticsConfig): void {
+export function init(config: ExpoAnalyticsConfig): void {
   expoConfig = config;
 
   if (config.debug) {
@@ -43,13 +42,14 @@ export function initExpo(config: ExpoAnalyticsConfig): void {
     console.log('📍 Endpoint:', config.endpoint || 'https://better-analytics.app/api/collect');
     console.log('🏷️ Site:', config.site);
     console.log('📱 Platform:', Platform.OS);
+    console.log('🧭 Auto Navigation Tracking:', config.trackNavigation !== false ? 'enabled' : 'disabled');
   }
 }
 
 /**
  * Get Expo specific device information
  */
-async function getExpoDeviceInfo(): Promise<Partial<MobileEventData>> {
+async function getDeviceInfo(): Promise<Partial<MobileEventData>> {
   const { width, height } = Dimensions.get('window');
   const screenData = Dimensions.get('screen');
 
@@ -156,7 +156,7 @@ async function getOrCreateSessionId(): Promise<string> {
  */
 export async function track(event: string, props?: Record<string, unknown>): Promise<void> {
   if (!expoConfig) {
-    console.warn('Better Analytics Expo: Not initialized. Call initExpo() first.');
+    console.warn('Better Analytics Expo: Not initialized. Call init() first.');
     return;
   }
 
@@ -175,7 +175,7 @@ export async function track(event: string, props?: Record<string, unknown>): Pro
     return;
   }
 
-  const deviceInfo = await getExpoDeviceInfo();
+  const deviceInfo = await getDeviceInfo();
 
   const eventData: MobileEventData = {
     event,
@@ -200,9 +200,9 @@ export async function track(event: string, props?: Record<string, unknown>): Pro
     if (!processedEvent || !processedEvent.data) return;
 
     // Send the processed event
-    await sendExpoEvent(processedEvent.data as MobileEventData);
+    await sendEvent(processedEvent.data as MobileEventData);
   } else {
-    await sendExpoEvent(eventData);
+    await sendEvent(eventData);
   }
 
   if (expoConfig.debug) {
@@ -223,7 +223,7 @@ export async function trackScreen(screenName: string, params?: Record<string, un
 /**
  * Send event to analytics API
  */
-async function sendExpoEvent(data: MobileEventData): Promise<void> {
+async function sendEvent(data: MobileEventData): Promise<void> {
   if (!expoConfig) return;
 
   const endpoint = expoConfig.endpoint || 'https://better-analytics.app/api/collect';
@@ -233,7 +233,7 @@ async function sendExpoEvent(data: MobileEventData): Promise<void> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': data.device?.userAgent || 'BetterAnalytics-Expo/0.7.0',
+        'User-Agent': data.device?.userAgent || 'BetterAnalytics-Expo/0.8.0',
       },
       body: JSON.stringify(data),
     });
@@ -250,17 +250,92 @@ async function sendExpoEvent(data: MobileEventData): Promise<void> {
 }
 
 /**
- * React Context Provider for Expo Analytics
+ * Hook for automatic navigation tracking with Expo Router
+ * This hook should be used inside NavigationContainer or Expo Router app
+ */
+export function useExpoRouterTracking() {
+  const previousRouteRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    // Return early if not initialized or explicitly disabled
+    if (!expoConfig || expoConfig.trackNavigation === false) return;
+
+    // Try to import Expo Router hooks dynamically
+    let usePathname: () => string;
+    let useSegments: () => string[];
+    let useGlobalSearchParams: () => Record<string, string | string[]>;
+
+    try {
+      // Dynamic import for Expo Router
+      const expoRouter = require('expo-router');
+      usePathname = expoRouter.usePathname;
+      useSegments = expoRouter.useSegments;
+      useGlobalSearchParams = expoRouter.useGlobalSearchParams;
+    } catch (error) {
+      if (expoConfig.debug) {
+        console.warn('Better Analytics Expo: expo-router not found. Install expo-router for automatic tracking.');
+      }
+      return;
+    }
+
+    // Get current route information
+    let pathname: string;
+    let segments: string[];
+    let searchParams: Record<string, string | string[]>;
+
+    try {
+      pathname = usePathname();
+      segments = useSegments();
+      searchParams = useGlobalSearchParams();
+    } catch (error) {
+      if (expoConfig.debug) {
+        console.warn('Better Analytics Expo: Error getting route info. Make sure this hook is used inside Expo Router app.');
+      }
+      return;
+    }
+
+    // Track route changes
+    if (pathname && pathname !== previousRouteRef.current) {
+      previousRouteRef.current = pathname;
+
+      // Create screen name from pathname
+      const screenName = pathname === '/' ? 'index' : pathname.replace(/^\//, '').replace(/\//g, '_');
+
+      trackScreen(screenName, {
+        pathname,
+        segments: segments.join('/'),
+        params: Object.keys(searchParams).length > 0 ? searchParams : undefined
+      });
+
+      if (expoConfig.debug) {
+        console.log('📱 Better Analytics Expo: Auto-tracked screen change');
+        console.log('  📍 Pathname:', pathname);
+        console.log('  🔀 Screen Name:', screenName);
+        console.log('  📊 Segments:', segments);
+        if (Object.keys(searchParams).length > 0) {
+          console.log('  📌 Params:', searchParams);
+        }
+      }
+    }
+  });
+}
+
+/**
+ * React Context Provider for Expo Analytics with automatic navigation tracking
+ * Similar to Next.js Analytics component - just add to your app root
  */
 export function AnalyticsProvider({ children, ...config }: AnalyticsProviderProps): React.ReactElement {
   const initializedRef = useRef(false);
 
   useEffect(() => {
     if (!initializedRef.current) {
-      initExpo(config);
+      init(config);
       initializedRef.current = true;
     }
   }, [config]);
+
+  // Use the navigation tracking hook
+  useExpoRouterTracking();
 
   return React.createElement(React.Fragment, null, children);
 }
@@ -279,10 +354,4 @@ export function useAnalytics() {
       });
     }
   };
-}
-
-// Aliases for backward compatibility and convenience
-export const trackRN = track;
-export const trackScreenView = trackScreen;
-export const initRN = initExpo;
-export const useAnalyticsRN = useAnalytics; 
+} 
