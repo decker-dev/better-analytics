@@ -1,6 +1,6 @@
 {
   "name": "better-analytics",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js/Expo support",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
@@ -60,6 +60,7 @@
     "expo-device": "*",
     "expo-localization": "*",
     "expo-network": "*",
+    "expo-router": "*",
     "next": ">=13",
     "react": ">=18",
     "react-native": ">=0.60.0"
@@ -90,6 +91,9 @@
       "optional": true
     },
     "expo-network": {
+      "optional": true
+    },
+    "expo-router": {
       "optional": true
     }
   },

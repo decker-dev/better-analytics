@@ -154,7 +154,7 @@ function SignupButton() {
   ```bash
   # For Expo projects (Recommended)
   npm install better-analytics @react-native-async-storage/async-storage
-  npx expo install expo-device expo-application expo-localization expo-network
+  npx expo install expo-device expo-application expo-localization expo-network expo-router
   ```
 
 **Setup with Provider (Recommended):**
@@ -162,14 +162,15 @@ function SignupButton() {
 ```javascript
 import { AnalyticsProvider } from "better-analytics/expo";
 
-export default function App() {
+export default function RootLayout() {
   return (
-    <AnalyticsProvider 
-      site="my-app"
-      debug={__DEV__}
-      trackNavigation={true}
-    >
-      <YourAppContent />
+    <AnalyticsProvider site="my-app" debug={__DEV__}>
+      {/* 🎯 Auto-tracking enabled by default! */}
+      <Stack>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="profile" />
+        <Stack.Screen name="settings" />
+      </Stack>
     </AnalyticsProvider>
   );
 }
@@ -178,13 +179,13 @@ export default function App() {
 **Or initialize manually:**
 
 ```javascript
-import { initExpo } from "better-analytics/expo";
+import { init } from "better-analytics/expo";
 
 // Initialize once in your app entry point
-initExpo({
+init({
   site: 'my-app',
-  debug: __DEV__,
-  trackNavigation: true
+  debug: __DEV__
+  // trackNavigation defaults to true
 });
 ```
 
@@ -395,15 +396,15 @@ import { Analytics } from "better-analytics/next";
 ### Expo/React Native (`better-analytics/expo`)
 
 ```javascript
-import { AnalyticsProvider, useAnalyticsRN } from "better-analytics/expo";
+import { AnalyticsProvider, useAnalytics } from "better-analytics/expo";
 
-// Provider
+// Provider (auto-tracking enabled by default)
 <AnalyticsProvider site="my-app" debug={__DEV__}>
   <App />
 </AnalyticsProvider>
 
 // Hook
-const { track, trackScreen, identify } = useAnalyticsRN();
+const { track, trackScreen, identify } = useAnalytics();
 ```
 
 ### Server SDK (`better-analytics/server`)
@@ -612,23 +613,6 @@ track('app_opened', {
   source: 'push_notification',
   campaign: 'flash_sale'
 });
-```
-
-## 🚢 Migration Guide
-
-### From v0.6.0 to v0.7.0
-
-✅ **Zero Breaking Changes** - All existing code continues to work
-
-**New Features:**
-- Expo/React Native support
-- Platform-specific types
-- Mobile offline support
-
-**New Imports:**
-```javascript
-// Mobile tracking
-import { AnalyticsProvider, useAnalyticsRN } from "better-analytics/expo";
 ```
 
 ## 📄 License

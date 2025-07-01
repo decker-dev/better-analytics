@@ -1,5 +1,145 @@
 # better-analytics
 
+## 0.8.0
+
+### 🚀 Major Features
+
+- **📱 Expo Router Auto-Tracking**: Automatic navigation tracking for Expo Router apps (similar to Next.js Analytics component)
+- **🎯 Zero-Config Navigation**: Default `trackNavigation: true` for seamless "plug and play" experience
+- **🧹 Simplified API**: Removed retrocompatibility aliases for cleaner, more intuitive API
+- **🔄 Enhanced DX**: Tracking automático works out-of-the-box with just `<AnalyticsProvider site="my-app" />`
+
+### ✨ New Expo Router Integration
+
+#### Automatic Navigation Tracking (Like Next.js!)
+
+```javascript
+// app/_layout.js (Expo Router root layout)
+import { AnalyticsProvider } from "better-analytics/expo";
+
+export default function RootLayout() {
+  return (
+    <AnalyticsProvider site="my-app">  {/* 🎯 Auto-tracking enabled! */}
+      <Stack>
+        <Stack.Screen name="index" />
+        <Stack.Screen name="profile" />
+        <Stack.Screen name="settings" />
+      </Stack>
+    </AnalyticsProvider>
+  );
+}
+```
+
+#### Smart Route Detection
+- **Automatic pathname tracking**: `/profile/settings` → `profile_settings`
+- **Parameters included**: Route params and search params automatically captured
+- **Debug logging**: Rich console output showing navigation changes
+- **Dynamic imports**: Graceful fallback if Expo Router not installed
+
+#### Zero-Config Experience
+```javascript
+// Before v0.8.0 - Manual setup required
+<AnalyticsProvider site="my-app" trackNavigation={true} />
+
+// v0.8.0+ - Auto-tracking by default! 🔥
+<AnalyticsProvider site="my-app" />
+
+// To disable (if needed)
+<AnalyticsProvider site="my-app" trackNavigation={false} />
+```
+
+### 🧹 API Cleanup (Breaking Changes)
+
+Removed unnecessary retrocompatibility aliases for cleaner API:
+
+#### Removed Aliases
+```javascript
+// ❌ Removed in v0.8.0
+export const trackRN = track;
+export const trackScreenView = trackScreen;
+export const initRN = initExpo;
+export const useAnalyticsRN = useAnalytics;
+
+// ✅ Use these instead (cleaner API)
+export { track, trackScreen, init, useAnalytics };
+```
+
+#### Simplified Function Names
+```javascript
+// ❌ Before v0.8.0
+import { initExpo, getExpoDeviceInfo, sendExpoEvent } from "better-analytics/expo";
+
+// ✅ v0.8.0+ (cleaner, shorter names)
+import { init } from "better-analytics/expo";
+```
+
+### 🔧 Technical Improvements
+
+- **Dynamic Hook Loading**: Expo Router hooks imported dynamically to prevent crashes
+- **Better Error Handling**: Informative warnings when Expo Router not found
+- **Enhanced Debug Logs**: Rich navigation tracking information in development
+- **TypeScript Improvements**: Updated type exports to match simplified API
+
+### 📱 Usage Examples
+
+#### Automatic Screen Tracking
+```javascript
+// Automatically tracked when navigating:
+// /profile → screen_view { screen_name: 'profile' }
+// /settings/account → screen_view { screen_name: 'settings_account' }
+// /user/123 → screen_view { screen_name: 'user_[id]', params: { id: '123' } }
+```
+
+#### Manual Tracking Still Available
+```javascript
+import { useAnalytics } from "better-analytics/expo";
+
+function MyScreen() {
+  const { track, trackScreen, identify } = useAnalytics();
+  
+  const handleAction = () => {
+    track('button_click', { button: 'signup' });
+  };
+  
+  return <Button onPress={handleAction} title="Sign Up" />;
+}
+```
+
+### 🚀 Migration Guide v0.7.0 → v0.8.0
+
+#### ✅ Most Code Unchanged
+```javascript
+// These continue to work exactly the same:
+import { AnalyticsProvider, useAnalytics, track, trackScreen } from "better-analytics/expo";
+```
+
+#### 🔄 Simple Alias Updates (if used)
+```javascript
+// Before v0.8.0
+import { initRN, trackRN, useAnalyticsRN } from "better-analytics/expo";
+
+// v0.8.0+ (just remove "RN" suffix)
+import { init, track, useAnalytics } from "better-analytics/expo";
+```
+
+#### 🎯 Remove Explicit Navigation Config
+```javascript
+// Before v0.8.0
+<AnalyticsProvider site="my-app" trackNavigation={true} />
+
+// v0.8.0+ (trackNavigation defaults to true)
+<AnalyticsProvider site="my-app" />
+```
+
+### 🎯 Why This Update?
+
+1. **Better DX**: Matches Next.js simplicity → just add Provider, navigation tracking works
+2. **Cleaner API**: Removed confusing aliases and verbose function names
+3. **Expo Router Standard**: Supports the modern Expo navigation standard
+4. **Zero-Config**: Works perfectly out-of-the-box for 95% of use cases
+
+This update makes Better Analytics for Expo as simple as the Next.js version - true "plug and play" analytics! 🚀
+
 ## 0.7.0
 
 ### Major Features
