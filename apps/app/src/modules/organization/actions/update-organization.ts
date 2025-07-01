@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { getCachedSession } from '@/modules/auth/lib/auth-cache';
 import { auth } from '@/modules/auth/lib/auth';
+import { TAGS } from '@/lib/tags';
 
 const updateOrganizationSchema = z.object({
   organizationId: z.string(),
@@ -84,10 +85,10 @@ export async function updateOrganization(formData: FormData) {
     }
 
     // Invalidate all cached data that depends on organizations
-    revalidateTag('auth-cache');
-    revalidateTag('organizations');
-    revalidateTag('organization');
-    revalidateTag('session');
+    revalidateTag(TAGS.AUTH_CACHE);
+    revalidateTag(TAGS.ORGANIZATIONS);
+    revalidateTag(TAGS.ORGANIZATION);
+    revalidateTag(TAGS.SESSION);
 
     // Revalidate specific paths
     revalidatePath('/', 'layout');
