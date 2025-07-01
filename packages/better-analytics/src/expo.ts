@@ -5,7 +5,11 @@ import * as Device from 'expo-device';
 import * as Application from 'expo-application';
 import * as Localization from 'expo-localization';
 import * as Network from 'expo-network';
-import type { AnalyticsConfig, MobileEventData, MobileDeviceInfo, BeforeSend } from './types';
+import { usePathname, useSegments, useGlobalSearchParams } from 'expo-router';
+import type { AnalyticsConfig, MobileEventData } from './types';
+
+// Key for storing the event queue in AsyncStorage
+const QUEUE_KEY = 'ba_event_queue';
 
 // Export types specific to Expo
 export type { MobileEventData, MobileDeviceInfo } from './types';
@@ -44,6 +48,9 @@ export function init(config: ExpoAnalyticsConfig): void {
     console.log('📱 Platform:', Platform.OS);
     console.log('🧭 Auto Navigation Tracking:', config.trackNavigation !== false ? 'enabled' : 'disabled');
   }
+
+  // Attempt to process any queued events from previous sessions on initialization
+  processEventQueue();
 }
 
 /**
@@ -165,13 +172,25 @@ export async function track(event: string, props?: Record<string, unknown>): Pro
     return;
   }
 
+  // Attempt to process any queued events first
+  processEventQueue();
+
   // Check network connectivity
   const networkState = await Network.getNetworkStateAsync();
   if (!networkState.isConnected) {
-    // TODO: Queue for later when online
     if (expoConfig.debug) {
-      console.log('📱 Better Analytics Expo: Offline, event queued');
+      console.log('📱 Better Analytics Expo: Offline, queuing event');
     }
+    // Get a partial device info to construct a default URL
+    const bundleId = Application.applicationId || 'unknown';
+    await queueEvent({
+      event,
+      timestamp: Date.now(),
+      site: expoConfig.site,
+      url: `app://${bundleId}`,
+      referrer: '',
+      ...(props && { props })
+    });
     return;
   }
 
@@ -238,67 +257,110 @@ async function sendEvent(data: MobileEventData): Promise<void> {
       body: JSON.stringify(data),
     });
 
-    if (!response.ok && expoConfig.debug) {
-      console.warn('Better Analytics Expo: Failed to send event', response.status);
+    if (!response.ok) {
+      if (expoConfig.debug) {
+        console.warn('Better Analytics Expo: Failed to send event, queuing.', { status: response.status, event: data.event });
+      }
+      await queueEvent(data);
     }
   } catch (error) {
     if (expoConfig.debug) {
-      console.warn('Better Analytics Expo: Network error', error);
+      console.warn('Better Analytics Expo: Network error, queuing event.', error);
     }
-    // TODO: Queue for retry
+    await queueEvent(data);
   }
 }
 
 /**
- * Hook for automatic navigation tracking with Expo Router
- * This hook should be used inside NavigationContainer or Expo Router app
+ * Queue event in AsyncStorage for later
+ */
+async function queueEvent(data: MobileEventData): Promise<void> {
+  try {
+    const storedQueue = await AsyncStorage.getItem(QUEUE_KEY);
+    const queue: MobileEventData[] = storedQueue ? JSON.parse(storedQueue) : [];
+    // To avoid circular data structures, we only store the essential parts of the event
+    const eventToQueue: Partial<MobileEventData> = {
+      event: data.event,
+      timestamp: data.timestamp,
+      url: data.url,
+      referrer: data.referrer,
+      site: data.site,
+      props: data.props,
+      // We don't re-queue device/app info as it will be re-fetched on send
+    };
+    queue.push(eventToQueue as MobileEventData);
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  } catch (error) {
+    if (expoConfig?.debug) {
+      console.warn('Better Analytics Expo: Failed to queue event.', error);
+    }
+  }
+}
+
+/**
+ * Process and send events stored in the queue
+ */
+export async function processEventQueue(): Promise<void> {
+  if (!expoConfig) return;
+
+  const networkState = await Network.getNetworkStateAsync();
+  if (!networkState.isConnected) {
+    if (expoConfig.debug) {
+      console.log('📱 Better Analytics Expo: Offline, skipping queue processing.');
+    }
+    return;
+  }
+
+  try {
+    const storedQueue = await AsyncStorage.getItem(QUEUE_KEY);
+    if (!storedQueue) return;
+
+    const queue: MobileEventData[] = JSON.parse(storedQueue);
+    if (queue.length === 0) return;
+
+    if (expoConfig.debug) {
+      console.log(`📱 Better Analytics Expo: Processing event queue (${queue.length} events).`);
+    }
+
+    // Clear the queue first to avoid race conditions
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify([]));
+
+    // Get fresh device info for the batch of events
+    const deviceInfo = await getDeviceInfo();
+
+    for (const eventData of queue) {
+      // Re-hydrate the event with fresh device info and send it
+      await sendEvent({ ...deviceInfo, ...eventData });
+    }
+
+  } catch (error) {
+    if (expoConfig.debug) {
+      console.warn('Better Analytics Expo: Error processing event queue.', error);
+    }
+  }
+}
+
+/**
+ * Hook for automatic navigation tracking with Expo Router.
+ * This hook should be used inside an Expo Router app layout.
  */
 export function useExpoRouterTracking() {
+  // Hooks are called at the top level of the custom hook.
+  const pathname = usePathname();
+  const segments = useSegments();
+  const searchParams = useGlobalSearchParams();
   const previousRouteRef = useRef<string | null>(null);
 
   useEffect(() => {
-    // Return early if not initialized or explicitly disabled
+    // Return early if not initialized or explicitly disabled.
     if (!expoConfig || expoConfig.trackNavigation === false) return;
 
-    // Try to import Expo Router hooks dynamically
-    let usePathname: () => string;
-    let useSegments: () => string[];
-    let useGlobalSearchParams: () => Record<string, string | string[]>;
-
-    try {
-      // Dynamic import for Expo Router
-      const expoRouter = require('expo-router');
-      usePathname = expoRouter.usePathname;
-      useSegments = expoRouter.useSegments;
-      useGlobalSearchParams = expoRouter.useGlobalSearchParams;
-    } catch (error) {
-      if (expoConfig.debug) {
-        console.warn('Better Analytics Expo: expo-router not found. Install expo-router for automatic tracking.');
-      }
-      return;
-    }
-
-    // Get current route information
-    let pathname: string;
-    let segments: string[];
-    let searchParams: Record<string, string | string[]>;
-
-    try {
-      pathname = usePathname();
-      segments = useSegments();
-      searchParams = useGlobalSearchParams();
-    } catch (error) {
-      if (expoConfig.debug) {
-        console.warn('Better Analytics Expo: Error getting route info. Make sure this hook is used inside Expo Router app.');
-      }
-      return;
-    }
-
-    // Track route changes
+    // Now we use the values from the hooks inside the effect.
+    // We track only when the pathname actually changes.
     if (pathname && pathname !== previousRouteRef.current) {
       previousRouteRef.current = pathname;
 
-      // Create screen name from pathname
+      // Create a screen name from the pathname.
       const screenName = pathname === '/' ? 'index' : pathname.replace(/^\//, '').replace(/\//g, '_');
 
       trackScreen(screenName, {
@@ -317,7 +379,8 @@ export function useExpoRouterTracking() {
         }
       }
     }
-  });
+    // The effect correctly depends on the values from the router hooks.
+  }, [pathname, segments, searchParams]);
 }
 
 /**
