@@ -91,12 +91,9 @@ export function UpdateOrganizationForm({
               onChange={(e) => setName(e.target.value)}
               disabled={isPending}
             />
-            <p className="text-xs text-muted-foreground">
-              The generated slug will be: <code>{derivedSlug}</code>
-            </p>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between items-center">
+        <CardFooter className="flex justify-between items-center mt-4">
           <div>
             {error && <p className="text-sm text-destructive">{error}</p>}
             {success && <p className="text-sm text-primary">{success}</p>}
