@@ -3,7 +3,7 @@
 import React, { useEffect, Suspense } from 'react';
 import { init, trackPageview, computeRoute } from './index';
 import { usePathname, useParams, useSearchParams } from 'next/navigation';
-import type { AnalyticsConfig, BeforeSend, BeforeSendEvent, RouteInfo } from './types';
+import type { AnalyticsConfig, BeforeSend, RouteInfo } from './types';
 
 export interface AnalyticsProps {
   /** API endpoint to send analytics data to (optional, defaults to Better Analytics SaaS) */
@@ -159,7 +159,7 @@ export function Analytics(props: AnalyticsProps = {}): React.ReactElement | null
 
 // Re-export everything from the core module for convenience
 export { init, initWithPageview, track, trackPageview, identify, computeRoute } from './index';
-export type { AnalyticsConfig, EventData, BeforeSend, BeforeSendEvent, RouteInfo } from './types';
+export type { AnalyticsConfig, WebEventData as EventData, BeforeSend, BeforeSendEvent, RouteInfo } from './types';
 
 // Re-export server functionality for Next.js users
 export {

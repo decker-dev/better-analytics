@@ -17,9 +17,41 @@ export interface AnalyticsConfig {
 }
 
 /**
- * Event data structure sent to analytics
+ * Base device information (common to all platforms)
  */
-export interface EventData {
+export interface BaseDeviceInfo {
+  userAgent?: string;
+  screenWidth?: number;
+  screenHeight?: number;
+  language?: string;
+  timezone?: string;
+}
+
+/**
+ * Web-specific device information
+ */
+export interface WebDeviceInfo extends BaseDeviceInfo {
+  viewportWidth?: number;
+  viewportHeight?: number;
+  connectionType?: string;
+}
+
+/**
+ * Mobile-specific device information (React Native/Expo)
+ */
+export interface MobileDeviceInfo extends BaseDeviceInfo {
+  platform?: string;
+  platformVersion?: string;
+  brand?: string;
+  model?: string;
+  isEmulator?: boolean;
+  carrier?: string;
+}
+
+/**
+ * Base event data structure
+ */
+export interface BaseEventData {
   // Core event data
   event: string;
   timestamp: number;
@@ -33,26 +65,6 @@ export interface EventData {
   sessionId?: string;
   deviceId?: string;
   userId?: string;
-
-  // Device & Browser (only send if available)
-  device?: {
-    userAgent?: string;
-    screenWidth?: number;
-    screenHeight?: number;
-    viewportWidth?: number;
-    viewportHeight?: number;
-    language?: string;
-    timezone?: string;
-    connectionType?: string;
-  };
-
-  // Page info (only send if available)
-  page?: {
-    title?: string;
-    pathname?: string;
-    hostname?: string;
-    loadTime?: number;
-  };
 
   // UTM parameters (only send if present)
   utm?: {
@@ -69,6 +81,42 @@ export interface EventData {
   // Metadata (server events)
   meta?: Record<string, unknown>;
 }
+
+/**
+ * Web event data structure
+ */
+export interface WebEventData extends BaseEventData {
+  // Web-specific device info
+  device?: WebDeviceInfo;
+
+  // Page info (web-specific)
+  page?: {
+    title?: string;
+    pathname?: string;
+    hostname?: string;
+    loadTime?: number;
+  };
+}
+
+/**
+ * Mobile event data structure (React Native/Expo)
+ */
+export interface MobileEventData extends BaseEventData {
+  // Mobile-specific device info
+  device?: MobileDeviceInfo;
+
+  // App info (React Native specific)
+  app?: {
+    version?: string;
+    buildNumber?: string;
+    bundleId?: string;
+  };
+}
+
+/**
+ * Main EventData type (defaults to web for backwards compatibility)
+ */
+export type EventData = WebEventData;
 
 /**
  * BeforeSend event types

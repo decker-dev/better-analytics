@@ -3,7 +3,7 @@
 
 import type {
   AnalyticsConfig,
-  EventData,
+  WebEventData,
   Mode,
   NavigatorWithConnection,
   BeforeSend,
@@ -20,8 +20,8 @@ import {
   type QueuedEvent,
 } from './queue';
 
-// Re-export types for convenience
-export type { AnalyticsConfig, EventData, BeforeSend, BeforeSendEvent, RouteInfo };
+// Re-export types for convenience (Web-specific types for browser usage)
+export type { AnalyticsConfig, WebEventData as EventData, BeforeSend, BeforeSendEvent, RouteInfo };
 
 let config: AnalyticsConfig | null = null;
 let currentMode: Mode = 'production';
@@ -174,23 +174,23 @@ function getDeviceId(): string {
  * Get additional browser/device information
  */
 function getBrowserInfo(): {
-  device?: EventData['device'];
-  page?: EventData['page'];
-  utm?: EventData['utm'];
+  device?: WebEventData['device'];
+  page?: WebEventData['page'];
+  utm?: WebEventData['utm'];
   sessionId?: string;
   deviceId?: string;
 } {
   if (typeof window === 'undefined') return {};
 
   const result: {
-    device?: EventData['device'];
-    page?: EventData['page'];
-    utm?: EventData['utm'];
+    device?: WebEventData['device'];
+    page?: WebEventData['page'];
+    utm?: WebEventData['utm'];
     sessionId?: string;
   } = {};
 
   // Device information
-  const device: NonNullable<EventData['device']> = {};
+  const device: NonNullable<WebEventData['device']> = {};
 
   if (navigator.userAgent) {
     device.userAgent = navigator.userAgent;
@@ -229,7 +229,7 @@ function getBrowserInfo(): {
   }
 
   // Page information
-  const page: NonNullable<EventData['page']> = {};
+  const page: NonNullable<WebEventData['page']> = {};
 
   if (document.title) {
     page.title = document.title;
@@ -258,7 +258,7 @@ function getBrowserInfo(): {
   // UTM parameters
   if (window.location?.href) {
     const utmParams = extractUtmParams(window.location.href);
-    const utm: NonNullable<EventData['utm']> = {};
+    const utm: NonNullable<WebEventData['utm']> = {};
 
     if (utmParams.utmSource) utm.source = utmParams.utmSource;
     if (utmParams.utmMedium) utm.medium = utmParams.utmMedium;
@@ -382,7 +382,7 @@ export function track(event: string, props?: Record<string, unknown>): void {
   // Get browser info with optimized structure
   const browserInfo = getBrowserInfo();
 
-  const eventData: EventData = {
+  const eventData: WebEventData = {
     event,
     timestamp: Date.now(),
     url: typeof window !== 'undefined' ? window.location.href : '',
@@ -451,7 +451,7 @@ export function identify(userId: string, traits?: Record<string, unknown>): void
  * Send event data to the configured endpoint or log in development
  * @param data Event data to send
  */
-async function send(data: EventData): Promise<void> {
+async function send(data: WebEventData): Promise<void> {
   if (!config) return;
 
   // In development mode, just log to console

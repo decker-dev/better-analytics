@@ -1,7 +1,7 @@
 {
   "name": "better-analytics",
-  "version": "0.6.0",
-  "description": "Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js support",
+  "version": "0.7.0",
+  "description": "Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js/Expo support",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -16,6 +16,11 @@
       "import": "./dist/next.js",
       "require": "./dist/next.cjs"
     },
+    "./expo": {
+      "types": "./dist/expo.d.ts",
+      "import": "./dist/expo.js",
+      "require": "./dist/expo.cjs"
+    },
     "./server": {
       "types": "./dist/server.d.ts",
       "import": "./dist/server.js",
@@ -27,8 +32,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/next.ts src/server.ts --format esm,cjs --dts --minify",
-    "dev": "tsup src/index.ts src/next.ts src/server.ts --format esm,cjs --dts --watch",
+    "build": "tsup src/index.ts src/next.ts src/expo.ts src/server.ts --format esm,cjs --dts --minify",
+    "dev": "tsup src/index.ts src/next.ts src/expo.ts src/server.ts --format esm,cjs --dts --watch",
     "lint": "echo 'No linting configured'",
     "check-types": "tsc --noEmit",
     "test": "vitest run"
@@ -40,6 +45,7 @@
     "javascript",
     "nextjs",
     "react",
+    "expo",
     "server-side",
     "edge-functions",
     "zero-dependencies",
@@ -48,8 +54,15 @@
   ],
   "license": "MIT",
   "peerDependencies": {
+    "@react-native-async-storage/async-storage": ">=1.0.0",
+    "expo": ">=48.0.0",
+    "expo-application": "*",
+    "expo-device": "*",
+    "expo-localization": "*",
+    "expo-network": "*",
     "next": ">=13",
-    "react": ">=18"
+    "react": ">=18",
+    "react-native": ">=0.60.0"
   },
   "peerDependenciesMeta": {
     "react": {
@@ -57,16 +70,43 @@
     },
     "next": {
       "optional": true
+    },
+    "@react-native-async-storage/async-storage": {
+      "optional": true
+    },
+    "react-native": {
+      "optional": true
+    },
+    "expo": {
+      "optional": true
+    },
+    "expo-device": {
+      "optional": true
+    },
+    "expo-application": {
+      "optional": true
+    },
+    "expo-localization": {
+      "optional": true
+    },
+    "expo-network": {
+      "optional": true
     }
   },
   "devDependencies": {
+    "@react-native-async-storage/async-storage": "^2.2.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^14.3.1",
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
+    "expo-application": "^6.1.4",
+    "expo-device": "^7.1.4",
+    "expo-localization": "^16.1.5",
+    "expo-network": "^7.1.5",
     "jsdom": "^23.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-native": "^0.80.1",
     "tsup": "^8.0.0",
     "typescript": "^5.0.0",
     "vitest": "^1.0.0"

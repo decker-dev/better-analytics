@@ -1,5 +1,155 @@
 # better-analytics
 
+## 0.7.0
+
+### Major Features
+
+- **📱 Expo/React Native Support**: Complete React Native and Expo integration with native device information
+- **🎯 Platform-Specific Types**: Separate TypeScript types for web, mobile, and server to prevent confusion and improve DX
+- **🔄 Navigation Tracking**: Automatic screen navigation tracking for mobile apps
+- **💾 Mobile Offline Support**: AsyncStorage-based event queuing for offline scenarios
+- **📱 Native Device Info**: Rich device metadata using Expo modules (Device, Application, Localization, Network)
+- **🎯 Provider Pattern**: React Context-based AnalyticsProvider for app-wide configuration
+
+### New Expo/React Native APIs
+
+#### Installation
+```bash
+# For Expo projects
+npm install better-analytics @react-native-async-storage/async-storage
+npx expo install expo-device expo-application expo-localization expo-network
+
+# For React Native bare workflow
+npm install better-analytics @react-native-async-storage/async-storage
+npm install expo-device expo-application expo-localization expo-network
+```
+
+#### Provider Setup
+```javascript
+import { AnalyticsProvider } from "better-analytics/expo";
+
+export default function App() {
+  return (
+    <AnalyticsProvider 
+      site="my-app"
+      debug={__DEV__}
+      trackNavigation={true}
+    >
+      <YourAppContent />
+    </AnalyticsProvider>
+  );
+}
+```
+
+#### Component Usage
+```javascript
+import { useAnalyticsRN } from "better-analytics/expo";
+
+function HomeScreen() {
+  const { track, trackScreen, identify } = useAnalyticsRN();
+  
+  useEffect(() => {
+    trackScreen('Home');
+  }, []);
+  
+  const handleSignup = async () => {
+    await identify('user123', { 
+      email: 'user@example.com',
+      platform: Platform.OS 
+    });
+    
+    track('signup_completed', {
+      method: 'email',
+      screen: 'home'
+    });
+  };
+}
+```
+
+### Platform-Specific TypeScript Types
+
+#### Web/Browser Types (Core & Next.js)
+```typescript
+import { EventData } from "better-analytics";
+// Only web-relevant properties: viewportWidth, page, connectionType
+
+const webEvent: EventData = {
+  device: {
+    viewportWidth: 1200,     // ✅ Web-specific
+    connectionType: '4g'     // ✅ Web-specific
+  },
+  page: {                    // ✅ Web-specific
+    title: 'My Page',
+    loadTime: 1250
+  }
+  // ❌ No mobile properties (platform, brand, app, etc.)
+};
+```
+
+#### Mobile Types (Expo/React Native)
+```typescript
+import { EventData } from "better-analytics/expo";
+// Only mobile-relevant properties: platform, brand, model, app
+
+const mobileEvent: EventData = {
+  device: {
+    platform: 'ios',         // ✅ Mobile-specific
+    brand: 'Apple',          // ✅ Mobile-specific
+    model: 'iPhone 14'       // ✅ Mobile-specific
+  },
+  app: {                     // ✅ Mobile-specific
+    version: '1.0.0',
+    bundleId: 'com.myapp'
+  }
+  // ❌ No web properties (viewportWidth, page, etc.)
+};
+```
+
+#### Server Types
+```typescript
+import { ServerEventData } from "better-analytics/server";
+// Only server-relevant properties: server context, user session
+
+const serverEvent: ServerEventData = {
+  server: {                  // ✅ Server-specific
+    runtime: 'node',
+    framework: 'nextjs'
+  },
+  user: {                    // ✅ Server context
+    sessionId: 'session456'
+  }
+  // ❌ No client properties (device, page, app, etc.)
+};
+```
+
+### Mobile-Specific Features
+
+- **Native Device Information**: Platform, screen dimensions, device model, brand, OS version
+- **App Metadata**: App version, build number, bundle ID
+- **Session Management**: Persistent sessions with 30-minute timeout using AsyncStorage
+- **Device Fingerprinting**: Lightweight device ID generation and persistence
+- **Network Awareness**: Automatic offline detection and event queuing
+- **Screen Tracking**: Specialized `trackScreen()` for mobile navigation patterns
+
+### Technical Improvements
+
+- **Type Safety**: Platform-specific types prevent confusion and improve IntelliSense
+- **Zero Web Dependencies**: Separate mobile-optimized bundle with React Native APIs
+- **Expo Modules**: Full integration with Expo's device information APIs
+- **Graceful Fallbacks**: Works even when optional Expo modules are unavailable
+- **Bundle Size**: Only 1.8KB gzipped for the Expo adapter
+
+### Package Structure
+
+```
+better-analytics/          # Client SDK (Web-only types)
+better-analytics/next      # Next.js component (Web-only types)
+better-analytics/server    # Server SDK (Server-only types)
+better-analytics/expo      # Expo/React Native SDK (Mobile-only types) (NEW)
+```
+
+This release extends Better Analytics to mobile platforms while introducing platform-specific types that improve developer experience and prevent confusion between web, mobile, and server contexts.
+
 ## 0.6.0
 
 ### Major Features

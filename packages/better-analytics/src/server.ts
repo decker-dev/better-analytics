@@ -1,10 +1,10 @@
 // Better Analytics - Server-Side Tracking
 // Zero-dependency server tracking for Node.js, Edge Functions, and more
 
-import type { EventData } from './types';
+import type { BaseEventData } from './types';
 
 // Server-specific types
-interface ServerEventData extends Omit<EventData, 'device' | 'page' | 'utm'> {
+interface ServerEventData extends BaseEventData {
   // Server context
   server: {
     userAgent?: string;

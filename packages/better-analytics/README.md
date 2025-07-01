@@ -1,23 +1,25 @@
 # Better Analytics
 
-A zero-dependency micro-analytics JavaScript SDK for tracking page views and events. Framework-agnostic, < 3KB gzipped, with specialized adapters for popular frameworks.
+A **zero-dependency** micro-analytics JavaScript SDK for tracking page views and events. Framework-agnostic, **< 3KB gzipped**, with specialized adapters for popular frameworks and platforms.
 
-## Features
+## 🚀 Features
 
-- 🚀 **Lightweight**: < 3KB gzipped core, tree-shakable, zero runtime dependencies
-- 🔧 **Framework-agnostic**: Works with any JavaScript project
+- 🪶 **Ultra Lightweight**: < 3KB gzipped core, tree-shakable, zero runtime dependencies
+- 🌐 **Framework-agnostic**: Works with any JavaScript project
 - ⚛️ **Next.js ready**: Built-in React component with automatic page tracking (~4.8KB gzipped)
-- 🖥️ **Server-side tracking**: Full support for Node.js, Edge Functions, and more (~1.9KB gzipped)
+- 📱 **Expo/React Native**: Full mobile support with native device info (~1.8KB gzipped)
+- 🖥️ **Server-side tracking**: Complete Node.js, Edge Functions support (~1.9KB gzipped)
 - 📦 **Modern**: ESM/CJS dual package, TypeScript support, zero runtime dependencies
 - 🎯 **Simple**: Three lines to get started
 - 🔍 **Rich Analytics**: Automatic session tracking, device fingerprinting, UTM parameters
 - ⚡ **Performance**: Built-in page load time tracking and bandwidth optimization
 - 🛡️ **Privacy-First**: Lightweight fingerprinting, no cookies, GDPR-friendly
-- 📱 **Offline Support**: Automatic retry with localStorage queue
+- 📱 **Offline Support**: Automatic retry with localStorage/AsyncStorage queue
 - 🔄 **beforeSend Middleware**: Transform or filter events before sending
 - 🚦 **Route Computation**: Automatic route pattern detection for SPAs
+- 🎯 **Platform-Specific Types**: TypeScript types that only show relevant properties per platform
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install better-analytics
@@ -27,7 +29,7 @@ pnpm add better-analytics
 yarn add better-analytics
 ```
 
-## Bundle Sizes
+## 📊 Bundle Sizes
 
 Better Analytics is designed to be extremely lightweight with **zero runtime dependencies**:
 
@@ -35,11 +37,12 @@ Better Analytics is designed to be extremely lightweight with **zero runtime dep
 |--------|----------|---------|--------------|
 | Core (`better-analytics`) | 7.7KB | **2.6KB** | **0** |
 | Next.js (`better-analytics/next`) | 13KB | **4.8KB** | React* |
+| Expo (`better-analytics/expo`) | 4.2KB | **1.8KB** | Expo modules* |
 | Server (`better-analytics/server`) | 4.3KB | **1.9KB** | **0** |
 
-*React and Next.js are peer dependencies (optional) - they're not bundled with the library.
+*React, Next.js and Expo modules are peer dependencies (optional) - they're not bundled with the library.
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Framework-agnostic (Vanilla JS)
 
@@ -55,11 +58,6 @@ track('button_click', { button: 'signup' });
 // Or use your own endpoint
 init({ site: 'my-app', endpoint: '/api/collect' });
 
-// Override environment detection (useful for testing)
-init({ site: 'my-app', mode: 'development' }); // Forces development mode
-init({ site: 'my-app', mode: 'production' });  // Forces production mode
-init({ site: 'my-app', mode: 'auto' });        // Auto-detect (default)
-
 // Enable debug logging
 init({ site: 'my-app', debug: true });
 
@@ -71,17 +69,9 @@ init({
     if (event.type === 'pageview' && event.url.includes('/admin')) {
       return null;
     }
-    // Transform event data
-    if (event.data) {
-      event.data.timestamp = Date.now();
-    }
     return event;
   }
 });
-
-// Or initialize with automatic pageview
-import { initWithPageview } from "better-analytics";
-initWithPageview({ site: 'my-app' });
 ```
 
 ### Next.js (Recommended)
@@ -97,7 +87,7 @@ NEXT_PUBLIC_BA_SITE=my-app
 ```jsx
 import { Analytics } from "better-analytics/next";
 
-// Add to your root layout - uses Better Analytics SaaS by default
+// Add to your root layout - automatic page tracking
 export default function RootLayout({ children }) {
   return (
     <html>
@@ -110,12 +100,11 @@ export default function RootLayout({ children }) {
 }
 ```
 
-**Option 2: Props (Override env vars)**
+**Option 2: Props Override**
 
 ```jsx
 import { Analytics } from "better-analytics/next";
 
-// Uses Better Analytics SaaS with your site ID
 export default function RootLayout({ children }) {
   return (
     <html>
@@ -135,7 +124,7 @@ export default function RootLayout({ children }) {
 }
 ```
 
-That's it! Page views are tracked automatically, and you can track custom events anywhere:
+Track custom events anywhere:
 
 ```javascript
 import { track, identify } from "better-analytics/next";
@@ -154,10 +143,70 @@ function SignupButton() {
     });
   };
   
+  return <button onClick={handleSignup}>Sign Up</button>;
+}
+```
+
+### Expo/React Native
+
+**Installation:**
+
+```bash
+# For Expo projects
+npm install better-analytics @react-native-async-storage/async-storage
+npx expo install expo-device expo-application expo-localization expo-network
+
+# For React Native bare workflow
+npm install better-analytics @react-native-async-storage/async-storage
+npm install expo-device expo-application expo-localization expo-network
+```
+
+**Setup:**
+
+```javascript
+import { AnalyticsProvider } from "better-analytics/expo";
+
+export default function App() {
   return (
-    <button onClick={handleSignup}>
-      Sign Up
-    </button>
+    <AnalyticsProvider 
+      site="my-app"
+      debug={__DEV__}
+      trackNavigation={true}
+    >
+      <YourAppContent />
+    </AnalyticsProvider>
+  );
+}
+```
+
+**Usage in Components:**
+
+```javascript
+import { useAnalyticsRN } from "better-analytics/expo";
+
+function HomeScreen() {
+  const { track, trackScreen, identify } = useAnalyticsRN();
+  
+  useEffect(() => {
+    trackScreen('Home');
+  }, []);
+  
+  const handleSignup = async () => {
+    await identify('user123', { 
+      email: 'user@example.com',
+      platform: Platform.OS 
+    });
+    
+    track('signup_completed', {
+      method: 'email',
+      screen: 'home'
+    });
+  };
+  
+  return (
+    <View>
+      <Button title="Sign Up" onPress={handleSignup} />
+    </View>
   );
 }
 ```
@@ -197,29 +246,83 @@ export async function POST(request) {
   
   return Response.json({ success: true });
 }
-
-// Track from middleware
-export async function middleware(request) {
-  await trackServer('page_view', {
-    path: request.nextUrl.pathname
-  }, {
-    request,
-    waitUntil: (promise) => event.waitUntil(promise) // Edge function support
-  });
-}
-
-// Express.js middleware
-import { expressMiddleware } from "better-analytics/server";
-
-app.use(expressMiddleware());
-app.post('/api/users', async (req, res) => {
-  // Track with session continuity
-  await req.track('user_created', { plan: 'pro' });
-  res.json({ success: true });
-});
 ```
 
-## API Reference
+## 🎯 Platform-Specific Types
+
+Better Analytics provides **platform-specific TypeScript types** to prevent confusion and improve developer experience:
+
+### Web/Browser Types 🌐
+
+```typescript
+import { EventData } from "better-analytics";
+// or from "better-analytics/next"
+
+// Only web-relevant properties available:
+const webEvent: EventData = {
+  event: 'button_click',
+  device: {
+    viewportWidth: 1200,     // ✅ Web-specific
+    viewportHeight: 800,     // ✅ Web-specific
+    connectionType: '4g'     // ✅ Web-specific
+  },
+  page: {                    // ✅ Web-specific
+    title: 'My Page',
+    pathname: '/products',
+    loadTime: 1250
+  }
+  // ❌ No mobile properties (platform, brand, app, etc.)
+};
+```
+
+### Mobile Types 📱
+
+```typescript
+import { EventData } from "better-analytics/expo";
+
+// Only mobile-relevant properties available:
+const mobileEvent: EventData = {
+  event: 'screen_view',
+  device: {
+    platform: 'ios',         // ✅ Mobile-specific
+    platformVersion: '16.0', // ✅ Mobile-specific
+    brand: 'Apple',          // ✅ Mobile-specific
+    model: 'iPhone 14',      // ✅ Mobile-specific
+    isEmulator: false        // ✅ Mobile-specific
+  },
+  app: {                     // ✅ Mobile-specific
+    version: '1.0.0',
+    buildNumber: '123',
+    bundleId: 'com.myapp'
+  }
+  // ❌ No web properties (viewportWidth, page, etc.)
+};
+```
+
+### Server Types 🖥️
+
+```typescript
+import { ServerEventData } from "better-analytics/server";
+
+// Only server-relevant properties available:
+const serverEvent: ServerEventData = {
+  event: 'api_call',
+  server: {                  // ✅ Server-specific
+    userAgent: 'Mozilla/5.0...',
+    ip: '192.168.1.1',
+    country: 'US',
+    runtime: 'node',
+    framework: 'nextjs'
+  },
+  user: {                    // ✅ Server context
+    id: 'user123',
+    sessionId: 'session456'
+  }
+  // ❌ No client properties (device, page, app, etc.)
+};
+```
+
+## 📚 API Reference
 
 ### Core SDK (`better-analytics`)
 
@@ -232,34 +335,11 @@ import { init } from "better-analytics";
 
 init({
   site: 'my-app',                  // Required site identifier
-  endpoint: '/api/collect',        // Optional custom endpoint (defaults to Better Analytics SaaS)
+  endpoint: '/api/collect',        // Optional custom endpoint
   mode: 'auto',                    // 'auto' | 'development' | 'production'
   debug: false,                    // Enable debug logging
   beforeSend: (event) => event     // Transform or filter events
 });
-```
-
-#### `initWithPageview(config)`
-
-Initialize the analytics SDK and immediately track a pageview.
-
-```javascript
-import { initWithPageview } from "better-analytics";
-
-// Initialize and track pageview in one call (uses Better Analytics SaaS)
-initWithPageview({
-  site: 'my-app'
-});
-
-// Or with custom endpoint
-initWithPageview({
-  site: 'my-app',
-  endpoint: '/api/collect'
-});
-
-// Equivalent to:
-// init({ site: 'my-app' });
-// trackPageview();
 ```
 
 #### `track(event, props?)`
@@ -269,10 +349,6 @@ Track a custom event with optional properties.
 ```javascript
 import { track } from "better-analytics";
 
-// Simple event
-track('page_view');
-
-// Event with properties
 track('purchase', {
   amount: 99.99,
   currency: 'USD',
@@ -294,198 +370,109 @@ identify('user123', {
 });
 ```
 
-#### `trackPageview(path?)`
-
-Manually track a page view event.
-
-```javascript
-import { trackPageview } from "better-analytics";
-
-trackPageview(); // Uses current path
-trackPageview('/custom/path'); // Custom path
-```
-
-#### `computeRoute(pathname, params)`
-
-Compute route patterns for SPAs (useful for custom implementations).
-
-```javascript
-import { computeRoute } from "better-analytics";
-
-// Convert /user/123 to /user/[id]
-const route = computeRoute('/user/123', { id: '123' });
-// Returns: '/user/[id]'
-```
-
-### Server SDK (`better-analytics/server`)
-
-#### `initServer(config)`
-
-Initialize server-side analytics.
-
-```javascript
-import { initServer } from "better-analytics/server";
-
-initServer({
-  site: 'my-app',                  // Required site identifier
-  endpoint: '/api/collect',        // Optional custom endpoint
-  apiKey: 'secret-key',           // Optional API key for authentication
-  debug: false,                    // Enable debug logging
-  batch: {                         // Optional batching configuration
-    size: 50,                      // Batch size (default: 50)
-    interval: 5000,                // Batch interval in ms (default: 5000)
-    maxRetries: 3                  // Max retry attempts (default: 3)
-  },
-  runtime: 'edge'                  // Override runtime detection
-});
-```
-
-#### `trackServer(event, props?, options?)`
-
-Track events from server-side code.
-
-```javascript
-import { trackServer } from "better-analytics/server";
-
-await trackServer('api_call', {
-  endpoint: '/api/users',
-  duration: 123
-}, {
-  headers: request.headers,        // Extract client info from headers
-  user: {                         // User context
-    id: 'user123',
-    email: 'user@example.com',
-    sessionId: 'session456',      // For session stitching
-    deviceId: 'device789'         // For device continuity
-  },
-  waitUntil: promise => ctx.waitUntil(promise), // Edge function support
-  meta: {                         // Additional metadata
-    server: 'api-1',
-    version: '2.0.0'
-  }
-});
-```
-
-#### `stitchSession(sessionId?, deviceId?)`
-
-Helper to maintain session continuity between client and server.
-
-```javascript
-import { stitchSession } from "better-analytics/server";
-
-// In your API route
-const sessionData = stitchSession(
-  req.cookies.ba_session,
-  req.cookies.ba_device
-);
-
-await trackServer('api_call', props, {
-  user: sessionData
-});
-```
-
 ### Next.js Component (`better-analytics/next`)
-
-#### `<Analytics />` Component
-
-React component that automatically handles initialization and page tracking.
 
 ```jsx
 import { Analytics } from "better-analytics/next";
 
 <Analytics 
-  site="my-app"                    // Site identifier (or use NEXT_PUBLIC_BA_SITE)
+  site="my-app"                    // Site identifier
   api="/api/collect"               // Custom endpoint (optional)
   debug={true}                     // Enable console logging
-  mode="production"                // Override environment detection
-  beforeSend={(event) => {         // Transform events before sending
-    console.log('Event:', event);
-    return event;
-  }}
+  beforeSend={(event) => event}    // Transform events
 />
 ```
 
-**Environment Variables:**
-- `NEXT_PUBLIC_BA_SITE`: Site identifier (required, e.g., `my-app`)
-- `NEXT_PUBLIC_BA_URL`: Custom analytics endpoint (optional)
+### Expo/React Native (`better-analytics/expo`)
 
-## Event Data Structure
+```javascript
+import { AnalyticsProvider, useAnalyticsRN } from "better-analytics/expo";
+
+// Provider
+<AnalyticsProvider site="my-app" debug={__DEV__}>
+  <App />
+</AnalyticsProvider>
+
+// Hook
+const { track, trackScreen, identify } = useAnalyticsRN();
+```
+
+### Server SDK (`better-analytics/server`)
+
+```javascript
+import { initServer, trackServer } from "better-analytics/server";
+
+initServer({
+  site: 'my-app',
+  batch: { size: 50, interval: 5000 }
+});
+
+await trackServer('api_call', props, {
+  request,
+  user: { id: 'user123' }
+});
+```
+
+## 🎨 Event Data Structure
 
 All events include comprehensive metadata automatically collected:
 
 ```typescript
-interface EventData {
-  // Core event data
-  event: string;                 // Event name
-  timestamp: number;             // Unix timestamp
-  site?: string;                 // Site identifier
-  
-  // Page context
-  url: string;                   // Current page URL
-  referrer: string;              // Document referrer
-  
-  // Session & User tracking
-  sessionId?: string;            // 30-minute session ID
-  deviceId?: string;             // Persistent device fingerprint
-  userId?: string;               // Custom user ID (if set)
-  
-  // Device & Browser info (only sent if available)
-  device?: {
-    userAgent?: string;          // Browser user agent
-    screenWidth?: number;        // Screen resolution
-    screenHeight?: number;
-    viewportWidth?: number;      // Browser viewport size
-    viewportHeight?: number;
-    language?: string;           // Browser language
-    timezone?: string;           // User timezone
-    connectionType?: string;     // Network connection type
-  };
-  
-  // Page information (only sent if available)
-  page?: {
-    title?: string;              // Page title
-    pathname?: string;           // URL pathname
-    hostname?: string;           // Domain name
-    loadTime?: number;           // Page load time (ms)
-  };
-  
-  // UTM parameters (only sent if present in URL)
-  utm?: {
-    source?: string;             // utm_source
-    medium?: string;             // utm_medium
-    campaign?: string;           // utm_campaign
-    term?: string;               // utm_term
-    content?: string;            // utm_content
-  };
-  
-  // Custom properties from user
-  props?: Record<string, unknown>;
-  
-  // Server-side specific data
-  server?: {
-    userAgent?: string;          // Server-extracted UA
-    ip?: string;                 // Client IP
-    country?: string;            // Geo location
-    runtime?: string;            // node | edge | cloudflare
-    framework?: string;          // nextjs | nuxt | etc
-  };
+// Web Event Structure
+{
+  event: 'button_click',
+  timestamp: 1699123456789,
+  site: 'my-app',
+  url: 'https://example.com/page',
+  referrer: 'https://google.com',
+  sessionId: 'abc123',
+  deviceId: 'def456',
+  userId: 'user123',           // If identified
+  device: {
+    userAgent: 'Mozilla/5.0...',
+    screenWidth: 1920,
+    screenHeight: 1080,
+    viewportWidth: 1200,       // Web only
+    viewportHeight: 800,       // Web only
+    language: 'en-US',
+    timezone: 'America/New_York',
+    connectionType: '4g'       // Web only
+  },
+  page: {                      // Web only
+    title: 'My Page',
+    pathname: '/products',
+    hostname: 'example.com',
+    loadTime: 1250
+  },
+  utm: {                       // If present in URL
+    source: 'google',
+    medium: 'cpc',
+    campaign: 'summer'
+  },
+  props: {                     // Custom properties
+    button: 'signup',
+    color: 'blue'
+  }
 }
 ```
 
-## Advanced Features
+## 🚀 Advanced Features
+
+### Development vs Production Behavior
+
+Better Analytics automatically detects your environment:
+
+- **Development Mode**: Events logged to console (no API calls)
+- **Production Mode**: Events sent to your configured endpoint
+- **Manual Override**: `init({ mode: 'development' })` or `init({ mode: 'production' })`
 
 ### Offline Support
 
 Events are automatically queued when offline and sent when connection is restored:
 
 ```javascript
-// Events are saved to localStorage automatically
-track('button_click'); // Saved if offline
-
-// Manual offline handling
-if (!navigator.onLine) {
-  console.log('Event will be sent when online');
-}
+// Works automatically - no configuration needed
+track('button_click'); // Saved if offline, sent when online
 ```
 
 ### Event Batching (Server-Side)
@@ -500,32 +487,6 @@ initServer({
     interval: 10000 // Or every 10 seconds
   }
 });
-
-// Events are automatically batched
-for (let i = 0; i < 1000; i++) {
-  trackServer('bulk_operation', { index: i }); // Non-blocking
-}
-```
-
-### Route Computation
-
-Automatic route pattern detection for dynamic routes:
-
-```javascript
-// Next.js example
-// Path: /user/123/posts/456
-// Params: { userId: '123', postId: '456' }
-// Computed: /user/[userId]/posts/[postId]
-
-// This happens automatically in the Analytics component
-// But you can use it manually:
-import { computeRoute } from "better-analytics";
-
-const route = computeRoute('/user/123/posts/456', {
-  userId: '123',
-  postId: '456'
-});
-// Returns: '/user/[userId]/posts/[postId]'
 ```
 
 ### Custom beforeSend Middleware
@@ -536,111 +497,141 @@ Transform or filter events before they're sent:
 init({
   site: 'my-app',
   beforeSend: async (event) => {
-    // Add custom data to all events
-    if (event.data) {
-      event.data.customProperty = 'value';
-    }
-    
-    // Filter out certain pages
-    if (event.type === 'pageview' && event.url?.includes('/internal')) {
+    // Filter out internal pages
+    if (event.url?.includes('/internal')) {
       return null; // Cancel event
     }
     
-    // Async transformations
-    if (event.type === 'identify') {
-      const enrichedData = await fetchUserData(event.userId);
-      event.traits = { ...event.traits, ...enrichedData };
-    }
+    // Add custom data
+    event.data.customProperty = 'value';
     
     return event;
   }
 });
 ```
 
-## Development vs Production Behavior
+### Route Computation
 
-Better Analytics automatically detects your environment and behaves differently:
-
-### Development Mode
-- **Events are logged to console** instead of being sent to your API
-- **Rich debug information** is displayed in the console
-- **No network requests** are made to your analytics endpoint
-- **Perfect for debugging** and verifying your tracking implementation
-
-### Production Mode
-- **Events are sent** to your configured endpoint or Better Analytics SaaS
-- **Silent operation** with no console logging
-- **Optimized for performance** and minimal overhead
-
-### Manual Mode Override
+Automatic route pattern detection for dynamic routes:
 
 ```javascript
-// Force development mode (even in production)
-init({ site: 'my-app', mode: 'development' });
-
-// Force production mode (even in development)
-init({ site: 'my-app', mode: 'production' });
+// Automatically converts /user/123 to /user/[id]
+// Works with Next.js, React Router, and custom implementations
 ```
 
-## TypeScript Support
+## 🔒 Privacy & GDPR
 
-Full TypeScript support with comprehensive types:
+Better Analytics is designed with privacy in mind:
 
-```typescript
-import { 
-  init, 
-  track, 
-  AnalyticsConfig, 
-  EventData,
-  BeforeSend,
-  BeforeSendEvent 
-} from "better-analytics";
+- ✅ **No Cookies**: Uses localStorage and sessionStorage only
+- ✅ **Lightweight Fingerprinting**: Minimal device identification
+- ✅ **No PII**: Doesn't collect personal information automatically
+- ✅ **User Control**: Easy event filtering with beforeSend
+- ✅ **Data Ownership**: Use your own endpoint or Better Analytics SaaS
 
-const config: AnalyticsConfig = {
-  site: 'my-app',
-  beforeSend: (event: BeforeSendEvent) => {
-    console.log(event.type); // 'pageview' | 'event' | 'identify'
-    return event;
-  }
-};
+## 🛠️ Why Better Analytics?
 
-init(config);
+### vs Google Analytics
+- 🪶 **100x Lighter**: 3KB vs 300KB+ bundle size
+- ⚡ **No Performance Impact**: Zero render blocking
+- 🔒 **Privacy-First**: No cookies, GDPR-friendly
+- 💻 **Developer-Friendly**: Simple API, great TypeScript support
 
-// Server-side types
-import { 
-  ServerEventData,
-  ServerTrackOptions 
-} from "better-analytics/server";
-```
+### vs Vercel Analytics
+- 📱 **Mobile Support**: Works with React Native/Expo
+- 🖥️ **Server-Side**: Full backend tracking
+- 🎯 **Platform-Specific Types**: Better TypeScript experience
+- 🔧 **Self-Hosted**: Use your own infrastructure
 
-## Migration from v0.5.0
+### vs Mixpanel/Amplitude
+- 🎯 **Micro-Analytics**: Focused on essential tracking
+- 💰 **Cost-Effective**: No per-event pricing
+- 🚀 **Easy Setup**: Three lines to get started
+- 📦 **Zero Dependencies**: No vendor lock-in
 
-The v0.6.0 release adds powerful new features while maintaining backward compatibility:
+## 📖 Examples
 
-### New Features
-- **Server-Side Tracking**: Full Node.js and Edge Function support
-- **beforeSend Middleware**: Transform or filter events
-- **Offline Support**: Automatic retry with localStorage queue
-- **Route Computation**: Automatic pattern detection for SPAs
-- **Event Batching**: Server-side performance optimization
-- **identify() API**: User identification and traits
+### E-commerce Tracking
 
-### Breaking Changes
-None - all existing code will continue to work.
-
-### New Imports
 ```javascript
-// Server-side tracking
-import { initServer, trackServer } from "better-analytics/server";
+// Product view
+track('product_viewed', {
+  product_id: 'abc123',
+  product_name: 'Wireless Headphones',
+  category: 'electronics',
+  price: 99.99
+});
 
-// User identification
-import { identify } from "better-analytics";
+// Purchase
+track('purchase_completed', {
+  order_id: 'order_456',
+  total: 199.98,
+  items: 2,
+  payment_method: 'credit_card'
+});
 ```
 
-## License
+### SaaS Application
+
+```javascript
+// Feature usage
+track('feature_used', {
+  feature: 'export_data',
+  plan: 'pro',
+  user_type: 'admin'
+});
+
+// Subscription events
+track('subscription_upgraded', {
+  from_plan: 'basic',
+  to_plan: 'pro',
+  annual: true
+});
+```
+
+### Mobile App (React Native)
+
+```javascript
+// Screen navigation
+trackScreen('ProductDetail', {
+  product_id: 'abc123',
+  category: 'electronics'
+});
+
+// App events
+track('app_opened', {
+  source: 'push_notification',
+  campaign: 'flash_sale'
+});
+```
+
+## 🚢 Migration Guide
+
+### From v0.6.0 to v0.7.0
+
+✅ **Zero Breaking Changes** - All existing code continues to work
+
+**New Features:**
+- Expo/React Native support
+- Platform-specific types
+- Mobile offline support
+
+**New Imports:**
+```javascript
+// Mobile tracking
+import { AnalyticsProvider, useAnalyticsRN } from "better-analytics/expo";
+```
+
+## 📄 License
 
 MIT
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request. 
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+<div align="center">
+  <strong>Made with ❤️ for developers who value simplicity and performance</strong>
+</div> 
