@@ -7,6 +7,9 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 import { getCachedSession } from '@/modules/auth/lib/auth-cache';
 import { auth } from '@/modules/auth/lib/auth';
 import { TAGS } from '@/lib/tags';
+import { db } from '@/lib/db';
+import { eq, and, ne } from 'drizzle-orm';
+import { organization } from '@/lib/db/schema';
 
 const updateOrganizationSchema = z.object({
   organizationId: z.string(),
@@ -19,6 +22,23 @@ const updateOrganizationSchema = z.object({
       'Slug can only contain lowercase letters, numbers, and hyphens.',
     ),
 });
+
+/**
+ * Check if a slug is available for use by an organization
+ * @param slug The slug to check
+ * @param currentOrgId The ID of the current organization (to exclude it from the check)
+ * @returns true if the slug is available, false if it's already taken
+ */
+async function isSlugAvailable(slug: string, currentOrgId: string): Promise<boolean> {
+  const existingOrg = await db.query.organization.findFirst({
+    where: and(
+      eq(organization.slug, slug),
+      ne(organization.id, currentOrgId)
+    ),
+  });
+
+  return !existingOrg;
+}
 
 export async function updateOrganization(formData: FormData) {
   const rawData = {
@@ -68,6 +88,14 @@ export async function updateOrganization(formData: FormData) {
       return { error: 'You do not have permission to perform this action.' };
     }
 
+    // If the slug is changing, check if the new slug is available
+    if (slug !== currentOrg.slug) {
+      const slugAvailable = await isSlugAvailable(slug, organizationId);
+      if (!slugAvailable) {
+        return { error: 'This slug is already in use. Please choose a different one.' };
+      }
+    }
+
     // Use Better Auth's organization update method
     const result = await auth.api.updateOrganization({
       headers: requestHeaders,
@@ -114,7 +142,7 @@ export async function updateOrganization(formData: FormData) {
     // Handle specific error cases
     if (error instanceof Error) {
       if (error.message.includes('slug') && error.message.includes('unique')) {
-        return { error: 'This slug is already in use.' };
+        return { error: 'This slug is already in use. Please choose a different one.' };
       }
       return { error: error.message };
     }

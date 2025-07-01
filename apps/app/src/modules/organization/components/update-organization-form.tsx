@@ -79,7 +79,8 @@ export function UpdateOrganizationForm({
         <CardHeader>
           <CardTitle>Organization Name</CardTitle>
           <CardDescription>
-            Updating the name will also update the organization's URL slug.
+            Updating the name will also update the organization's URL. Make sure
+            the new URL doesn't conflict with existing organizations.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -88,22 +89,41 @@ export function UpdateOrganizationForm({
             <Input
               id="org-name"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                // Clear messages when user starts typing
+                if (error) setError(null);
+                if (success) setSuccess(null);
+              }}
               disabled={isPending}
             />
           </div>
         </CardContent>
         <CardFooter className="flex justify-between items-center mt-4">
-          <div>
-            {error && <p className="text-sm text-destructive">{error}</p>}
-            {success && <p className="text-sm text-primary">{success}</p>}
+          <div className="flex-1 mr-4">
+            {error && (
+              <div className="text-sm text-destructive space-y-1">
+                <p className="font-medium">Unable to update organization:</p>
+                <p>{error}</p>
+                {error.includes("slug") && error.includes("already in use") && (
+                  <p className="text-xs text-muted-foreground">
+                    Try choosing a different name or manually edit the URL slug.
+                  </p>
+                )}
+              </div>
+            )}
+            {success && (
+              <div className="text-sm text-green-600">
+                <p className="font-medium">✓ {success}</p>
+              </div>
+            )}
           </div>
           <Button
             type="submit"
             disabled={isPending || name === organization.name}
           >
             {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save Changes
+            {isPending ? "Updating..." : "Save Changes"}
           </Button>
         </CardFooter>
       </form>
