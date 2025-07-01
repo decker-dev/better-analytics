@@ -7,11 +7,11 @@ import * as Localization from 'expo-localization';
 import * as Network from 'expo-network';
 import type { AnalyticsConfig, MobileEventData, MobileDeviceInfo, BeforeSend } from './types';
 
-// Re-export only mobile-relevant types for Expo users
+// Re-export only Expo-relevant types for Expo users
 export type { MobileEventData as EventData, MobileDeviceInfo as DeviceInfo } from './types';
 
-// React Native specific types
-export interface ReactNativeAnalyticsConfig extends Omit<AnalyticsConfig, 'endpoint'> {
+// Expo specific types
+export interface ExpoAnalyticsConfig extends Omit<AnalyticsConfig, 'endpoint'> {
   /** API endpoint to send analytics data to */
   endpoint?: string;
   /** Enable debug mode to log events to console */
@@ -24,22 +24,22 @@ export interface ReactNativeAnalyticsConfig extends Omit<AnalyticsConfig, 'endpo
   trackNavigation?: boolean;
 }
 
-export interface AnalyticsProviderProps extends ReactNativeAnalyticsConfig {
+export interface AnalyticsProviderProps extends ExpoAnalyticsConfig {
   children: React.ReactNode;
 }
 
-// Global state for React Native
-let rnConfig: ReactNativeAnalyticsConfig | null = null;
+// Global state for Expo
+let expoConfig: ExpoAnalyticsConfig | null = null;
 const navigationRef: React.RefObject<unknown> | null = null;
 
 /**
- * Initialize React Native analytics
+ * Initialize Expo analytics
  */
-export function initRN(config: ReactNativeAnalyticsConfig): void {
-  rnConfig = config;
+export function initExpo(config: ExpoAnalyticsConfig): void {
+  expoConfig = config;
 
   if (config.debug) {
-    console.log('📱 Better Analytics React Native initialized');
+    console.log('📱 Better Analytics Expo initialized');
     console.log('📍 Endpoint:', config.endpoint || 'https://better-analytics.app/api/collect');
     console.log('🏷️ Site:', config.site);
     console.log('📱 Platform:', Platform.OS);
@@ -47,9 +47,9 @@ export function initRN(config: ReactNativeAnalyticsConfig): void {
 }
 
 /**
- * Get React Native specific device information
+ * Get Expo specific device information
  */
-async function getRNDeviceInfo(): Promise<Partial<MobileEventData>> {
+async function getExpoDeviceInfo(): Promise<Partial<MobileEventData>> {
   const { width, height } = Dimensions.get('window');
   const screenData = Dimensions.get('screen');
 
@@ -68,7 +68,7 @@ async function getRNDeviceInfo(): Promise<Partial<MobileEventData>> {
 
     return {
       device: {
-        userAgent: rnConfig?.userAgent || `ReactNative/${Platform.OS}`,
+        userAgent: expoConfig?.userAgent || `Expo/${Platform.OS}`,
         screenWidth: screenData.width,
         screenHeight: screenData.height,
         language: locale,
@@ -82,13 +82,13 @@ async function getRNDeviceInfo(): Promise<Partial<MobileEventData>> {
       deviceId,
       sessionId: await getOrCreateSessionId(),
       app: {
-        version: rnConfig?.appVersion || version,
+        version: expoConfig?.appVersion || version,
         buildNumber,
         bundleId
       }
     };
   } catch (error) {
-    console.warn('Better Analytics RN: Error getting device info', error);
+    console.warn('Better Analytics Expo: Error getting device info', error);
     return {
       device: {
         platform: Platform.OS,
@@ -106,12 +106,12 @@ async function getOrCreateDeviceId(): Promise<string> {
   try {
     let deviceId = await AsyncStorage.getItem('ba_device_id');
     if (!deviceId) {
-      deviceId = `rn_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+      deviceId = `expo_${Date.now()}_${Math.random().toString(36).substring(2)}`;
       await AsyncStorage.setItem('ba_device_id', deviceId);
     }
     return deviceId;
   } catch {
-    return `rn_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+    return `expo_${Date.now()}_${Math.random().toString(36).substring(2)}`;
   }
 }
 
@@ -138,7 +138,7 @@ async function getOrCreateSessionId(): Promise<string> {
   }
 
   // Create new session
-  const sessionId = `rn_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+  const sessionId = `expo_session_${Date.now()}_${Math.random().toString(36).substring(2)}`;
   try {
     await AsyncStorage.setItem('ba_session', JSON.stringify({
       id: sessionId,
@@ -152,16 +152,16 @@ async function getOrCreateSessionId(): Promise<string> {
 }
 
 /**
- * Track event in React Native
+ * Track event in Expo
  */
-export async function trackRN(event: string, props?: Record<string, unknown>): Promise<void> {
-  if (!rnConfig) {
-    console.warn('Better Analytics RN: Not initialized. Call initRN() first.');
+export async function track(event: string, props?: Record<string, unknown>): Promise<void> {
+  if (!expoConfig) {
+    console.warn('Better Analytics Expo: Not initialized. Call initExpo() first.');
     return;
   }
 
-  if (!rnConfig.site) {
-    console.warn('Better Analytics RN: No site identifier provided.');
+  if (!expoConfig.site) {
+    console.warn('Better Analytics Expo: No site identifier provided.');
     return;
   }
 
@@ -169,26 +169,26 @@ export async function trackRN(event: string, props?: Record<string, unknown>): P
   const networkState = await Network.getNetworkStateAsync();
   if (!networkState.isConnected) {
     // TODO: Queue for later when online
-    if (rnConfig.debug) {
-      console.log('📱 Better Analytics RN: Offline, event queued');
+    if (expoConfig.debug) {
+      console.log('📱 Better Analytics Expo: Offline, event queued');
     }
     return;
   }
 
-  const deviceInfo = await getRNDeviceInfo();
+  const deviceInfo = await getExpoDeviceInfo();
 
   const eventData: MobileEventData = {
     event,
     timestamp: Date.now(),
     url: `app://${deviceInfo.app?.bundleId || 'unknown'}`,
     referrer: '',
-    site: rnConfig.site,
+    site: expoConfig.site,
     ...deviceInfo,
     ...(props && { props })
   };
 
   // Apply beforeSend if configured
-  if (rnConfig.beforeSend) {
+  if (expoConfig.beforeSend) {
     const beforeSendEvent = {
       type: event === 'screen_view' ? 'pageview' as const : 'event' as const,
       name: event,
@@ -196,69 +196,69 @@ export async function trackRN(event: string, props?: Record<string, unknown>): P
       data: eventData
     };
 
-    const processedEvent = await rnConfig.beforeSend(beforeSendEvent);
+    const processedEvent = await expoConfig.beforeSend(beforeSendEvent);
     if (!processedEvent || !processedEvent.data) return;
 
-    await sendRNEvent(processedEvent.data as MobileEventData);
-    return;
+    // Send the processed event
+    await sendExpoEvent(processedEvent.data as MobileEventData);
+  } else {
+    await sendExpoEvent(eventData);
   }
 
-  await sendRNEvent(eventData);
+  if (expoConfig.debug) {
+    console.log('📱 Better Analytics Expo tracked:', event, props);
+  }
 }
 
 /**
- * Track screen view (equivalent to pageview)
+ * Track screen view
  */
-export async function trackScreenView(screenName: string, params?: Record<string, unknown>): Promise<void> {
-  await trackRN('screen_view', {
+export async function trackScreen(screenName: string, params?: Record<string, unknown>): Promise<void> {
+  await track('screen_view', {
     screen_name: screenName,
     ...params
   });
 }
 
 /**
- * Send event to analytics endpoint
+ * Send event to analytics API
  */
-async function sendRNEvent(data: MobileEventData): Promise<void> {
-  if (!rnConfig) return;
+async function sendExpoEvent(data: MobileEventData): Promise<void> {
+  if (!expoConfig) return;
 
-  if (rnConfig.debug) {
-    console.log('📱 Better Analytics RN Event:', data.event);
-    console.log('📦 Data:', data);
-  }
+  const endpoint = expoConfig.endpoint || 'https://better-analytics.app/api/collect';
 
   try {
-    const endpoint = rnConfig.endpoint || 'https://better-analytics.app/api/collect';
-
     const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': data.device?.userAgent || 'ReactNative/1.0'
+        'User-Agent': data.device?.userAgent || 'BetterAnalytics-Expo/0.7.0',
       },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     });
 
-    if (!response.ok && rnConfig.debug) {
-      console.error('Better Analytics RN: HTTP', response.status);
+    if (!response.ok && expoConfig.debug) {
+      console.warn('Better Analytics Expo: Failed to send event', response.status);
     }
   } catch (error) {
-    if (rnConfig.debug) {
-      console.error('Better Analytics RN: Failed to send event', error);
+    if (expoConfig.debug) {
+      console.warn('Better Analytics Expo: Network error', error);
     }
+    // TODO: Queue for retry
   }
 }
 
 /**
- * Analytics Provider Component for React Native
+ * React Context Provider for Expo Analytics
  */
 export function AnalyticsProvider({ children, ...config }: AnalyticsProviderProps): React.ReactElement {
-  const initialized = useRef(false);
+  const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!initialized.current) {
-      initRN(config);
-      initialized.current = true;
+    if (!initializedRef.current) {
+      initExpo(config);
+      initializedRef.current = true;
     }
   }, [config]);
 
@@ -266,22 +266,23 @@ export function AnalyticsProvider({ children, ...config }: AnalyticsProviderProp
 }
 
 /**
- * Hook for tracking in React Native components
+ * Hook for using analytics in Expo components
  */
-export function useAnalyticsRN() {
+export function useAnalytics() {
   return {
-    track: trackRN,
-    trackScreen: trackScreenView,
+    track,
+    trackScreen,
     identify: async (userId: string, traits?: Record<string, unknown>) => {
-      try {
-        await AsyncStorage.setItem('ba_user_id', userId);
-      } catch {
-        // Ignore storage errors
-      }
-      await trackRN('identify', { userId, ...traits });
+      await track('identify', {
+        user_id: userId,
+        ...traits
+      });
     }
   };
 }
 
-// Re-export only mobile-relevant base types
-export type { AnalyticsConfig, BeforeSend } from './types'; 
+// Aliases for backward compatibility and convenience
+export const trackRN = track;
+export const trackScreenView = trackScreen;
+export const initRN = initExpo;
+export const useAnalyticsRN = useAnalytics; 

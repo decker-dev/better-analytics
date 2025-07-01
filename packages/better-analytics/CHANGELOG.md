@@ -4,27 +4,23 @@
 
 ### Major Features
 
-- **📱 Expo/React Native Support**: Complete React Native and Expo integration with native device information
-- **🎯 Platform-Specific Types**: Separate TypeScript types for web, mobile, and server to prevent confusion and improve DX
+- **📱 Expo Support: Complete Expo integration optimized for the Expo ecosystem with native device information
+- **🎯 Platform-Specific Types**: Separate TypeScript types for web, mobile, and server to prevent confusion and improve DX  
 - **🔄 Navigation Tracking**: Automatic screen navigation tracking for mobile apps
 - **💾 Mobile Offline Support**: AsyncStorage-based event queuing for offline scenarios
 - **📱 Native Device Info**: Rich device metadata using Expo modules (Device, Application, Localization, Network)
 - **🎯 Provider Pattern**: React Context-based AnalyticsProvider for app-wide configuration
 
-### New Expo/React Native APIs
+### New Expo APIs
 
 #### Installation
 ```bash
-# For Expo projects
+# For Expo projects (Recommended)
 npm install better-analytics @react-native-async-storage/async-storage
 npx expo install expo-device expo-application expo-localization expo-network
-
-# For React Native bare workflow
-npm install better-analytics @react-native-async-storage/async-storage
-npm install expo-device expo-application expo-localization expo-network
 ```
 
-#### Provider Setup
+#### Provider Setup (Recommended)
 ```javascript
 import { AnalyticsProvider } from "better-analytics/expo";
 
@@ -41,12 +37,23 @@ export default function App() {
 }
 ```
 
+#### Manual Setup
+```javascript
+import { initExpo } from "better-analytics/expo";
+
+initExpo({
+  site: 'my-app',
+  debug: __DEV__,
+  trackNavigation: true
+});
+```
+
 #### Component Usage
 ```javascript
-import { useAnalyticsRN } from "better-analytics/expo";
+import { useAnalytics } from "better-analytics/expo";
 
 function HomeScreen() {
-  const { track, trackScreen, identify } = useAnalyticsRN();
+  const { track, trackScreen, identify } = useAnalytics();
   
   useEffect(() => {
     trackScreen('Home');
@@ -86,7 +93,7 @@ const webEvent: EventData = {
 };
 ```
 
-#### Mobile Types (Expo/React Native)
+#### Mobile Types (Expo)
 ```typescript
 import { EventData } from "better-analytics/expo";
 // Only mobile-relevant properties: platform, brand, model, app
@@ -145,7 +152,7 @@ const serverEvent: ServerEventData = {
 better-analytics/          # Client SDK (Web-only types)
 better-analytics/next      # Next.js component (Web-only types)
 better-analytics/server    # Server SDK (Server-only types)
-better-analytics/expo      # Expo/React Native SDK (Mobile-only types) (NEW)
+better-analytics/expo      # Expo SDK (Mobile-only types) (NEW)
 ```
 
 This release extends Better Analytics to mobile platforms while introducing platform-specific types that improve developer experience and prevent confusion between web, mobile, and server contexts.

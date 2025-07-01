@@ -151,17 +151,13 @@ function SignupButton() {
 
 **Installation:**
 
-```bash
-# For Expo projects
-npm install better-analytics @react-native-async-storage/async-storage
-npx expo install expo-device expo-application expo-localization expo-network
+  ```bash
+  # For Expo projects (Recommended)
+  npm install better-analytics @react-native-async-storage/async-storage
+  npx expo install expo-device expo-application expo-localization expo-network
+  ```
 
-# For React Native bare workflow
-npm install better-analytics @react-native-async-storage/async-storage
-npm install expo-device expo-application expo-localization expo-network
-```
-
-**Setup:**
+**Setup with Provider (Recommended):**
 
 ```javascript
 import { AnalyticsProvider } from "better-analytics/expo";
@@ -179,13 +175,26 @@ export default function App() {
 }
 ```
 
+**Or initialize manually:**
+
+```javascript
+import { initExpo } from "better-analytics/expo";
+
+// Initialize once in your app entry point
+initExpo({
+  site: 'my-app',
+  debug: __DEV__,
+  trackNavigation: true
+});
+```
+
 **Usage in Components:**
 
 ```javascript
-import { useAnalyticsRN } from "better-analytics/expo";
+import { useAnalytics } from "better-analytics/expo";
 
 function HomeScreen() {
-  const { track, trackScreen, identify } = useAnalyticsRN();
+  const { track, trackScreen, identify } = useAnalytics();
   
   useEffect(() => {
     trackScreen('Home');
