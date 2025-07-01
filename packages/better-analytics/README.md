@@ -1,14 +1,14 @@
 # Better Analytics
 
-A micro-analytics JavaScript SDK for tracking page views and events. Framework-agnostic, < 2KB gzip, with specialized adapters for popular frameworks.
+A zero-dependency micro-analytics JavaScript SDK for tracking page views and events. Framework-agnostic, < 3KB gzipped, with specialized adapters for popular frameworks.
 
 ## Features
 
-- 🚀 **Lightweight**: < 2KB gzip, tree-shakable
+- 🚀 **Lightweight**: < 3KB gzipped core, tree-shakable, zero runtime dependencies
 - 🔧 **Framework-agnostic**: Works with any JavaScript project
-- ⚛️ **Next.js ready**: Built-in React component with automatic page tracking
-- 🖥️ **Server-side tracking**: Full support for Node.js, Edge Functions, and more
-- 📦 **Modern**: ESM/CJS dual package, TypeScript support
+- ⚛️ **Next.js ready**: Built-in React component with automatic page tracking (~4.8KB gzipped)
+- 🖥️ **Server-side tracking**: Full support for Node.js, Edge Functions, and more (~1.9KB gzipped)
+- 📦 **Modern**: ESM/CJS dual package, TypeScript support, zero runtime dependencies
 - 🎯 **Simple**: Three lines to get started
 - 🔍 **Rich Analytics**: Automatic session tracking, device fingerprinting, UTM parameters
 - ⚡ **Performance**: Built-in page load time tracking and bandwidth optimization
@@ -21,7 +21,23 @@ A micro-analytics JavaScript SDK for tracking page views and events. Framework-a
 
 ```bash
 npm install better-analytics
+# or
+pnpm add better-analytics
+# or  
+yarn add better-analytics
 ```
+
+## Bundle Sizes
+
+Better Analytics is designed to be extremely lightweight with **zero runtime dependencies**:
+
+| Module | Minified | Gzipped | Dependencies |
+|--------|----------|---------|--------------|
+| Core (`better-analytics`) | 7.7KB | **2.6KB** | **0** |
+| Next.js (`better-analytics/next`) | 13KB | **4.8KB** | React* |
+| Server (`better-analytics/server`) | 4.3KB | **1.9KB** | **0** |
+
+*React and Next.js are peer dependencies (optional) - they're not bundled with the library.
 
 ## Quick Start
 

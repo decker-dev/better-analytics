@@ -1,7 +1,7 @@
 {
   "name": "better-analytics",
   "version": "0.6.0",
-  "description": "Micro-analytics JavaScript SDK for tracking page views and events",
+  "description": "Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js support",
   "main": "dist/index.cjs",
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -41,7 +41,10 @@
     "nextjs",
     "react",
     "server-side",
-    "edge-functions"
+    "edge-functions",
+    "zero-dependencies",
+    "lightweight",
+    "typescript"
   ],
   "license": "MIT",
   "peerDependencies": {
