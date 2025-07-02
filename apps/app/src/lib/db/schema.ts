@@ -142,7 +142,8 @@ export const invitation = pgTable('invitation', {
 export const sites = pgTable('sites', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal"
-  siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único)
+  slug: text('slug').notNull(),                    // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
+  siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking)
   organizationId: text('organization_id').notNull().references(() => organization.id, { onDelete: 'cascade' }),
   domain: text('domain'),                           // "dashboard.example.com" (opcional)
   description: text('description'),                 // Descripción del proyecto

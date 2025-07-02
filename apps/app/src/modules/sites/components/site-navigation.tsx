@@ -6,24 +6,24 @@ import { BarChart3, Settings } from "lucide-react";
 
 interface SiteNavigationProps {
   orgSlug: string;
-  siteKey: string;
+  slug: string;
 }
 
-export const SiteNavigation = ({ orgSlug, siteKey }: SiteNavigationProps) => {
+export const SiteNavigation = ({ orgSlug, slug }: SiteNavigationProps) => {
   const pathname = usePathname();
 
   const navigation = [
     {
       name: "Analytics",
-      href: `/${orgSlug}/sites/${siteKey}/stats`,
+      href: `/${orgSlug}/sites/${slug}/stats`,
       icon: BarChart3,
-      current: pathname === `/${orgSlug}/sites/${siteKey}/stats`,
+      current: pathname === `/${orgSlug}/sites/${slug}/stats`,
     },
     {
       name: "Settings",
-      href: `/${orgSlug}/sites/${siteKey}/settings`,
+      href: `/${orgSlug}/sites/${slug}/settings`,
       icon: Settings,
-      current: pathname === `/${orgSlug}/sites/${siteKey}/settings`,
+      current: pathname === `/${orgSlug}/sites/${slug}/settings`,
     },
   ];
 

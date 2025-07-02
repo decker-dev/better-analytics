@@ -46,4 +46,19 @@ export function generateSiteKey(): string {
   }
 
   return result;
+}
+
+/**
+ * Create a URL-friendly slug from a site name
+ * Examples: "Mi Dashboard" -> "mi-dashboard", "Blog Personal" -> "blog-personal"
+ */
+export function createSlugFromName(name: string): string {
+  return name
+    .toLowerCase()
+    .normalize('NFD') // Decompose accented characters
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric chars except spaces and hyphens
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-'); // Replace multiple hyphens with single hyphen
 } 

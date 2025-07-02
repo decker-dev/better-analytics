@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/modules/auth/lib/auth';
-import { getSiteByKey, updateSite } from '@/lib/db/sites';
+import { getSiteBySlug, updateSite, verifySiteOwnershipBySlug } from '@/lib/db/sites';
 import { z } from 'zod';
 
 const updateSiteSchema = z.object({
@@ -12,10 +12,10 @@ const updateSiteSchema = z.object({
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ siteKey: string }> }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { siteKey } = await params;
+    const { slug } = await params;
 
     // Check authentication
     const session = await auth.api.getSession({
@@ -29,8 +29,31 @@ export async function PATCH(
       );
     }
 
+    // Get current organization from session
+    const organizations = await auth.api.listOrganizations({
+      headers: await headers(),
+    });
+    
+    const currentOrg = organizations?.find(org => org.id === session.session.activeOrganizationId);
+    
+    if (!currentOrg) {
+      return NextResponse.json(
+        { error: 'Organization not found' },
+        { status: 404 }
+      );
+    }
+
+    // Verify site ownership
+    const isOwner = await verifySiteOwnershipBySlug(slug, currentOrg.id);
+    if (!isOwner) {
+      return NextResponse.json(
+        { error: 'Site not found' },
+        { status: 404 }
+      );
+    }
+
     // Get the site
-    const site = await getSiteByKey(siteKey);
+    const site = await getSiteBySlug(slug, currentOrg.id);
 
     if (!site) {
       return NextResponse.json(
@@ -38,8 +61,6 @@ export async function PATCH(
         { status: 404 }
       );
     }
-
-    // TODO: Verify that the user has access to this site/organization
 
     // Parse and validate request body
     const body = await request.json();
