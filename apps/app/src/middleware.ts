@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { headers } from "next/headers";
-import { getCachedSession, getCachedOrganizations } from "@/modules/auth/lib/auth-cache";
+import { auth } from "@/modules/auth/lib/auth";
+
+interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -34,7 +40,7 @@ export async function middleware(request: NextRequest) {
   // For all other routes, check authentication
   try {
     const requestHeaders = await headers();
-    const session = await getCachedSession(requestHeaders);
+    const session = await auth.api.getSession({ headers: requestHeaders });
 
     // Check if current path should redirect authenticated users
     const shouldRedirectIfAuthenticated = authRedirectRoutes.some(route =>
@@ -53,8 +59,8 @@ export async function middleware(request: NextRequest) {
 
     // If authenticated and on auth redirect routes, redirect to appropriate page
     if (session && shouldRedirectIfAuthenticated) {
-      // Get user's organizations (cached)
-      const organizations = await getCachedOrganizations(requestHeaders);
+      // Get user's organizations
+      const organizations = await auth.api.listOrganizations({ headers: requestHeaders });
 
       // If user has no organizations, redirect to onboarding
       if (!organizations || organizations.length === 0) {
@@ -81,8 +87,8 @@ export async function middleware(request: NextRequest) {
     if (orgRouteMatch) {
       const [, orgSlug] = orgRouteMatch;
 
-      // Get user's organizations (cached)
-      const organizations = await getCachedOrganizations(requestHeaders);
+      // Get user's organizations
+      const organizations = await auth.api.listOrganizations({ headers: requestHeaders });
 
       // If user has no organizations, redirect to onboarding
       if (!organizations || organizations.length === 0) {
@@ -90,7 +96,7 @@ export async function middleware(request: NextRequest) {
       }
 
       // Check if the requested org exists and user has access
-      const requestedOrg = organizations.find((org) => org.slug === orgSlug);
+      const requestedOrg = organizations?.find((org: Organization) => org.slug === orgSlug);
 
       if (!requestedOrg) {
         // If org doesn't exist or user doesn't have access, redirect to first available org
