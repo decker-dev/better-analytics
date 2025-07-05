@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
+import { getSiteBySlug, verifySiteOwnershipBySlug } from "@/lib/db/sites";
 import {
   getComprehensiveStats,
   calculateBounceRate,
@@ -13,11 +13,11 @@ import { DeviceInfo } from "@/modules/sites/components/analytics/device-info";
 import { RecentActivity } from "@/modules/sites/components/analytics/recent-activity";
 
 interface SiteStatsPageProps {
-  params: Promise<{ orgSlug: string; siteKey: string }>;
+  params: Promise<{ orgSlug: string; slug: string }>;
 }
 
 export default async function SiteStatsPage({ params }: SiteStatsPageProps) {
-  const { orgSlug, siteKey } = await params;
+  const { orgSlug, slug } = await params;
 
   // Middleware has already validated session and org access
   // We only need to verify site ownership and get org details
@@ -29,19 +29,19 @@ export default async function SiteStatsPage({ params }: SiteStatsPageProps) {
   const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;
 
   // Verify that the site exists and belongs to this organization
-  const isOwner = await verifySiteOwnership(siteKey, currentOrg.id);
+  const isOwner = await verifySiteOwnershipBySlug(slug, currentOrg.id);
   if (!isOwner) {
     notFound();
   }
 
   // Get site details
-  const site = await getSiteByKey(siteKey);
+  const site = await getSiteBySlug(slug, currentOrg.id);
   if (!site) {
     notFound();
   }
 
   // Fetch comprehensive analytics data for this site
-  const stats = await getComprehensiveStats(siteKey);
+  const stats = await getComprehensiveStats(site.siteKey);
 
   // Calculate bounce rate
   const bounceRate = calculateBounceRate(

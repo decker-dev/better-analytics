@@ -1,7 +1,7 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { getSiteByKey, verifySiteOwnership } from "@/lib/db/sites";
+import { getSiteBySlug, verifySiteOwnershipBySlug } from "@/lib/db/sites";
 import {
   Card,
   CardContent,
@@ -11,13 +11,13 @@ import {
 import { Settings, Globe, Trash2, RotateCcw } from "lucide-react";
 
 interface SiteSettingsPageProps {
-  params: Promise<{ orgSlug: string; siteKey: string }>;
+  params: Promise<{ orgSlug: string; slug: string }>;
 }
 
 export default async function SiteSettingsPage({
   params,
 }: SiteSettingsPageProps) {
-  const { orgSlug, siteKey } = await params;
+  const { orgSlug, slug } = await params;
 
   // Middleware has already validated session and org access
   // We only need to verify site ownership and get org details
@@ -29,13 +29,13 @@ export default async function SiteSettingsPage({
   const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;
 
   // Verify that the site exists and belongs to this organization
-  const isOwner = await verifySiteOwnership(siteKey, currentOrg.id);
+  const isOwner = await verifySiteOwnershipBySlug(slug, currentOrg.id);
   if (!isOwner) {
     notFound();
   }
 
   // Get site details
-  const site = await getSiteByKey(siteKey);
+  const site = await getSiteBySlug(slug, currentOrg.id);
   if (!site) {
     notFound();
   }
@@ -129,7 +129,7 @@ export default async function SiteSettingsPage({
               </p>
             </div>
             <code className="bg-muted px-3 py-2 rounded text-sm">
-              {siteKey}
+              {site.siteKey}
             </code>
           </div>
 
@@ -175,7 +175,7 @@ export default function RootLayout({ children }) {
         {children}
         <Analytics
           api="${process.env.NEXT_PUBLIC_APP_URL}/api/collect"
-          site="${siteKey}"
+          site="${site.siteKey}"
           debug={false}
         />
       </body>

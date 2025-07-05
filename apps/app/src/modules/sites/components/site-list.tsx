@@ -50,7 +50,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
       const site = await response.json();
 
       // Redirect to onboarding
-      router.push(`/${orgSlug}/sites/${site.siteKey}/onboarding`);
+      router.push(`/${orgSlug}/sites/${site.slug}/onboarding`);
     } catch (error) {
       console.error("Error creating site:", error);
       // TODO: Add toast notification for error
@@ -94,12 +94,6 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Site Key:</span>
-                    <code className="bg-muted px-2 py-1 rounded text-xs">
-                      {site.siteKey}
-                    </code>
-                  </div>
                   {site.domain && (
                     <div className="flex items-center justify-between text-sm">
                       <span className="text-muted-foreground">Domain:</span>
@@ -114,7 +108,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
 
                 <div className="flex gap-2">
                   <Link
-                    href={`/${orgSlug}/sites/${site.siteKey}/stats`}
+                    href={`/${orgSlug}/sites/${site.slug}/stats`}
                     className="flex-1"
                   >
                     <Button variant="default" size="sm" className="w-full">
@@ -122,7 +116,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
                       Analytics
                     </Button>
                   </Link>
-                  <Link href={`/${orgSlug}/sites/${site.siteKey}/settings`}>
+                  <Link href={`/${orgSlug}/sites/${site.slug}/settings`}>
                     <Button variant="outline" size="sm">
                       <Settings className="h-4 w-4" />
                     </Button>
