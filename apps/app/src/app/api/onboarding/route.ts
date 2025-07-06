@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/modules/auth/lib/auth';
-import { createSite } from '@/lib/db/sites';
+import { createSite } from '@/modules/sites/lib/sites';
 import { generateSiteName } from '@/lib/site-name-generator';
 import { generateUniqueSiteKey } from '@/lib/site-key';
 import { db } from '@/lib/db';

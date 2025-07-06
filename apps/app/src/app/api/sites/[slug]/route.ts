@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/modules/auth/lib/auth';
-import { getSiteBySlug, updateSite, verifySiteOwnershipBySlug } from '@/lib/db/sites';
+import { getSiteBySlug, updateSite, verifySiteOwnershipBySlug } from '@/modules/sites/lib/sites';
 import { z } from 'zod';
 
 const updateSiteSchema = z.object({
@@ -33,9 +33,9 @@ export async function PATCH(
     const organizations = await auth.api.listOrganizations({
       headers: await headers(),
     });
-    
+
     const currentOrg = organizations?.find(org => org.id === session.session.activeOrganizationId);
-    
+
     if (!currentOrg) {
       return NextResponse.json(
         { error: 'Organization not found' },

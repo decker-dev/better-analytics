@@ -1,5 +1,8 @@
 import { notFound } from "next/navigation";
-import { getSiteBySlug, verifySiteOwnershipBySlug } from "@/lib/db/sites";
+import {
+  getSiteBySlug,
+  verifySiteOwnershipBySlug,
+} from "@/modules/sites/lib/sites";
 import { OnboardingFlow } from "@/modules/onboarding/components/onboarding-flow";
 import { auth } from "@/modules/auth/lib/auth";
 import { headers } from "next/headers";

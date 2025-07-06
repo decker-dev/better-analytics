@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/modules/auth/lib/auth';
-import { createSite } from '@/lib/db/sites';
+import { createSite } from '@/modules/sites/lib/sites';
 import { z } from 'zod';
-import { getSitesByOrg, verifySiteOwnership } from "@/lib/db/sites";
+import { getSitesByOrg, verifySiteOwnership } from "@/modules/sites/lib/sites";
 
 const createSiteSchema = z.object({
   organizationId: z.string().min(1),

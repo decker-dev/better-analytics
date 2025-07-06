@@ -56,7 +56,7 @@ export function createSlugFromName(name: string): string {
   return name
     .toLowerCase()
     .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
+    .replace(/[\u0300-\u036f]/g, '') // Remove diacr  itics
     .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric chars except spaces and hyphens
     .trim()
     .replace(/\s+/g, '-') // Replace spaces with hyphens

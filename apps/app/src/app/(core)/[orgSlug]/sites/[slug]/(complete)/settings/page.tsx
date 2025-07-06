@@ -1,7 +1,10 @@
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { auth } from "@/modules/auth/lib/auth";
-import { getSiteBySlug, verifySiteOwnershipBySlug } from "@/lib/db/sites";
+import {
+  getSiteBySlug,
+  verifySiteOwnershipBySlug,
+} from "@/modules/sites/lib/sites";
 import {
   Card,
   CardContent,

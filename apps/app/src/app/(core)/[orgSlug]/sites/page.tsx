@@ -1,6 +1,6 @@
 import { headers } from "next/headers";
 import { auth } from "@/modules/auth/lib/auth";
-import { getSitesByOrg } from "@/lib/db/sites";
+import { getSitesByOrg } from "@/modules/sites/lib/sites";
 import { SiteList } from "@/modules/sites/components/site-list";
 
 interface SitesPageProps {

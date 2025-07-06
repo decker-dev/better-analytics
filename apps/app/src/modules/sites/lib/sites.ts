@@ -1,9 +1,9 @@
-import { db, schema } from './index';
+import { db, schema } from '../../../lib/db/index';
 import { eq, and } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { generateUniqueSiteKey } from '../site-key';
-import { createSlugFromName } from '../site-name-generator';
-import type { NewSite, Site } from './schema';
+import { generateUniqueSiteKey } from '../../../lib/site-key';
+import { createSlugFromName } from '../../../lib/site-name-generator';
+import type { NewSite, Site } from '../../../lib/db/schema';
 
 /**
  * Generate a unique slug for a site within an organization
