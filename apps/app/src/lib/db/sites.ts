@@ -12,7 +12,7 @@ async function generateUniqueSlug(
   name: string,
   organizationId: string
 ): Promise<string> {
-  let baseSlug = createSlugFromName(name);
+  const baseSlug = createSlugFromName(name);
   let slug = baseSlug;
   let counter = 1;
 
