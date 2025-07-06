@@ -72,8 +72,8 @@ importers:
         specifier: 15.4.0-canary.90
         version: 15.4.0-canary.90(@babel/core@7.27.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       next-safe-action:
-        specifier: ^8.0.7
-        version: 8.0.7(next@15.4.0-canary.90(@babel/core@7.27.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+        specifier: 7.9.9
+        version: 7.9.9(next@15.4.0-canary.90(@babel/core@7.27.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod@3.25.56)
       next-themes:
         specifier: ^0.4.4
         version: 0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -6084,13 +6084,26 @@ packages:
     resolution: {integrity: sha512-dBpDMdxv9Irdq66304OLfEmQ9tbNRFnFTuZiLo+bD+r332bBmMJ8GBLXklIXXgxd3+v9+KUnZaUR5PJMa75Gsg==}
     engines: {node: '>= 0.4.0'}
 
-  next-safe-action@8.0.7:
-    resolution: {integrity: sha512-clQRxsvf4nZktCYkP1seeNH5rOZjsx6VYSAlpphvXvW+INIBvGySEStKutwtAPFV0/uZFJmNPt77ankoepUYXQ==}
+  next-safe-action@7.9.9:
+    resolution: {integrity: sha512-wFKKCgfHNsObfbDrbOQV8WAE6RnVx7dwmuUazqdNaTL3ZdDzUlRTnIIVI36qSjmgA3zwwxj3nvfxgK9d0fWr5w==}
     engines: {node: '>=18.17'}
     peerDependencies:
+      '@sinclair/typebox': '>= 0.33.3'
       next: '>= 14.0.0'
       react: '>= 18.2.0'
       react-dom: '>= 18.2.0'
+      valibot: '>= 0.36.0'
+      yup: '>= 1.0.0'
+      zod: '>= 3.0.0'
+    peerDependenciesMeta:
+      '@sinclair/typebox':
+        optional: true
+      valibot:
+        optional: true
+      yup:
+        optional: true
+      zod:
+        optional: true
 
   next-themes@0.4.6:
     resolution: {integrity: sha512-pZvgD5L0IEvX5/9GWyHMf3m8BKiVQwsCMHfoFosXtXBMnaS0ZnIJ9ST4b4NqLVKDEm8QBxoNNGNaBv2JNF6XNA==}
@@ -14151,11 +14164,13 @@ snapshots:
 
   netmask@2.0.2: {}
 
-  next-safe-action@8.0.7(next@15.4.0-canary.90(@babel/core@7.27.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
+  next-safe-action@7.9.9(next@15.4.0-canary.90(@babel/core@7.27.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(zod@3.25.56):
     dependencies:
       next: 15.4.0-canary.90(@babel/core@7.27.7)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
+    optionalDependencies:
+      zod: 3.25.56
 
   next-themes@0.4.6(react-dom@19.1.0(react@19.1.0))(react@19.1.0):
     dependencies:
