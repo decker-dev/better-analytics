@@ -92,6 +92,38 @@ export function initServer(config: ServerAnalyticsConfig): void {
 }
 
 /**
+ * Auto-initialize server if not configured, using environment variables
+ */
+function autoInitServer(): void {
+  if (serverConfig) return;
+
+  // Try to get configuration from environment variables (same as client)
+  const site = process.env.NEXT_PUBLIC_BA_SITE || process.env.BA_SITE;
+  const endpoint = process.env.NEXT_PUBLIC_BA_URL || process.env.BA_URL;
+  const apiKey = process.env.BA_API_KEY;
+  const debug = process.env.NODE_ENV === 'development' || process.env.BA_DEBUG === 'true';
+
+  if (!site) {
+    console.warn('Better Analytics Server: No site identifier found. Set NEXT_PUBLIC_BA_SITE or BA_SITE environment variable.');
+    return;
+  }
+
+  // Auto-initialize with environment variables
+  const config: ServerAnalyticsConfig = {
+    site,
+    debug,
+    ...(endpoint && { endpoint }),
+    ...(apiKey && { apiKey }),
+  };
+
+  initServer(config);
+
+  if (debug) {
+    console.log('🔄 Better Analytics Server auto-initialized from environment variables');
+  }
+}
+
+/**
  * Track event from server
  */
 export async function trackServer(
@@ -105,8 +137,13 @@ export async function trackServer(
     );
   }
 
+  // Auto-initialize if not configured
   if (!serverConfig) {
-    console.warn('Better Analytics Server: Not initialized. Call initServer() first.');
+    autoInitServer();
+  }
+
+  // If still not configured after auto-init, return early
+  if (!serverConfig) {
     return;
   }
 

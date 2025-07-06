@@ -1,5 +1,5 @@
 import { auth } from "@/modules/auth/lib/auth";
-import { track, trackServer } from "better-analytics/next";
+import { trackServer } from "better-analytics/next";
 import {
   DEFAULT_SERVER_ERROR_MESSAGE,
   createSafeActionClient,
@@ -71,12 +71,15 @@ export const authActionClient = actionClientWithMeta
 
 
     if (metadata.track) {
-      trackServer(metadata.track.event, {
-        channel: metadata.track.channel,
-        action: metadata.name,
-      });
-
-      console.log("Analytics event tracked", { trackEvent: metadata.track });
+      try {
+        await trackServer(metadata.track.event, {
+          channel: metadata.track.channel,
+          action: metadata.name,
+        });
+        console.log("Analytics event tracked", { trackEvent: metadata.track });
+      } catch (error) {
+        console.error("Analytics event tracking failed", { error });
+      }
     }
 
 

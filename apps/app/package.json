@@ -19,7 +19,7 @@
     "@repo/email": "workspace:*",
     "@repo/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.8",
-    "better-analytics": "^0.9.0",
+    "better-analytics": "workspace:*",
     "better-auth": "^1.2.9",
     "drizzle-orm": "^0.44.2",
     "drizzle-zod": "^0.8.2",
