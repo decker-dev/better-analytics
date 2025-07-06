@@ -2,8 +2,8 @@
 export { Analytics, type AnalyticsProps } from './next-client';
 
 // Re-export core client functions for use in components
-export { init, initWithPageview, track, trackPageview, identify, computeRoute } from './index';
-export type { AnalyticsConfig, WebEventData as EventData, BeforeSend, BeforeSendEvent, RouteInfo } from './types';
+export { init, initWithPageview, track, trackPageview, identify, computeRoute } from '../index';
+export type { AnalyticsConfig, WebEventData as EventData, BeforeSend, BeforeSendEvent, RouteInfo } from '../types';
 
 // Re-export Next.js server functions with auto-initialization (for server actions, API routes, etc.)
 export {

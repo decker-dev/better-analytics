@@ -14,7 +14,7 @@ import {
   type ServerAnalyticsConfig,
   type ServerTrackOptions,
   type ServerEventData,
-} from './server';
+} from '../server';
 
 // Track if we've already auto-initialized to avoid multiple calls
 let hasAutoInitialized = false;
@@ -113,4 +113,4 @@ export {
   type ServerEventData,
   type ServerTrackOptions,
   type ServerAnalyticsConfig,
-} from './server';
+} from '../server';

@@ -32,8 +32,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/next.ts src/next-client.ts src/next-server.ts src/expo.ts src/server.ts --format esm,cjs --dts --minify --external ./next-client --external ./next-server",
-    "dev": "tsup src/index.ts src/next.ts src/next-client.ts src/next-server.ts src/expo.ts src/server.ts --format esm,cjs --dts --watch --external ./next-client --external ./next-server",
+    "build": "tsup src/index.ts src/next/next.ts src/next/next-client.ts src/next/next-server.ts src/expo.ts src/server.ts --format esm,cjs --dts --minify --external ./next-client --external ./next-server",
+    "dev": "tsup src/index.ts src/next/next.ts src/next/next-client.ts src/next/next-server.ts src/expo.ts src/server.ts --format esm,cjs --dts --watch --external ./next-client --external ./next-server",
     "lint": "echo 'No linting configured'",
     "check-types": "tsc --noEmit",
     "test": "vitest run"

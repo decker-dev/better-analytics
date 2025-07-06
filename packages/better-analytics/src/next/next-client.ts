@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useEffect, Suspense } from 'react';
-import { init, trackPageview, computeRoute } from './index';
+import { init, trackPageview, computeRoute } from '../index';
 import { usePathname, useParams, useSearchParams } from 'next/navigation';
-import type { AnalyticsConfig, BeforeSend, RouteInfo } from './types';
+import type { AnalyticsConfig, BeforeSend, RouteInfo } from '../types';
 
 export interface AnalyticsProps {
   /** API endpoint to send analytics data to (optional, defaults to Better Analytics SaaS) */
