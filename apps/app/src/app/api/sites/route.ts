@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/modules/auth/lib/auth';
 import { createSite } from '@/modules/sites/lib/sites';
 import { z } from 'zod';
-import { getSitesByOrg, verifySiteOwnership } from "@/modules/sites/lib/sites";
+import { getSitesByOrg } from "@/modules/sites/lib/sites";
 
 const createSiteSchema = z.object({
   organizationId: z.string().min(1),
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Parse and validate request body
+    // Parse and validate request body   
     const body = await request.json();
     const validatedData = createSiteSchema.parse(body);
 
