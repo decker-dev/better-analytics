@@ -13,8 +13,6 @@ import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
 import type { Site } from "@/lib/db/schema";
 import { generateSiteName, generateSiteKey } from "@/lib/site-name-generator";
-import { useAction } from "next-safe-action/hooks";
-import { testAction } from "../action/actions-test";
 
 interface SiteListProps {
   sites: Site[];
@@ -25,7 +23,6 @@ interface SiteListProps {
 export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
-  const { execute } = useAction(testAction);
   const handleCreateSite = async () => {
     setCreating(true);
 
@@ -76,11 +73,6 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
             <Plus className="h-4 w-4 mr-2" />
           )}
           Create New Site
-        </Button>
-        <Button
-          onClick={() => execute({ username: "johndoe", password: "123456" })}
-        >
-          Test
         </Button>
       </div>
 
