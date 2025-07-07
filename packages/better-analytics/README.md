@@ -124,7 +124,7 @@ export default function RootLayout({ children }) {
 }
 ```
 
-Track custom events anywhere:
+**Track custom events anywhere:**
 
 ```javascript
 import { track, identify } from "better-analytics/next";
@@ -144,6 +144,53 @@ function SignupButton() {
   };
   
   return <button onClick={handleSignup}>Sign Up</button>;
+}
+```
+
+**Server-Side Tracking (Auto-Initialization):**
+
+Next.js server functions automatically initialize when you set environment variables:
+
+```bash
+# .env.local
+NEXT_PUBLIC_BA_SITE=my-app
+# Optional: NEXT_PUBLIC_BA_URL=/api/collect
+# Optional: BA_API_KEY=your-api-key
+```
+
+```javascript
+// app/api/users/route.ts
+import { trackServer } from "better-analytics/next";
+
+export async function POST(request: Request) {
+  const data = await request.json();
+  
+  // ✨ No initialization needed - auto-configured from env vars!
+  await trackServer('user_created', {
+    email: data.email,
+    plan: data.plan
+  }, {
+    request, // Headers extracted automatically
+    user: { id: data.userId }
+  });
+  
+  return Response.json({ success: true });
+}
+```
+
+```javascript
+// Server Actions (app/actions.ts)
+'use server';
+import { trackServer, identifyServer } from "better-analytics/next";
+
+export async function createUser(formData: FormData) {
+  const email = formData.get('email') as string;
+  
+  // Auto-initialized tracking
+  await identifyServer('user123', { email });
+  await trackServer('user_signup', { method: 'form' });
+  
+  // ... rest of your logic
 }
 ```
 
@@ -380,8 +427,9 @@ identify('user123', {
 });
 ```
 
-### Next.js Component (`better-analytics/next`)
+### Next.js SDK (`better-analytics/next`)
 
+**Client Component:**
 ```jsx
 import { Analytics } from "better-analytics/next";
 
@@ -391,6 +439,24 @@ import { Analytics } from "better-analytics/next";
   debug={true}                     // Enable console logging
   beforeSend={(event) => event}    // Transform events
 />
+```
+
+**Client Functions:**
+```javascript
+import { track, identify, trackPageview } from "better-analytics/next";
+
+track('event_name', { prop: 'value' });
+identify('user123', { email: 'user@example.com' });
+```
+
+**Server Functions (Auto-Initialization):**
+```javascript
+import { trackServer, identifyServer, trackPageviewServer } from "better-analytics/next";
+
+// Auto-initializes from NEXT_PUBLIC_BA_SITE environment variable
+await trackServer('api_call', { endpoint: '/api/users' }, { request });
+await identifyServer('user123', { email: 'user@example.com' });
+await trackPageviewServer('/dashboard');
 ```
 
 ### Expo/React Native (`better-analytics/expo`)
