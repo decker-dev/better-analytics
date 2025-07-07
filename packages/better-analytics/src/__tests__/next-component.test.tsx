@@ -20,13 +20,13 @@ describe("Analytics Component (Next.js)", () => {
   describe("Component Exists", () => {
     it("should export Analytics component", async () => {
       // Just test that the component can be imported
-      const { Analytics } = await import("../next");
+      const { Analytics } = await import("../next/next");
       expect(Analytics).toBeDefined();
       expect(typeof Analytics).toBe("function");
     });
 
     it("should export re-exported functions", async () => {
-      const { init, track, trackPageview } = await import("../next");
+      const { init, track, trackPageview } = await import("../next/next");
       expect(init).toBeDefined();
       expect(track).toBeDefined();
       expect(trackPageview).toBeDefined();
@@ -35,7 +35,7 @@ describe("Analytics Component (Next.js)", () => {
 
   describe("Module Structure", () => {
     it("should have proper exports", async () => {
-      const nextModule = await import("../next");
+      const nextModule = await import("../next/next");
 
       expect(nextModule.Analytics).toBeDefined();
       expect(nextModule.init).toBeDefined();

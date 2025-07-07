@@ -257,7 +257,7 @@ describe('Better Analytics SDK - Server-Side Tracking (0.6.0)', () => {
       await trackServer('debug_error_test');
 
       expect(global.console.error).toHaveBeenCalledWith(
-        'Better Analytics Server: HTTP 500',
+        '❌ Better Analytics Server: HTTP 500',
         'Error'
       );
     });
