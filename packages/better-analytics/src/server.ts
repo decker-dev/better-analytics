@@ -66,6 +66,13 @@ let serverConfig: ServerAnalyticsConfig | null = null;
 let eventBatcher: EventBatcher | null = null;
 
 /**
+ * Detect if we're in development environment
+ */
+function isDevelopmentServer(): boolean {
+  return process.env.NODE_ENV === 'development';
+}
+
+/**
  * Initialize server-side analytics
  */
 export function initServer(config: ServerAnalyticsConfig): void {
@@ -80,7 +87,19 @@ export function initServer(config: ServerAnalyticsConfig): void {
     });
   }
 
-  if (config.debug) {
+  if (isDevelopmentServer()) {
+    // In development, only log if debug is explicitly enabled
+    if (config.debug) {
+      console.log('🚀 Better Analytics Server initialized');
+      console.log('🏷️ Site:', config.site);
+      console.log('📍 Endpoint:', config.endpoint || 'https://better-analytics.app/api/collect');
+      console.log('⚡ Runtime:', detectRuntime());
+      if (config.batch) {
+        console.log('📦 Batching enabled:', config.batch);
+      }
+    }
+  } else if (config.debug) {
+    // In production with debug enabled
     console.log('🚀 Better Analytics Server initialized');
     console.log('📍 Endpoint:', config.endpoint || 'https://better-analytics.app/api/collect');
     console.log('🏷️ Site:', config.site);
@@ -129,6 +148,28 @@ export async function trackServer(
     // Custom metadata
     ...(options?.meta && { meta: options.meta }),
   };
+
+  // Logging behavior similar to client-side
+  if (isDevelopmentServer()) {
+    console.log('📦 Server Data:', eventData);
+    // In development, only log if debug is explicitly enabled
+    if (serverConfig.debug) {
+      const endpoint = serverConfig.endpoint || 'https://better-analytics.app/api/collect (default)';
+      console.log('📊 Better Analytics Server Event:', eventName);
+      console.log('📍 Endpoint:', endpoint);
+      console.log('🏷️ Site:', serverConfig.site);
+      console.log('🌐 Origin:', serverInfo.origin);
+    }
+  } else if (serverConfig.debug) {
+    // In production with debug enabled, log AND send (like client-side)
+    console.log('📊 Better Analytics Server Event (debug):', eventName);
+    console.log('📦 Server Data:', eventData);
+  }
+
+  // In development mode, don't send to server (like client-side behavior)
+  if (isDevelopmentServer()) {
+    return; // Only log, don't send
+  }
 
   // Use batcher if available, otherwise send directly
   if (eventBatcher) {
@@ -288,11 +329,34 @@ async function sendServerEvent(data: ServerEventData): Promise<void> {
       }),
     });
 
-    if (!response.ok && serverConfig.debug) {
-      console.error(`Better Analytics Server: HTTP ${response.status}`, await response.text());
+    if (isDevelopmentServer()) {
+      // In development, only log if debug is enabled
+      if (serverConfig.debug) {
+        if (response.ok) {
+          console.log('✅ Server Event sent:', data.event);
+        } else {
+          console.error(`❌ Server Event failed: HTTP ${response.status}`);
+        }
+        console.log('  📡 Endpoint:', endpoint);
+      }
+    } else if (serverConfig.debug) {
+      // In production with debug enabled
+      if (response.ok) {
+        console.log('✅ Better Analytics Server: Event sent successfully');
+        console.log('  📡 Endpoint:', endpoint);
+        console.log('  📊 Event:', data.event);
+      } else {
+        console.error(`❌ Better Analytics Server: HTTP ${response.status}`, await response.text());
+      }
     }
   } catch (error) {
-    if (serverConfig.debug) {
+    if (isDevelopmentServer()) {
+      // In development, only log errors if debug is enabled
+      if (serverConfig.debug) {
+        console.error('Server Event failed:', error);
+      }
+    } else if (serverConfig.debug) {
+      // In production with debug enabled
       console.error('Better Analytics Server: Failed to send event', error);
     }
   }
@@ -318,6 +382,19 @@ class EventBatcher {
 
   add(event: ServerEventData): void {
     this.queue.push(event);
+
+    if (isDevelopmentServer()) {
+      // In development, only log if debug is enabled
+      if (serverConfig?.debug) {
+        console.log('📦 Server Event queued for batch:', event.event);
+        console.log('  📈 Queue size:', this.queue.length);
+      }
+    } else if (serverConfig?.debug) {
+      // In production with debug enabled
+      console.log('📦 Better Analytics Server: Event queued for batch');
+      console.log('  📊 Event:', event.event);
+      console.log('  📈 Queue size:', this.queue.length);
+    }
 
     if (this.queue.length >= (this.config.size || 50)) {
       this.flush();
@@ -352,6 +429,19 @@ class EventBatcher {
   }
 
   private async sendBatch(events: ServerEventData[]): Promise<void> {
+    if (isDevelopmentServer()) {
+      // In development, only log if debug is enabled
+      if (serverConfig?.debug) {
+        console.log('🚀 Server Batch sending:', events.length, 'events');
+        console.log('  📡 Endpoint:', this.config.endpoint);
+      }
+    } else if (serverConfig?.debug) {
+      // In production with debug enabled
+      console.log('🚀 Better Analytics Server: Sending batch');
+      console.log('  📦 Events count:', events.length);
+      console.log('  📡 Endpoint:', this.config.endpoint);
+    }
+
     const response = await fetch(this.config.endpoint, {
       method: 'POST',
       headers: {
@@ -369,6 +459,17 @@ class EventBatcher {
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    if (isDevelopmentServer()) {
+      // In development, only log if debug is enabled
+      if (serverConfig?.debug) {
+        console.log('✅ Server Batch sent:', events.length, 'events');
+      }
+    } else if (serverConfig?.debug) {
+      // In production with debug enabled
+      console.log('✅ Better Analytics Server: Batch sent successfully');
+      console.log('  📦 Events processed:', events.length);
     }
   }
 }

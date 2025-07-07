@@ -12,9 +12,9 @@
       "require": "./dist/index.cjs"
     },
     "./next": {
-      "types": "./dist/next.d.ts",
-      "import": "./dist/next.js",
-      "require": "./dist/next.cjs"
+      "types": "./dist/next/next.d.ts",
+      "import": "./dist/next/next.js",
+      "require": "./dist/next/next.cjs"
     },
     "./expo": {
       "types": "./dist/expo.d.ts",

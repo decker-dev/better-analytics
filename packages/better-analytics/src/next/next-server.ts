@@ -29,10 +29,11 @@ function autoInitForNextJs(): void {
   const site = process.env.NEXT_PUBLIC_BA_SITE || process.env.BA_SITE;
   const endpoint = process.env.NEXT_PUBLIC_BA_URL || process.env.BA_URL;
   const apiKey = process.env.BA_API_KEY;
-  const debug = process.env.NODE_ENV === 'development' || process.env.BA_DEBUG === 'true';
+  // Only enable debug when explicitly set via BA_DEBUG, not automatically in development
+  const debug = process.env.BA_DEBUG === 'true';
 
   if (!site) {
-    if (debug) {
+    if (debug || process.env.NODE_ENV === 'development') {
       console.warn('Better Analytics Next.js Server: No site identifier found. Set NEXT_PUBLIC_BA_SITE or BA_SITE environment variable.');
     }
     return;
