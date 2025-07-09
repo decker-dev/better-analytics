@@ -11,16 +11,51 @@ interface Organization {
 
 // Reserved paths that should not be treated as organization slugs
 const RESERVED_PATHS = [
+  // Core app paths
   'docs',
-  'news',
-  'n',
   'api',
   '_next',
-  'favicon.ico',
+
+  // SEO & Bot files
   'robots.txt',
   'sitemap.xml',
+  'sitemap',
+  'sitemaps',
+  'rss.xml',
+  'rss',
+  'feed.xml',
+  'feed',
+  'atom.xml',
+  'atom',
+
+  // Web App Manifest & PWA
   'manifest.json',
-  // Add more reserved paths as needed
+  'sw.js',
+  'service-worker.js',
+  'workbox-sw.js',
+
+  // Favicons & Icons
+  'favicon.ico',
+  'favicon.png',
+  'favicon.svg',
+  'apple-touch-icon.png',
+  'icon.png',
+  'icon.svg',
+  'apple-icon.png',
+  'android-chrome-192x192.png',
+  'android-chrome-512x512.png',
+  'mstile-150x150.png',
+
+  // OpenGraph & Social Media
+  'og-image.png',
+  'og-image.jpg',
+  'twitter-image.png',
+  'twitter-image.jpg',
+  'social.png',
+  'social.jpg',
+
+  // Well-known paths (for verification, security, etc)
+  '.well-known',
 ];
 
 export async function middleware(request: NextRequest) {
