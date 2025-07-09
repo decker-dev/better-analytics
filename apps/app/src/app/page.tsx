@@ -1,11 +1,12 @@
 import Link from "next/link";
+import Analytics3D from "@/components/analytics-3d";
 
 export default function HomePage() {
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Marketing Content */}
-      <div className="flex-1 bg-background flex flex-col justify-center px-12 lg:px-16">
-        <div className="max-w-lg">
+      {/* Left Side - Marketing Content (50% width, centered content) */}
+      <div className="w-1/2 bg-background flex items-center justify-center px-8">
+        <div className="max-w-md w-full">
           {/* Logo/Brand */}
           <div className="flex items-center space-x-3 mb-8">
             <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
@@ -81,9 +82,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Right Side - Black */}
-      <div className="flex-1 bg-black">
-        {/* Placeholder for future content */}
+      {/* Right Side - 3D Analytics (50% width) */}
+      <div className="w-1/2 bg-black">
+        <Analytics3D />
       </div>
     </div>
   );
