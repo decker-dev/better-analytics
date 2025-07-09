@@ -17,7 +17,10 @@
     "fumadocs-mdx": "11.6.10",
     "class-variance-authority": "^0.7.0",
     "lucide-react": "^0.456.0",
-    "@repo/ui": "workspace:*"
+    "@repo/ui": "workspace:*",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.0",
+    "remark-mdx": "^3.0.1"
   },
   "devDependencies": {
     "@types/node": "24.0.7",
