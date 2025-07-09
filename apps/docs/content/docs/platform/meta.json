@@ -1,5 +1,6 @@
 {
-  "title": "Better Analytics Platform",
-  "description": "Use our managed cloud platform",
+  "title": "Fumadocs Core",
+  "description": "The headless library",
+  "icon": "Cuboid",
   "root": true
 }
