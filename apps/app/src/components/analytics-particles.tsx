@@ -121,7 +121,7 @@ export default function AnalyticsParticles() {
     function createInitialParticles() {
       if (!canvas) return;
 
-      const baseParticleCount = 2000;
+      const baseParticleCount = 4000; // Doubled from 2000
       const particleCount = Math.floor(
         baseParticleCount *
           Math.sqrt((canvas.width * canvas.height) / (960 * 1080)),
@@ -186,7 +186,7 @@ export default function AnalyticsParticles() {
       }
 
       // Maintain particle count
-      const baseParticleCount = 2000;
+      const baseParticleCount = 3000;
       const targetParticleCount = Math.floor(
         baseParticleCount *
           Math.sqrt((canvas.width * canvas.height) / (960 * 1080)),
