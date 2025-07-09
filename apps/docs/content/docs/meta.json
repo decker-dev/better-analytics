@@ -1,6 +1,6 @@
 {
-  "title": "Package",
-  "description": "Self-host or integrate our package",
+  "title": "Better Analytics",
+  "description": "The open-source analytics platform built for developers",
   "root": true,
   "icon": "Cuboid",
   "pages": [
