@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/docs/:path*",
-      "destination": "https://docs.better-analytics.app/:path*"
+      "destination": "https://docs.better-analytics.app/docs/:path*"
     },
     {
       "source": "/docs",
-      "destination": "https://docs.better-analytics.app/"
+      "destination": "https://docs.better-analytics.app/docs"
     }
   ]
 }
