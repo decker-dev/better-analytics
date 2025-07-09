@@ -1,5 +1,5 @@
+import AnalyticsParticles from "@/components/analytics-particles";
 import Link from "next/link";
-import Analytics3D from "@/components/analytics-3d";
 
 export default function HomePage() {
   return (
@@ -82,9 +82,9 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Right Side - 3D Analytics (50% width) */}
+      {/* Right Side - Particle Analytics (50% width) */}
       <div className="w-1/2 bg-black">
-        <Analytics3D />
+        <AnalyticsParticles />
       </div>
     </div>
   );
