@@ -15,12 +15,7 @@ pnpm add better-analytics
 
 ## Client-side Setup
 
-### App Router (Recommended)
-
-Add the Analytics component to your root layout:
-
-```jsx
-// app/layout.tsx
+```jsx tab="App Router" title="app/layout.tsx"
 import { Analytics } from 'better-analytics/next'
 
 export default function RootLayout({
@@ -39,10 +34,7 @@ export default function RootLayout({
 }
 ```
 
-### Pages Router
-
-```jsx
-// pages/_app.tsx
+```jsx tab="Pages Router" title="pages/_app.tsx"
 import { Analytics } from 'better-analytics/next'
 import type { AppProps } from 'next/app'
 
@@ -58,18 +50,12 @@ export default function App({ Component, pageProps }: AppProps) {
 
 ## Environment Variables
 
-### Client-side Variables
-
-Create a `.env.local` file:
-
-```bash
+```bash tab="Client-side" title=".env.local"
 NEXT_PUBLIC_BA_SITE=your-site-id
 NEXT_PUBLIC_BA_URL=https://your-endpoint.com/api/collect  # Optional
 ```
 
-### Server-side Variables
-
-```bash
+```bash tab="Server-side" title=".env.local"
 # Server-side tracking
 BA_SITE=your-site-id
 BA_URL=https://your-endpoint.com/api/collect
@@ -314,20 +300,20 @@ const serverOptions: ServerTrackOptions = {
 
 ## Development Workflow
 
-### Development Mode
-
-In development, both client and server events are logged to console:
-
-```bash
+```bash tab="Development" title="package.json"
 # Enable debug logging
 BA_DEBUG=true npm run dev
+
+# Or in your scripts
+{
+  "scripts": {
+    "dev": "BA_DEBUG=true next dev",
+    "dev:analytics": "BA_DEBUG=true NEXT_PUBLIC_BA_DEBUG=true next dev"
+  }
+}
 ```
 
-### Production Deployment
-
-Environment variables for production:
-
-```bash
+```bash tab="Production" title="deployment.sh"
 # Vercel
 vercel env add NEXT_PUBLIC_BA_SITE
 vercel env add BA_SITE

@@ -21,12 +21,7 @@ pnpm add @react-native-async-storage/async-storage
 
 ## Basic Setup
 
-### Provider Method (Recommended)
-
-Wrap your app with the `AnalyticsProvider`:
-
-```jsx
-// App.tsx
+```jsx tab="Provider Method" title="App.tsx"
 import { AnalyticsProvider } from 'better-analytics/expo'
 
 export default function App() {
@@ -42,10 +37,8 @@ export default function App() {
 }
 ```
 
-### Manual Initialization
-
-```jsx
-// App.tsx
+```jsx tab="Manual Initialization" title="App.tsx"
+import { useEffect } from 'react'
 import { init } from 'better-analytics/expo'
 
 export default function App() {
@@ -135,12 +128,7 @@ export default function MyScreen() {
 
 ## Automatic Navigation Tracking
 
-### With Expo Router
-
-Navigation tracking works automatically with Expo Router:
-
-```jsx
-// app/_layout.tsx
+```jsx tab="Expo Router" title="app/_layout.tsx"
 import { useExpoRouterTracking } from 'better-analytics/expo'
 
 export default function RootLayout() {
@@ -156,11 +144,7 @@ export default function RootLayout() {
 }
 ```
 
-### Manual Screen Tracking
-
-For custom navigation or React Navigation:
-
-```jsx
+```jsx tab="React Navigation" title="src/screens/MyScreen.tsx"
 import { trackScreen } from 'better-analytics/expo'
 import { useEffect } from 'react'
 
@@ -173,6 +157,37 @@ export default function MyScreen({ route }) {
 
   return (
     // Your screen content
+  )
+}
+```
+
+```jsx tab="Manual Tracking" title="src/navigation/AppNavigator.tsx"
+import { trackScreen } from 'better-analytics/expo'
+import { NavigationContainer } from '@react-navigation/native'
+
+export default function AppNavigator() {
+  const routeNameRef = useRef()
+  const navigationRef = useRef()
+
+  return (
+    <NavigationContainer
+      ref={navigationRef}
+      onReady={() => {
+        routeNameRef.current = navigationRef.current.getCurrentRoute().name
+      }}
+      onStateChange={async () => {
+        const previousRouteName = routeNameRef.current
+        const currentRouteName = navigationRef.current.getCurrentRoute().name
+
+        if (previousRouteName !== currentRouteName) {
+          await trackScreen(currentRouteName)
+        }
+        
+        routeNameRef.current = currentRouteName
+      }}
+    >
+      {/* Your navigation stack */}
+    </NavigationContainer>
   )
 }
 ```

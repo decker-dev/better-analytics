@@ -123,9 +123,7 @@ identify('user-123', {
 
 ## Framework Examples
 
-### Vanilla JavaScript
-
-```html
+```html tab="Vanilla JS" title="index.html"
 <!DOCTYPE html>
 <html>
 <head>
@@ -150,9 +148,7 @@ identify('user-123', {
 </html>
 ```
 
-### React
-
-```jsx
+```jsx tab="React" title="src/App.jsx"
 import React, { useEffect } from 'react'
 import { init, trackPageview, track } from 'better-analytics'
 
@@ -177,9 +173,7 @@ function App() {
 export default App
 ```
 
-### Vue.js
-
-```vue
+```vue tab="Vue.js" title="src/App.vue"
 <template>
   <div>
     <h1>My App</h1>
@@ -205,9 +199,7 @@ export default {
 </script>
 ```
 
-### Svelte
-
-```svelte
+```svelte tab="Svelte" title="src/App.svelte"
 <script>
   import { onMount } from 'svelte'
   import { init, trackPageview, track } from 'better-analytics'
@@ -277,10 +269,11 @@ Client events automatically include:
 
 For SPAs, track route changes manually:
 
-```javascript
+```javascript tab="React Router" title="src/App.jsx"
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { trackPageview } from 'better-analytics'
 
-// React Router
 function App() {
   const location = useLocation()
   
@@ -290,16 +283,34 @@ function App() {
   
   return <Router />
 }
+```
 
-// Vue Router
+```javascript tab="Vue Router" title="src/router/index.js"
+import { trackPageview } from 'better-analytics'
+
+const router = createRouter({
+  // ... router config
+})
+
 router.afterEach((to) => {
   trackPageview(to.path)
 })
+```
 
-// History API
+```javascript tab="History API" title="src/main.js"
+import { trackPageview } from 'better-analytics'
+
+// Track route changes with vanilla History API
 window.addEventListener('popstate', () => {
   trackPageview(window.location.pathname)
 })
+
+// Track programmatic navigation
+const originalPushState = history.pushState
+history.pushState = function() {
+  originalPushState.apply(history, arguments)
+  trackPageview(window.location.pathname)
+}
 ```
 
 ### Route Computation
@@ -389,24 +400,30 @@ Sessions are automatically managed with 30-minute timeout:
 
 ## Development vs Production
 
-### Development Mode
-
-In development, events are logged to console by default:
-
-```javascript
-// Development behavior
+```javascript tab="Development" title="development.js"
+// Development behavior - events logged to console
 init({ site: 'your-site-id', debug: true })
 track('test_event') // Logs to console, doesn't send to server
+
+// Enable debug mode explicitly
+init({ 
+  site: 'your-site-id',
+  mode: 'development',
+  debug: true 
+})
 ```
 
-### Production Mode
-
-In production, events are sent to the configured endpoint:
-
-```javascript
-// Production behavior
+```javascript tab="Production" title="production.js"
+// Production behavior - events sent to endpoint
 init({ site: 'your-site-id' })
 track('user_action') // Sends to analytics endpoint
+
+// Production with debug logging
+init({ 
+  site: 'your-site-id',
+  mode: 'production',
+  debug: true // Logs AND sends to server
+})
 ```
 
 ## Error Handling
@@ -463,9 +480,7 @@ track('custom_event', {
 
 ## Common Patterns
 
-### E-commerce Tracking
-
-```javascript
+```javascript tab="E-commerce" title="ecommerce.js"
 // Product view
 track('product_viewed', {
   product_id: 'item-123',
@@ -490,9 +505,7 @@ track('purchase', {
 })
 ```
 
-### User Engagement
-
-```javascript
+```javascript tab="User Engagement" title="engagement.js"
 // Form interactions
 track('form_start', { form_id: 'signup' })
 track('form_submit', { form_id: 'signup', success: true })

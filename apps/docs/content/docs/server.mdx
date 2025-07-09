@@ -15,9 +15,7 @@ pnpm add better-analytics
 
 ## Basic Usage
 
-### Manual Initialization
-
-```javascript
+```javascript tab="Manual Initialization" title="server.js"
 import { initServer, trackServer } from 'better-analytics/server'
 
 // Initialize once
@@ -34,23 +32,34 @@ await trackServer('user_signup', {
 })
 ```
 
-### Framework Integration
-
-For framework-specific integrations, use the dedicated imports:
-
-```javascript
+```javascript tab="Next.js Auto-init" title="api/route.ts"
 // Next.js - Auto-initializes with environment variables
 import { trackServer } from 'better-analytics/next'
 
+await trackServer('user_signup', {
+  method: 'email',
+  source: 'landing_page'
+})
+```
+
+```javascript tab="Other Frameworks" title="server.js"
 // Other frameworks - Manual initialization required
-import { trackServer } from 'better-analytics/server'
+import { initServer, trackServer } from 'better-analytics/server'
+
+initServer({
+  site: 'your-site-id',
+  apiKey: 'your-api-key'
+})
+
+await trackServer('user_signup', {
+  method: 'email',
+  source: 'landing_page'
+})
 ```
 
 ## Configuration
 
-### Environment Variables
-
-```bash
+```bash tab="Environment Variables" title=".env"
 # Required
 BA_SITE=your-site-id
 
@@ -60,9 +69,7 @@ BA_API_KEY=your-server-api-key
 BA_DEBUG=true
 ```
 
-### Manual Configuration
-
-```javascript
+```javascript tab="Manual Configuration" title="server.js"
 import { initServer } from 'better-analytics/server'
 
 initServer({
