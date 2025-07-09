@@ -9,6 +9,20 @@ interface Organization {
   slug: string;
 }
 
+// Reserved paths that should not be treated as organization slugs
+const RESERVED_PATHS = [
+  'docs',
+  'news',
+  'n',
+  'api',
+  '_next',
+  'favicon.ico',
+  'robots.txt',
+  'sitemap.xml',
+  'manifest.json',
+  // Add more reserved paths as needed
+];
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -18,6 +32,15 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/_next/") ||
     pathname.includes(".")
   ) {
+    return NextResponse.next();
+  }
+
+  // Check if the path starts with a reserved path
+  const pathSegments = pathname.split('/').filter(Boolean);
+  const firstSegment = pathSegments[0];
+
+  if (firstSegment && RESERVED_PATHS.includes(firstSegment)) {
+    // Let reserved paths pass through (will be handled by Vercel rewrites or 404)
     return NextResponse.next();
   }
 
