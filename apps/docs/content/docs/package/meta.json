@@ -3,5 +3,13 @@
   "description": "Self-host or integrate our package",
   "root": true,
   "icon": "Cuboid",
-  "pages": ["index", "nextjs", "server", "expo"]
+  "pages": [
+    "--- Introduction ---",
+    "index",
+    "what-is-better-analytics",
+    "--- Integrations ---",
+    "nextjs",
+    "server",
+    "expo"
+  ]
 }
