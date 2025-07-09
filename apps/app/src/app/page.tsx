@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left Side - Marketing Content (responsive width) */}
-      <div className="w-full lg:w-1/2 bg-background flex items-center justify-center px-8 py-12 lg:py-8">
+      <div className="w-full lg:w-1/2 bg-black flex items-center justify-center px-8 py-12 lg:py-8">
         <div className="max-w-md w-full">
           {/* Logo/Brand */}
           <div className="flex items-center space-x-3 mb-8">

@@ -46,12 +46,10 @@ export default function AnalyticsParticles() {
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Bar configuration - fixed sizes for desktop
-      const barWidth = 60;
-      const barSpacing = 40;
-      const maxBarHeight = Math.min(200, canvas.height * 0.4);
+      const barWidth = 120;
+      const barSpacing = 50;
+      const maxBarHeight = Math.min(400, canvas.height * 0.8);
 
-      // Bar heights (growing effect)
       const bar1Height = maxBarHeight * 0.5;
       const bar2Height = maxBarHeight * 0.75;
       const bar3Height = maxBarHeight;
