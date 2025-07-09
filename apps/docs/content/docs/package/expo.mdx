@@ -1,0 +1,337 @@
+---
+title: Expo Integration
+description: Track events in React Native apps with Expo Router integration
+---
+
+# Expo Integration
+
+Better Analytics provides native support for Expo applications with automatic navigation tracking and offline event queuing.
+
+## Installation
+
+```bash
+pnpm add better-analytics
+```
+
+### Required Dependencies
+
+```bash
+pnpm add @react-native-async-storage/async-storage
+```
+
+## Basic Setup
+
+### Provider Method (Recommended)
+
+Wrap your app with the `AnalyticsProvider`:
+
+```jsx
+// App.tsx
+import { AnalyticsProvider } from 'better-analytics/expo'
+
+export default function App() {
+  return (
+    <AnalyticsProvider
+      site="your-site-id"
+      endpoint="https://your-endpoint.com/api/collect" // Optional
+      debug={__DEV__}
+    >
+      {/* Your app content */}
+    </AnalyticsProvider>
+  )
+}
+```
+
+### Manual Initialization
+
+```jsx
+// App.tsx
+import { init } from 'better-analytics/expo'
+
+export default function App() {
+  useEffect(() => {
+    init({
+      site: 'your-site-id',
+      debug: __DEV__,
+      trackNavigation: true // Auto-track navigation changes
+    })
+  }, [])
+
+  return (
+    // Your app content
+  )
+}
+```
+
+## Configuration
+
+```javascript
+init({
+  site: 'your-site-id',              // Required
+  endpoint: '/api/collect',          // Optional, defaults to SaaS
+  debug: false,                      // Enable console logging
+  trackNavigation: true,             // Auto-track navigation (default: true)
+  beforeSend: (event) => event       // Transform events before sending
+})
+```
+
+## Core Functions
+
+### `track(event, props?)`
+
+Track custom events:
+
+```javascript
+import { track } from 'better-analytics/expo'
+
+await track('button_press', {
+  button_name: 'signup',
+  screen: 'onboarding'
+})
+```
+
+### `trackScreen(screenName, params?)`
+
+Track screen views:
+
+```javascript
+import { trackScreen } from 'better-analytics/expo'
+
+await trackScreen('HomeScreen', {
+  user_type: 'premium',
+  tab: 'discover'
+})
+```
+
+### `useAnalytics()` Hook
+
+Use the analytics hook in your components:
+
+```jsx
+import { useAnalytics } from 'better-analytics/expo'
+
+export default function MyScreen() {
+  const { track, trackScreen, identify } = useAnalytics()
+
+  const handlePress = () => {
+    track('button_press', {
+      button: 'share',
+      content_type: 'post'
+    })
+  }
+
+  const handleLogin = async (userId) => {
+    await identify(userId, {
+      email: 'user@example.com',
+      plan: 'premium'
+    })
+  }
+
+  return (
+    <Button onPress={handlePress} title="Share" />
+  )
+}
+```
+
+## Automatic Navigation Tracking
+
+### With Expo Router
+
+Navigation tracking works automatically with Expo Router:
+
+```jsx
+// app/_layout.tsx
+import { useExpoRouterTracking } from 'better-analytics/expo'
+
+export default function RootLayout() {
+  // This hook automatically tracks navigation changes
+  useExpoRouterTracking()
+
+  return (
+    <Stack>
+      <Stack.Screen name="index" />
+      <Stack.Screen name="profile" />
+    </Stack>
+  )
+}
+```
+
+### Manual Screen Tracking
+
+For custom navigation or React Navigation:
+
+```jsx
+import { trackScreen } from 'better-analytics/expo'
+import { useEffect } from 'react'
+
+export default function MyScreen({ route }) {
+  useEffect(() => {
+    trackScreen(route.name, {
+      params: route.params
+    })
+  }, [route.name])
+
+  return (
+    // Your screen content
+  )
+}
+```
+
+## Device Information
+
+Expo integration automatically collects:
+
+```javascript
+{
+  device: {
+    platform: "ios",
+    platformVersion: "16.0",
+    brand: "Apple",
+    model: "iPhone 14 Pro",
+    isEmulator: false,
+    timezone: "America/New_York",
+    language: "en-US",
+    screenWidth: 375,
+    screenHeight: 812
+  },
+  app: {
+    version: "1.0.0",
+    buildNumber: "1",
+    bundleId: "com.yourapp.app"
+  }
+}
+```
+
+## Offline Support
+
+Events are automatically queued when offline and sent when connectivity is restored:
+
+```javascript
+// Events are queued automatically when offline
+await track('offline_event', { data: 'important' })
+
+// Process queued events manually
+import { processEventQueue } from 'better-analytics/expo'
+await processEventQueue()
+```
+
+## Session Management
+
+Sessions are automatically managed with 30-minute timeout:
+
+- **Session ID**: Persistent across app launches until timeout
+- **Device ID**: Permanent identifier stored in AsyncStorage
+- **App lifecycle**: Sessions extend on app foreground
+
+## Privacy & GDPR
+
+Use `beforeSend` to filter sensitive data:
+
+```javascript
+init({
+  site: 'your-site-id',
+  beforeSend: (event) => {
+    // Remove sensitive data
+    if (event.data?.props) {
+      const { email, phone, ...safeProps } = event.data.props
+      event.data.props = safeProps
+    }
+    return event
+  }
+})
+```
+
+## TypeScript Support
+
+Full TypeScript support included:
+
+```typescript
+import type { MobileEventData, ExpoAnalyticsConfig } from 'better-analytics/expo'
+
+const config: ExpoAnalyticsConfig = {
+  site: 'your-site-id',
+  debug: __DEV__,
+  beforeSend: (event) => {
+    // Type-safe event transformation
+    return event
+  }
+}
+```
+
+## Best Practices
+
+1. **Use AnalyticsProvider** - Simplifies setup and ensures proper initialization
+2. **Enable debug in development** - Use `debug: __DEV__` for development logging
+3. **Track key user actions** - Focus on meaningful interactions
+4. **Leverage automatic navigation** - Let the SDK handle screen tracking
+5. **Handle offline scenarios** - The SDK queues events automatically
+
+## Common Patterns
+
+### E-commerce Tracking
+
+```javascript
+// Product view
+await track('product_viewed', {
+  product_id: 'item-123',
+  category: 'electronics',
+  price: 299.99
+})
+
+// Add to cart
+await track('add_to_cart', {
+  product_id: 'item-123',
+  quantity: 1,
+  value: 299.99
+})
+
+// Purchase
+await track('purchase', {
+  transaction_id: 'txn-456',
+  value: 299.99,
+  currency: 'USD'
+})
+```
+
+### User Engagement
+
+```javascript
+// App session start
+await track('app_session_start', {
+  platform: Platform.OS,
+  app_version: '1.0.0'
+})
+
+// Feature usage
+await track('feature_used', {
+  feature_name: 'camera',
+  screen: 'home'
+})
+
+// Content interaction
+await track('content_shared', {
+  content_type: 'post',
+  method: 'native_share'
+})
+```
+
+## Troubleshooting
+
+### Events not sending
+
+1. Check network connectivity
+2. Verify site ID is set correctly
+3. Enable debug mode to see console logs
+4. Check AsyncStorage permissions
+
+### Navigation not tracking
+
+1. Ensure `trackNavigation: true` in config
+2. Use `useExpoRouterTracking()` hook in layout
+3. Check Expo Router setup
+
+### Development vs Production
+
+- **Development**: Events logged to console by default
+- **Production**: Events sent to configured endpoint
+- Use `debug: true` to see events in production console 

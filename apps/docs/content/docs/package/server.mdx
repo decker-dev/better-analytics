@@ -1,0 +1,299 @@
+---
+title: Server-side Tracking
+description: Track events from API routes, serverless functions, and edge environments
+---
+
+# Server-side Tracking
+
+Track events from your server-side code including API routes, serverless functions, and edge environments.
+
+## Installation
+
+```bash
+pnpm add better-analytics
+```
+
+## Basic Usage
+
+### Manual Initialization
+
+```javascript
+import { initServer, trackServer } from 'better-analytics/server'
+
+// Initialize once
+initServer({
+  site: 'your-site-id',
+  endpoint: 'https://your-endpoint.com/api/collect', // Optional
+  apiKey: 'your-api-key' // Optional, for authentication
+})
+
+// Track events
+await trackServer('user_signup', {
+  method: 'email',
+  source: 'landing_page'
+})
+```
+
+### Auto-initialization (Next.js)
+
+With Next.js, the server SDK auto-initializes using environment variables:
+
+```javascript
+// No initialization needed with Next.js
+import { trackServer } from 'better-analytics/next'
+
+await trackServer('purchase', {
+  value: 99.99,
+  currency: 'USD'
+})
+```
+
+## Configuration
+
+### Environment Variables
+
+```bash
+# Required
+BA_SITE=your-site-id
+
+# Optional
+BA_URL=https://your-endpoint.com/api/collect
+BA_API_KEY=your-server-api-key
+BA_DEBUG=true
+```
+
+### Manual Configuration
+
+```javascript
+import { initServer } from 'better-analytics/server'
+
+initServer({
+  site: 'your-site-id',
+  endpoint: 'https://your-endpoint.com/api/collect',
+  apiKey: 'your-api-key',
+  debug: true,
+  runtime: 'edge', // node | edge | cloudflare | deno
+  batch: {
+    size: 50,        // Batch size
+    interval: 5000,  // Batch interval (ms)
+    maxRetries: 3    // Max retry attempts
+  }
+})
+```
+
+## Core Functions
+
+### `trackServer(event, props?, options?)`
+
+Track custom events with optional properties and context:
+
+```javascript
+await trackServer('purchase', {
+  value: 99.99,
+  currency: 'USD',
+  items: ['product-1', 'product-2']
+}, {
+  headers: request.headers,
+  user: { id: 'user-123' }
+})
+```
+
+### `trackPageviewServer(path, options?)`
+
+Track server-side page views:
+
+```javascript
+await trackPageviewServer('/api/data', {
+  headers: request.headers
+})
+```
+
+### `identifyServer(userId, traits?, options?)`
+
+Identify users on the server:
+
+```javascript
+await identifyServer('user-123', {
+  email: 'user@example.com',
+  plan: 'pro'
+}, {
+  headers: request.headers
+})
+```
+
+## Framework Examples
+
+### Next.js API Routes
+
+```javascript
+// app/api/purchase/route.ts
+import { trackServer } from 'better-analytics/next'
+
+export async function POST(request: Request) {
+  const body = await request.json()
+  
+  // Your business logic here
+  
+  await trackServer('purchase', {
+    value: body.amount,
+    currency: body.currency,
+    payment_method: body.paymentMethod
+  }, {
+    headers: request.headers
+  })
+
+  return Response.json({ success: true })
+}
+```
+
+### Vercel Edge Functions
+
+```javascript
+// api/edge-function.ts
+import { trackServer } from 'better-analytics/server'
+
+export const config = {
+  runtime: 'edge'
+}
+
+export default async function handler(req: Request) {
+  await trackServer('edge_function_called', {
+    path: new URL(req.url).pathname
+  }, {
+    headers: req.headers,
+    waitUntil: (promise) => {
+      // Vercel Edge Function context
+      context.waitUntil(promise)
+    }
+  })
+  
+  return new Response('OK')
+}
+```
+
+### Express.js Middleware
+
+```javascript
+import express from 'express'
+import { expressMiddleware } from 'better-analytics/server'
+
+const app = express()
+
+// Add analytics middleware
+app.use(expressMiddleware())
+
+app.post('/api/signup', (req, res) => {
+  // Your signup logic
+  
+  // Track using the middleware
+  req.track('user_signup', {
+    method: req.body.method,
+    source: req.headers.referer
+  })
+  
+  res.json({ success: true })
+})
+```
+
+### Cloudflare Workers
+
+```javascript
+// worker.js
+import { initServer, trackServer } from 'better-analytics/server'
+
+initServer({
+  site: 'your-site-id',
+  runtime: 'cloudflare'
+})
+
+export default {
+  async fetch(request, env, ctx) {
+    await trackServer('worker_request', {
+      path: new URL(request.url).pathname
+    }, {
+      headers: request.headers,
+      waitUntil: ctx.waitUntil
+    })
+    
+    return new Response('Hello from Worker!')
+  }
+}
+```
+
+## Context Information
+
+Server events automatically include:
+
+```javascript
+{
+  server: {
+    userAgent: "Mozilla/5.0...",
+    ip: "192.168.1.1",
+    country: "US",
+    referer: "https://example.com",
+    origin: "https://your-site.com",
+    runtime: "node",
+    framework: "nextjs"
+  }
+}
+```
+
+## Session Stitching
+
+Connect server events with client sessions:
+
+```javascript
+import { stitchSession } from 'better-analytics/server'
+
+// From client-side cookies or headers
+const clientSessionId = request.cookies.get('ba_session')
+const clientDeviceId = request.cookies.get('ba_device')
+
+await trackServer('server_event', {
+  action: 'purchase'
+}, {
+  user: stitchSession(clientSessionId, clientDeviceId)
+})
+```
+
+## Error Handling
+
+Server tracking fails silently by default. Enable debug mode to see errors:
+
+```javascript
+initServer({
+  site: 'your-site-id',
+  debug: true // Will log errors to console
+})
+```
+
+## Best Practices
+
+1. **Track conversions server-side** - More reliable than client-side
+2. **Use batching for high-volume** - Reduces API calls
+3. **Include user context** - Pass headers and user info
+4. **Handle async properly** - Use `waitUntil` for edge functions
+5. **Monitor in development** - Enable debug mode during development
+
+## Runtime Support
+
+- **Node.js** - Full support with automatic detection
+- **Edge Functions** - Vercel, Netlify, Cloudflare Workers
+- **Serverless** - AWS Lambda, Vercel Functions
+- **Deno** - Full compatibility
+
+## TypeScript
+
+Full TypeScript support:
+
+```typescript
+import type { ServerTrackOptions } from 'better-analytics/server'
+
+const options: ServerTrackOptions = {
+  headers: request.headers,
+  user: { id: 'user-123' },
+  meta: { source: 'api' }
+}
+
+await trackServer('event', { custom: 'data' }, options)
+``` 

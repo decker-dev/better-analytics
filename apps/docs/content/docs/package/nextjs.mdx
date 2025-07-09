@@ -1,0 +1,213 @@
+---
+title: Next.js Integration
+description: Complete guide for integrating Better Analytics with Next.js applications
+---
+
+## Installation
+
+```bash
+pnpm add better-analytics
+```
+
+## Client-side Setup
+
+### App Router (Recommended)
+
+Add the Analytics component to your root layout:
+
+```jsx
+// app/layout.tsx
+import { Analytics } from 'better-analytics/next'
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en">
+      <body>
+        {children}
+        <Analytics site="your-site-id" />
+      </body>
+    </html>
+  )
+}
+```
+
+### Pages Router
+
+```jsx
+// pages/_app.tsx
+import { Analytics } from 'better-analytics/next'
+import type { AppProps } from 'next/app'
+
+export default function App({ Component, pageProps }: AppProps) {
+  return (
+    <>
+      <Component {...pageProps} />
+      <Analytics site="your-site-id" />
+    </>
+  )
+}
+```
+
+## Configuration
+
+### Environment Variables
+
+Create a `.env.local` file:
+
+```bash
+NEXT_PUBLIC_BA_SITE=your-site-id
+NEXT_PUBLIC_BA_URL=https://your-endpoint.com/api/collect  # Optional
+```
+
+### Component Props
+
+```jsx
+<Analytics
+  site="your-site-id"           // Required if not in env
+  api="/api/collect"            // Custom endpoint
+  mode="auto"                   // auto | development | production
+  debug={false}                 // Enable console logging
+  beforeSend={(event) => event} // Transform events
+/>
+```
+
+## Manual Tracking
+
+For custom events beyond automatic page tracking:
+
+```jsx
+'use client'
+
+import { track, identify } from 'better-analytics/next'
+
+export default function MyComponent() {
+  const handleClick = () => {
+    track('button_click', {
+      button: 'signup',
+      location: 'header'
+    })
+  }
+
+  const handleLogin = (userId: string) => {
+    identify(userId, {
+      email: 'user@example.com',
+      plan: 'pro'
+    })
+  }
+
+  return (
+    <button onClick={handleClick}>
+      Sign Up
+    </button>
+  )
+}
+```
+
+## Server-side Tracking
+
+### API Routes
+
+```javascript
+// app/api/purchase/route.ts
+import { trackServer } from 'better-analytics/next'
+
+export async function POST(request: Request) {
+  // Your purchase logic here
+  
+  await trackServer('purchase', {
+    value: 99.99,
+    currency: 'USD',
+    user_id: 'user-123'
+  }, {
+    headers: request.headers
+  })
+
+  return Response.json({ success: true })
+}
+```
+
+### Server Actions
+
+```javascript
+// app/actions.ts
+'use server'
+
+import { trackServer } from 'better-analytics/next'
+
+export async function createUser(formData: FormData) {
+  // Your user creation logic
+  
+  await trackServer('user_created', {
+    method: 'form',
+    source: 'signup_page'
+  })
+}
+```
+
+## Environment Variables
+
+### Client-side
+
+- `NEXT_PUBLIC_BA_SITE` - Your site identifier (required)
+- `NEXT_PUBLIC_BA_URL` - Custom endpoint URL (optional)
+
+### Server-side
+
+- `BA_SITE` - Site identifier for server tracking
+- `BA_URL` - Custom endpoint for server tracking
+- `BA_API_KEY` - API key for server-to-server authentication
+- `BA_DEBUG` - Enable debug logging (set to 'true')
+
+## Route Computation
+
+Better Analytics automatically computes route patterns for dynamic routes:
+
+```javascript
+// /user/123/settings → /user/[id]/settings
+// /blog/post/my-article → /blog/post/[slug]
+```
+
+This helps group analytics by route pattern instead of individual paths.
+
+## TypeScript Support
+
+Full TypeScript support is included:
+
+```typescript
+import type { AnalyticsConfig, EventData } from 'better-analytics/next'
+
+const config: AnalyticsConfig = {
+  site: 'your-site-id',
+  beforeSend: (event) => {
+    // Type-safe event transformation
+    return event
+  }
+}
+```
+
+## Best Practices
+
+1. **Place Analytics component in layout** - Ensures tracking on all pages
+2. **Use environment variables** - Keep configuration centralized
+3. **Enable debug in development** - Monitor events during development
+4. **Use beforeSend for privacy** - Filter sensitive data before sending
+5. **Track server-side conversions** - Important events should be tracked server-side
+
+## Troubleshooting
+
+### Events not appearing
+
+1. Check that `NEXT_PUBLIC_BA_SITE` is set
+2. Verify the Analytics component is in your layout
+3. Enable debug mode to see console logs
+4. Check network tab for outgoing requests
+
+### Development vs Production
+
+- **Development**: Events are logged to console by default
+- **Production**: Events are sent to the configured endpoint
+- Use `debug: true` to see events in production console 

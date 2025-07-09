@@ -1,8 +1,133 @@
 ---
-title: SDK Overview
-description: Self-host or integrate our SDK
+title: Better Analytics SDK
+description: Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js/Expo support
 ---
 
-# SDK Overview
+# Better Analytics SDK
 
-Documentación del SDK. 
+A zero-dependency, lightweight analytics SDK designed for modern web and mobile applications.
+
+## Features
+
+- **Zero dependencies** - No external libraries required
+- **Lightweight** - < 3KB gzipped
+- **Framework agnostic** - Works with vanilla JS, React, Next.js, and Expo
+- **Server-side tracking** - Node.js, Edge Functions, and serverless support
+- **Offline support** - Automatic event queuing when offline
+- **Privacy focused** - GDPR compliant with beforeSend middleware
+- **TypeScript** - Full type safety included
+
+## Installation
+
+```bash
+pnpm add better-analytics
+```
+
+## Quick Start
+
+### Web/React
+
+```javascript
+import { init, track } from 'better-analytics'
+
+// Initialize
+init({
+  site: 'your-site-id',
+  mode: 'production'
+})
+
+// Track events
+track('button_click', { button: 'signup' })
+```
+
+### Next.js
+
+```jsx
+// app/layout.tsx
+import { Analytics } from 'better-analytics/next'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics site="your-site-id" />
+      </body>
+    </html>
+  )
+}
+```
+
+### Expo
+
+```jsx
+import { AnalyticsProvider } from 'better-analytics/expo'
+
+export default function App() {
+  return (
+    <AnalyticsProvider site="your-site-id">
+      {/* Your app content */}
+    </AnalyticsProvider>
+  )
+}
+```
+
+## Configuration
+
+```javascript
+init({
+  site: 'your-site-id',              // Required
+  endpoint: '/api/collect',          // Optional, defaults to SaaS
+  mode: 'auto',                      // auto | development | production
+  debug: false,                      // Enable console logging
+  beforeSend: (event) => event       // Transform events before sending
+})
+```
+
+## Core Functions
+
+### `init(config)`
+
+Initialize the analytics SDK with your configuration.
+
+### `track(event, props?)`
+
+Track custom events with optional properties.
+
+```javascript
+track('purchase', {
+  value: 99.99,
+  currency: 'USD',
+  items: ['product-1', 'product-2']
+})
+```
+
+### `trackPageview(path?)`
+
+Track page views. Automatically called in Next.js/Expo integrations.
+
+### `identify(userId, traits?)`
+
+Identify users for session stitching.
+
+```javascript
+identify('user-123', {
+  email: 'user@example.com',
+  plan: 'pro'
+})
+```
+
+## Environment Variables
+
+Set these in your `.env.local` file:
+
+```bash
+NEXT_PUBLIC_BA_SITE=your-site-id
+NEXT_PUBLIC_BA_URL=https://your-endpoint.com/api/collect  # Optional
+```
+
+## Next Steps
+
+- [Next.js Integration](/docs/package/nextjs) - Complete Next.js setup guide
+- [Server-side Tracking](/docs/package/server) - Track from API routes and serverless functions
+- [Expo Integration](/docs/package/expo) - Mobile app tracking with Expo 
