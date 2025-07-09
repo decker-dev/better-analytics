@@ -113,7 +113,7 @@ export default function HomePage() {
               </button>
             </Link>
             <a
-              href="https://github.com/your-org/better-analytics"
+              href="https://docs.better-analytics.app/docs"
               target="_blank"
               rel="noopener noreferrer"
               className="border border-border text-foreground px-6 py-3 rounded-lg hover:bg-muted/50 transition-colors font-medium text-center"
