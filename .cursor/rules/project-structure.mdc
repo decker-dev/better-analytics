@@ -1,0 +1,96 @@
+# Better Analytics Project Structure
+
+This is a monorepo for Better Analytics - an open-source analytics platform built with Next.js 15, TypeScript, and modern web technologies.
+
+## Project Overview
+
+Better Analytics follows a **Screaming Architecture** pattern where business modules are the primary organizational unit, not technical layers.
+
+### Core Architecture Principles
+
+1. **Modules-First**: Business logic is organized by domain modules (auth, sites, organization, onboarding)
+2. **Limited Cross-Module Dependencies**: Modules can only import from `core/` shared code, never from sibling modules
+3. **Flat Structure**: Avoid deep nesting - prefer one functional level per module
+4. **High Cohesion**: Related functionality stays together within modules
+
+## Monorepo Structure
+
+```
+better-analytics/
+├── apps/
+│   ├── app/                    # Main Next.js application
+│   └── docs/                   # Documentation site (Fumadocs)
+├── packages/
+│   ├── better-analytics/       # Core analytics SDK
+│   ├── email/                  # Email templates (React Email)
+│   ├── ui/                     # Shared UI components (Shadcn/ui)
+│   └── typescript-config/      # Shared TypeScript configs
+```
+
+## Main Application Structure (`apps/app/`)
+
+```
+src/
+├── app/                        # Next.js App Router
+│   ├── (auth)/                 # Authentication routes
+│   ├── (core)/                 # Main application routes
+│   └── api/                    # API routes
+├── modules/                    # Business logic modules
+│   ├── auth/                   # Authentication system
+│   ├── sites/                  # Site management
+│   ├── organization/           # Team/organization management
+│   └── onboarding/             # User onboarding flow
+├── components/                 # Shared UI components
+├── lib/                        # Shared utilities and database
+└── middleware.ts               # Next.js middleware
+```
+
+## Module Structure Pattern
+
+Each module follows this consistent structure:
+
+```
+modules/<module-name>/
+├── components/                 # UI components for this module
+│   ├── views/                  # Page-level components
+│   ├── widgets/                # Reusable UI widgets
+│   └── shared/                 # Micro-components
+├── lib/                        # Business logic
+│   ├── schema.ts               # Database schema (Drizzle)
+│   ├── queries.ts              # Database queries
+│   ├── services.ts             # Business logic
+│   └── validation.ts           # Input validation
+├── actions/                    # Server actions (Next.js)
+├── hooks/                      # React hooks
+└── types/                      # TypeScript types
+```
+
+## Key Technologies
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Database**: PostgreSQL with Drizzle ORM
+- **Authentication**: Better Auth
+- **Styling**: Tailwind CSS, Radix UI, Shadcn/ui
+- **Email**: Resend + React Email
+- **Analytics**: Custom lightweight SDK
+- **Build**: Turbo (monorepo), Biome (linting)
+- **Package Manager**: pnpm
+
+## Import Rules
+
+- App Router pages can import from `modules/` and `core/`
+- Modules can only import from `core/` shared code
+- Never import directly between sibling modules
+- Use absolute imports with `@/` prefix
+
+## File Naming Conventions
+
+- **Components**: PascalCase (e.g., `UserProfile.tsx`)
+- **Files**: kebab-case (e.g., `user-profile.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `useAuth.ts`)
+- **Types**: PascalCase (e.g., `User`, `Organization`)
+- **Directories**: lowercase, descriptive names
+description:
+globs:
+alwaysApply: false
+---

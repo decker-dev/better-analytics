@@ -1,133 +1,304 @@
 ---
-title: Better Analytics SDK
-description: Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js/Expo support
+title: Quick Start
+description: Get started with Better Analytics in minutes
+icon: Album
 ---
 
-# Better Analytics SDK
+## Introduction
 
-A zero-dependency, lightweight analytics SDK designed for modern web and mobile applications.
+Better Analytics is a **privacy-first analytics platform** designed for developers. It offers both a TypeScript SDK package and a free, open-source SaaS platform for tracking website analytics.
 
-## Features
+Better Analytics has different parts:
 
-- **Zero dependencies** - No external libraries required
-- **Lightweight** - < 3KB gzipped
-- **Framework agnostic** - Works with vanilla JS, React, Next.js, and Expo
-- **Server-side tracking** - Node.js, Edge Functions, and serverless support
-- **Offline support** - Automatic event queuing when offline
-- **Privacy focused** - GDPR compliant with beforeSend middleware
-- **TypeScript** - Full type safety included
+<Cards>
 
-## Installation
+<Card icon={<CpuIcon className="text-purple-300" />} title='TypeScript SDK'>
 
-```bash
+Lightweight analytics SDK (< 3KB gzipped) with zero dependencies, supporting React, Next.js, Expo, and vanilla JavaScript.
+
+</Card>
+
+<Card icon={<PanelsTopLeft className="text-blue-300" />} title='SaaS Platform'>
+
+Free, open-source analytics dashboard with real-time tracking, team management, and unlimited events.
+
+</Card>
+
+<Card icon={<Database />} title='Self-Hostable'>
+
+Complete control over your data with Docker deployment and PostgreSQL database.
+
+</Card>
+
+<Card icon={<Terminal />} title='Developer-Friendly'>
+
+Built with TypeScript, modern tooling, and comprehensive documentation for the best developer experience.
+
+</Card>
+
+</Cards>
+
+<Callout title="Want to learn more?">
+  Read our in-depth [What is Better Analytics](/docs/what-is-better-analytics) introduction.
+</Callout>
+
+### Key Features
+
+**Privacy-First:** No cookies, no tracking, GDPR compliant by design.  
+**Zero Dependencies:** Lightweight SDK with tree-shaking support.  
+**Real-time Analytics:** Live dashboard with instant event tracking.
+
+## Package Installation
+
+Install the Better Analytics SDK in your project:
+
+```bash tab="npm"
+npm install better-analytics
+```
+
+```bash tab="pnpm"
 pnpm add better-analytics
 ```
 
-## Quick Start
-
-### Web/React
-
-```javascript
-import { init, track } from 'better-analytics'
-
-// Initialize
-init({
-  site: 'your-site-id',
-  mode: 'production'
-})
-
-// Track events
-track('button_click', { button: 'signup' })
+```bash tab="yarn"
+yarn add better-analytics
 ```
 
-### Next.js
+```bash tab="bun"
+bun add better-analytics
+```
 
-```jsx
-// app/layout.tsx
+## Next.js Setup (Recommended)
+
+The easiest way to get started is with our Next.js integration:
+
+```tsx title="app/layout.tsx"
 import { Analytics } from 'better-analytics/next'
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html>
+    <html lang="en">
       <body>
+        <Analytics site="your-site-key" />
         {children}
-        <Analytics site="your-site-id" />
       </body>
     </html>
   )
 }
 ```
 
-### Expo
+<Callout title="Need a site key?">
+  Get your site key from the [Better Analytics dashboard](https://better-analytics.app) after signing up.
+</Callout>
 
-```jsx
-import { AnalyticsProvider } from 'better-analytics/expo'
+## SaaS Platform Setup
 
-export default function App() {
+### 1. Create Account
+
+Visit [better-analytics.app](https://better-analytics.app) and sign up with:
+- **Magic Link**: Passwordless authentication via email
+- **GitHub**: OAuth integration
+- **Google**: OAuth integration
+
+### 2. Complete Onboarding
+
+After signing up, you'll automatically get:
+- A new organization created
+- Your first site configured
+- A unique site key generated
+
+### 3. Get Your Site Key
+
+During onboarding, you'll receive a site key like `BA_abc123`. Copy this for your integration.
+
+### 4. Add to Your Website
+
+Use the provided code examples for your framework:
+
+```tsx tab="Next.js" title="app/layout.tsx"
+import { Analytics } from 'better-analytics/next'
+
+export default function RootLayout({ children }) {
   return (
-    <AnalyticsProvider site="your-site-id">
-      {/* Your app content */}
-    </AnalyticsProvider>
+    <html lang="en">
+      <body>
+        <Analytics site="BA_your_site_key" />
+        {children}
+      </body>
+    </html>
   )
 }
 ```
 
-## Configuration
+```tsx tab="React" title="src/App.tsx"
+import { useEffect } from 'react'
+import { init, trackPageview, track } from 'better-analytics'
 
-```javascript
-init({
-  site: 'your-site-id',              // Required
-  endpoint: '/api/collect',          // Optional, defaults to SaaS
-  mode: 'auto',                      // auto | development | production
-  debug: false,                      // Enable console logging
-  beforeSend: (event) => event       // Transform events before sending
+function App() {
+  useEffect(() => {
+    init({ site: 'BA_your_site_key' })
+    trackPageview()
+  }, [])
+
+  const handleClick = () => {
+    track('button_click', { section: 'hero' })
+  }
+
+  return (
+    <div>
+      <h1>My App</h1>
+      <button onClick={handleClick}>Click me!</button>
+    </div>
+  )
+}
+```
+
+```javascript tab="Vanilla JS" title="main.js"
+import { init, trackPageview, track } from 'better-analytics'
+
+// Initialize
+init({ site: 'BA_your_site_key' })
+trackPageview()
+
+// Track custom events
+document.getElementById('my-button')?.addEventListener('click', () => {
+  track('button_click', { element: 'my-button' })
 })
 ```
 
-## Core Functions
+### 5. View Your Analytics
 
-### `init(config)`
-
-Initialize the analytics SDK with your configuration.
-
-### `track(event, props?)`
-
-Track custom events with optional properties.
-
-```javascript
-track('purchase', {
-  value: 99.99,
-  currency: 'USD',
-  items: ['product-1', 'product-2']
-})
-```
-
-### `trackPageview(path?)`
-
-Track page views. Automatically called in Next.js/Expo integrations.
-
-### `identify(userId, traits?)`
-
-Identify users for session stitching.
-
-```javascript
-identify('user-123', {
-  email: 'user@example.com',
-  plan: 'pro'
-})
-```
+After implementing the code:
+1. Visit your website to generate some events
+2. Go to your [Better Analytics dashboard](https://better-analytics.app)
+3. Navigate to your site's stats page
+4. See real-time analytics data!
 
 ## Environment Variables
 
-Set these in your `.env.local` file:
+For production deployments, use environment variables:
 
-```bash
-NEXT_PUBLIC_BA_SITE=your-site-id
-NEXT_PUBLIC_BA_URL=https://your-endpoint.com/api/collect  # Optional
+```bash title=".env.local"
+NEXT_PUBLIC_BA_SITE=BA_your_site_key
+# Optional: Custom endpoint for self-hosted instances
+NEXT_PUBLIC_BA_URL=https://your-analytics-domain.com/api/collect
 ```
 
-## Next Steps
+Then use without props:
 
-- [Next.js Integration](/docs/package/nextjs) - Complete Next.js setup guide
-- [Server-side Tracking](/docs/package/server) - Track from API routes and serverless functions
-- [Expo Integration](/docs/package/expo) - Mobile app tracking with Expo 
+```tsx title="app/layout.tsx"
+import { Analytics } from 'better-analytics/next'
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <Analytics />
+        {children}
+      </body>
+    </html>
+  )
+}
+```
+
+## Custom Events
+
+Track user interactions with custom events:
+
+```tsx
+import { track } from 'better-analytics'
+
+// Track button clicks
+track('button_click', { 
+  button: 'hero-cta',
+  page: 'homepage' 
+})
+
+// Track form submissions
+track('form_submit', { 
+  form: 'contact',
+  success: true 
+})
+
+// Track feature usage
+track('feature_used', { 
+  feature: 'dark_mode',
+  enabled: true 
+})
+```
+
+## Self-Hosting
+
+Want to host your own instance? Better Analytics is completely open-source:
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/better-analytics/better-analytics.git
+   ```
+
+2. **Follow the setup guide**
+   Check the [Server documentation](/docs/server) for detailed deployment instructions.
+
+3. **Use your custom endpoint**
+   ```tsx
+   <Analytics 
+     site="your-site-key" 
+     endpoint="https://your-domain.com/api/collect" 
+   />
+   ```
+
+## What's Next?
+
+<Cards>
+  <Card href="/docs/nextjs" title="Next.js Integration">
+    Deep dive into Next.js features and server-side tracking.
+  </Card>
+  <Card href="/docs/expo" title="Expo & React Native">
+    Mobile app analytics with Expo Router integration.
+  </Card>
+  <Card href="/docs/server" title="Server-Side Tracking">
+    Track events from API routes and server actions.
+  </Card>
+</Cards>
+
+## FAQ
+
+<Accordions>
+<Accordion id='free-tier' title="Is Better Analytics really free?">
+
+Yes! Better Analytics is completely free and open-source. You can use our hosted SaaS platform at no cost or self-host your own instance. There are no limits on events, sites, or team members.
+
+</Accordion>
+<Accordion id='privacy' title="How is user privacy protected?">
+
+Better Analytics is privacy-first by design:
+- No cookies or persistent tracking
+- No personal data collection
+- GDPR compliant out of the box
+- All data is anonymized and aggregated
+
+</Accordion>
+<Accordion id='data-ownership' title="Who owns the analytics data?">
+
+You own your data completely. With our SaaS platform, data is stored securely and never shared. With self-hosting, you have complete control over your data and infrastructure.
+
+</Accordion>
+<Accordion id='custom-endpoint' title="Can I use a custom analytics endpoint?">
+
+Yes! You can point the SDK to any endpoint:
+
+```tsx
+<Analytics 
+  site="your-site-key" 
+  endpoint="https://your-domain.com/api/collect" 
+/>
+```
+
+This is perfect for self-hosted instances or custom analytics servers.
+
+</Accordion>
+</Accordions>
