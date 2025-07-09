@@ -3,9 +3,9 @@ import Link from "next/link";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex">
-      {/* Left Side - Marketing Content (50% width, centered content) */}
-      <div className="w-1/2 bg-background flex items-center justify-center px-8">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      {/* Left Side - Marketing Content (responsive width) */}
+      <div className="w-full lg:w-1/2 bg-background flex items-center justify-center px-8 py-12 lg:py-8">
         <div className="max-w-md w-full">
           {/* Logo/Brand */}
           <div className="flex items-center space-x-3 mb-8">
@@ -82,8 +82,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Right Side - Particle Analytics (50% width) */}
-      <div className="w-1/2 bg-black">
+      {/* Right Side - Particle Analytics (hidden on mobile, half width on desktop) */}
+      <div className="hidden lg:block lg:w-1/2 bg-black">
         <AnalyticsParticles />
       </div>
     </div>

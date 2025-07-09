@@ -1,13 +1,12 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 
 export default function AnalyticsParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePositionRef = useRef({ x: 0, y: 0 });
   const isTouchingRef = useRef(false);
-  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -22,11 +21,12 @@ export default function AnalyticsParticles() {
       canvas.width = rect.width;
       canvas.height = rect.height;
 
-      // Hide component if too small (less than 400px width or 300px height)
-      setIsVisible(rect.width >= 400 && rect.height >= 300);
+      // Return whether canvas has valid dimensions
+      return rect.width > 0 && rect.height > 0;
     };
 
-    updateCanvasSize();
+    // Don't proceed if canvas has invalid dimensions
+    if (!updateCanvasSize()) return;
 
     let particles: {
       x: number;
@@ -41,7 +41,7 @@ export default function AnalyticsParticles() {
     let textImageData: ImageData | null = null;
 
     function createBarsImage() {
-      if (!ctx || !canvas) return;
+      if (!ctx || !canvas || canvas.width <= 0 || canvas.height <= 0) return;
 
       ctx.save();
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -123,7 +123,7 @@ export default function AnalyticsParticles() {
     function createInitialParticles() {
       if (!canvas) return;
 
-      const baseParticleCount = 2000; // Reduced for half screen
+      const baseParticleCount = 2000;
       const particleCount = Math.floor(
         baseParticleCount *
           Math.sqrt((canvas.width * canvas.height) / (960 * 1080)),
@@ -138,13 +138,13 @@ export default function AnalyticsParticles() {
     let animationFrameId: number;
 
     function animate() {
-      if (!ctx || !canvas) return;
+      if (!ctx || !canvas || canvas.width <= 0 || canvas.height <= 0) return;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const { x: mouseX, y: mouseY } = mousePositionRef.current;
-      const maxDistance = 150; // Reduced for half screen
+      const maxDistance = 150;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
@@ -201,15 +201,12 @@ export default function AnalyticsParticles() {
       animationFrameId = requestAnimationFrame(animate);
     }
 
-    if (isVisible) {
-      createBarsImage();
-      createInitialParticles();
-      animate();
-    }
+    createBarsImage();
+    createInitialParticles();
+    animate();
 
     const handleResize = () => {
-      updateCanvasSize();
-      if (isVisible) {
+      if (updateCanvasSize()) {
         createBarsImage();
         particles = [];
         createInitialParticles();
@@ -271,19 +268,7 @@ export default function AnalyticsParticles() {
         cancelAnimationFrame(animationFrameId);
       }
     };
-  }, [isVisible]);
-
-  if (!isVisible) {
-    return (
-      <div className="w-full h-full bg-black flex items-center justify-center">
-        <div className="text-gray-500 text-center">
-          <div className="text-2xl mb-2">📊</div>
-          <div className="text-sm">Analytics visualization</div>
-          <div className="text-xs opacity-70">Requires larger screen</div>
-        </div>
-      </div>
-    );
-  }
+  }, []);
 
   return (
     <div ref={containerRef} className="relative w-full h-full bg-black">
