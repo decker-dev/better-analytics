@@ -5,15 +5,7 @@ const withMDX = createMDX();
 /** @type {import('next').NextConfig} */
 const config = {
   reactStrictMode: true,
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/docs",
-        permanent: true,
-      },
-    ];
-  },
+  // Removed redirects to prevent loop with Vercel rewrites
 };
 
 export default withMDX(config);
