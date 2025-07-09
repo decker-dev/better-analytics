@@ -1,13 +1,14 @@
-import { source } from '@/lib/source';
+import { source } from "@/lib/source";
 import {
   DocsPage,
   DocsBody,
   DocsDescription,
   DocsTitle,
-} from 'fumadocs-ui/page';
-import { notFound } from 'next/navigation';
-import { createRelativeLink } from 'fumadocs-ui/mdx';
-import { getMDXComponents } from '@/mdx-components';
+} from "fumadocs-ui/page";
+import { notFound } from "next/navigation";
+import { createRelativeLink } from "fumadocs-ui/mdx";
+import { getMDXComponents } from "@/mdx-components";
+import { Rate } from "@/components/rate";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -28,6 +29,19 @@ export default async function Page(props: {
             // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
           })}
+        />
+        <Rate
+          onRateAction={async (url, feedback) => {
+            "use server";
+
+            // Simple console logging for now - you can replace this with your preferred analytics
+            console.log("Feedback received:", { url, feedback });
+
+            // Return a mock response - replace with actual implementation
+            return {
+              githubUrl: "https://github.com/your-repo/discussions",
+            };
+          }}
         />
       </DocsBody>
     </DocsPage>
