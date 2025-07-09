@@ -142,7 +142,7 @@ export default function AnalyticsParticles() {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const { x: mouseX, y: mouseY } = mousePositionRef.current;
-      const maxDistance = 150;
+      const maxDistance = 300;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];

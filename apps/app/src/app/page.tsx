@@ -1,5 +1,52 @@
 import AnalyticsParticles from "@/components/analytics-particles";
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Better Analytics",
+  description:
+    "Open-source analytics platform designed for developers. Self-host or use our cloud service. Unlimited events, privacy-first, and developer-friendly.",
+  keywords: [
+    "analytics",
+    "open source",
+    "developer tools",
+    "self-hosted",
+    "privacy-first",
+    "web analytics",
+  ],
+  authors: [{ name: "Better Analytics" }],
+  creator: "Better Analytics",
+  publisher: "Better Analytics",
+  openGraph: {
+    title: "Better Analytics - Analytics for Developers",
+    description:
+      "Open-source analytics platform designed for developers. Self-host or use our cloud service. Unlimited events, privacy-first, and developer-friendly.",
+    type: "website",
+    locale: "en_US",
+    siteName: "Better Analytics",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Better Analytics - Analytics for Developers",
+    description:
+      "Open-source analytics platform designed for developers. Self-host or use our cloud service. Unlimited events, privacy-first, and developer-friendly.",
+    creator: "@betteranalytic",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
+};
 
 export default function HomePage() {
   return (
