@@ -3,6 +3,10 @@ title: Next.js Integration
 description: Complete guide for integrating Better Analytics with Next.js applications
 ---
 
+# Next.js Integration
+
+Better Analytics provides seamless integration with Next.js applications, including automatic page tracking, server-side analytics, and environment variable support.
+
 ## Installation
 
 ```bash
@@ -27,8 +31,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
         <Analytics site="your-site-id" />
+        {children}
       </body>
     </html>
   )
@@ -52,9 +56,9 @@ export default function App({ Component, pageProps }: AppProps) {
 }
 ```
 
-## Configuration
+## Environment Variables
 
-### Environment Variables
+### Client-side Variables
 
 Create a `.env.local` file:
 
@@ -63,7 +67,17 @@ NEXT_PUBLIC_BA_SITE=your-site-id
 NEXT_PUBLIC_BA_URL=https://your-endpoint.com/api/collect  # Optional
 ```
 
-### Component Props
+### Server-side Variables
+
+```bash
+# Server-side tracking
+BA_SITE=your-site-id
+BA_URL=https://your-endpoint.com/api/collect
+BA_API_KEY=your-server-api-key
+BA_DEBUG=true
+```
+
+## Component Configuration
 
 ```jsx
 <Analytics
@@ -75,9 +89,32 @@ NEXT_PUBLIC_BA_URL=https://your-endpoint.com/api/collect  # Optional
 />
 ```
 
-## Manual Tracking
+## Automatic Features
 
-For custom events beyond automatic page tracking:
+### Page Tracking
+
+The Analytics component automatically tracks:
+
+- **Route changes** - Both App Router and Pages Router
+- **Dynamic routes** - Converts `/user/123` to `/user/[id]`
+- **Search parameters** - Included in page context
+- **Page metadata** - Title, pathname, and load time
+
+### Route Computation
+
+Next.js dynamic routes are automatically computed:
+
+```javascript
+// /user/123/settings → /user/[id]/settings
+// /blog/[...slug] → /blog/[...slug]
+// /shop/[category]/[product] → /shop/[category]/[product]
+```
+
+## Client-side Tracking
+
+### Manual Events
+
+Track custom events in client components:
 
 ```jsx
 'use client'
@@ -107,7 +144,43 @@ export default function MyComponent() {
 }
 ```
 
+### React Hooks
+
+Use analytics in React components:
+
+```jsx
+'use client'
+
+import { useEffect } from 'react'
+import { track } from 'better-analytics/next'
+
+export default function ProductPage({ product }) {
+  useEffect(() => {
+    track('product_viewed', {
+      product_id: product.id,
+      category: product.category,
+      price: product.price
+    })
+  }, [product])
+
+  return <div>{product.name}</div>
+}
+
 ## Server-side Tracking
+
+### Auto-initialization
+
+Next.js server functions auto-initialize using environment variables:
+
+```javascript
+// No initialization needed - uses BA_SITE and BA_URL env vars
+import { trackServer } from 'better-analytics/next'
+
+await trackServer('purchase', {
+  value: 99.99,
+  currency: 'USD'
+})
+```
 
 ### API Routes
 
@@ -116,12 +189,14 @@ export default function MyComponent() {
 import { trackServer } from 'better-analytics/next'
 
 export async function POST(request: Request) {
+  const body = await request.json()
+  
   // Your purchase logic here
   
   await trackServer('purchase', {
-    value: 99.99,
-    currency: 'USD',
-    user_id: 'user-123'
+    value: body.amount,
+    currency: body.currency,
+    payment_method: body.paymentMethod
   }, {
     headers: request.headers
   })
@@ -148,66 +223,150 @@ export async function createUser(formData: FormData) {
 }
 ```
 
-## Environment Variables
+### Server Components
 
-### Client-side
+Track events in Server Components:
 
-- `NEXT_PUBLIC_BA_SITE` - Your site identifier (required)
-- `NEXT_PUBLIC_BA_URL` - Custom endpoint URL (optional)
+```jsx
+// app/page.tsx
+import { trackPageviewServer } from 'better-analytics/next'
+import { headers } from 'next/headers'
 
-### Server-side
+export default async function HomePage() {
+  // Track server-side page view
+  await trackPageviewServer('/', {
+    headers: headers()
+  })
 
-- `BA_SITE` - Site identifier for server tracking
-- `BA_URL` - Custom endpoint for server tracking
-- `BA_API_KEY` - API key for server-to-server authentication
-- `BA_DEBUG` - Enable debug logging (set to 'true')
-
-## Route Computation
-
-Better Analytics automatically computes route patterns for dynamic routes:
-
-```javascript
-// /user/123/settings → /user/[id]/settings
-// /blog/post/my-article → /blog/post/[slug]
+  return <div>Welcome!</div>
+}
 ```
 
-This helps group analytics by route pattern instead of individual paths.
+### Middleware
+
+Track requests in Next.js middleware:
+
+```javascript
+// middleware.ts
+import { NextResponse } from 'next/server'
+import { trackServer } from 'better-analytics/next'
+
+export async function middleware(request) {
+  await trackServer('middleware_request', {
+    pathname: request.nextUrl.pathname,
+    method: request.method
+  }, {
+    headers: request.headers
+  })
+
+  return NextResponse.next()
+}
+```
+
+## Session Stitching
+
+Connect client and server events for the same user:
+
+```javascript
+// app/api/purchase/route.ts
+import { trackServer, stitchSession } from 'better-analytics/next'
+
+export async function POST(request: Request) {
+  // Get client session from cookies
+  const clientSessionId = request.cookies.get('ba_session')?.value
+  const clientDeviceId = request.cookies.get('ba_device')?.value
+
+  await trackServer('purchase', {
+    value: 99.99,
+    currency: 'USD'
+  }, {
+    headers: request.headers,
+    user: stitchSession(clientSessionId, clientDeviceId)
+  })
+
+  return Response.json({ success: true })
+}
+```
 
 ## TypeScript Support
 
-Full TypeScript support is included:
+Full TypeScript support with Next.js-specific types:
 
 ```typescript
-import type { AnalyticsConfig, EventData } from 'better-analytics/next'
+import type { AnalyticsProps, ServerTrackOptions } from 'better-analytics/next'
 
-const config: AnalyticsConfig = {
+// Component props
+const analyticsProps: AnalyticsProps = {
   site: 'your-site-id',
+  debug: true,
   beforeSend: (event) => {
     // Type-safe event transformation
     return event
   }
 }
+
+// Server options
+const serverOptions: ServerTrackOptions = {
+  headers: request.headers,
+  user: { id: 'user-123' }
+}
+```
+
+## Development Workflow
+
+### Development Mode
+
+In development, both client and server events are logged to console:
+
+```bash
+# Enable debug logging
+BA_DEBUG=true npm run dev
+```
+
+### Production Deployment
+
+Environment variables for production:
+
+```bash
+# Vercel
+vercel env add NEXT_PUBLIC_BA_SITE
+vercel env add BA_SITE
+vercel env add BA_API_KEY
+
+# Other platforms
+export NEXT_PUBLIC_BA_SITE=your-site-id
+export BA_SITE=your-site-id
+export BA_API_KEY=your-api-key
 ```
 
 ## Best Practices
 
-1. **Place Analytics component in layout** - Ensures tracking on all pages
-2. **Use environment variables** - Keep configuration centralized
-3. **Enable debug in development** - Monitor events during development
-4. **Use beforeSend for privacy** - Filter sensitive data before sending
-5. **Track server-side conversions** - Important events should be tracked server-side
+1. **Use Analytics component in layout** - Ensures tracking on all pages
+2. **Leverage environment variables** - Keep configuration centralized
+3. **Track server-side conversions** - More reliable than client-side
+4. **Use session stitching** - Connect client and server events
+5. **Enable debug in development** - Monitor events during development
+6. **Handle both App and Pages Router** - Component works with both
 
 ## Troubleshooting
 
-### Events not appearing
+### Client Events Not Appearing
 
 1. Check that `NEXT_PUBLIC_BA_SITE` is set
 2. Verify the Analytics component is in your layout
 3. Enable debug mode to see console logs
 4. Check network tab for outgoing requests
 
-### Development vs Production
+### Server Events Not Appearing
 
-- **Development**: Events are logged to console by default
-- **Production**: Events are sent to the configured endpoint
-- Use `debug: true` to see events in production console 
+1. Check that `BA_SITE` is set
+2. Verify server functions are being called
+3. Enable `BA_DEBUG=true` for server logging
+4. Check server logs for errors
+
+### Route Tracking Issues
+
+1. Ensure Analytics component is in the layout
+2. Check dynamic route parameters
+3. Verify route computation with debug mode
+4. Test with both App Router and Pages Router 

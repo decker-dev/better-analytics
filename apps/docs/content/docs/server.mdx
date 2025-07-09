@@ -34,18 +34,16 @@ await trackServer('user_signup', {
 })
 ```
 
-### Auto-initialization (Next.js)
+### Framework Integration
 
-With Next.js, the server SDK auto-initializes using environment variables:
+For framework-specific integrations, use the dedicated imports:
 
 ```javascript
-// No initialization needed with Next.js
+// Next.js - Auto-initializes with environment variables
 import { trackServer } from 'better-analytics/next'
 
-await trackServer('purchase', {
-  value: 99.99,
-  currency: 'USD'
-})
+// Other frameworks - Manual initialization required
+import { trackServer } from 'better-analytics/server'
 ```
 
 ## Configuration
@@ -123,27 +121,34 @@ await identifyServer('user-123', {
 
 ## Framework Examples
 
-### Next.js API Routes
+### Node.js API Server
 
 ```javascript
-// app/api/purchase/route.ts
-import { trackServer } from 'better-analytics/next'
+// server.js
+import express from 'express'
+import { initServer, trackServer } from 'better-analytics/server'
 
-export async function POST(request: Request) {
-  const body = await request.json()
-  
+const app = express()
+
+// Initialize once
+initServer({
+  site: 'your-site-id',
+  apiKey: 'your-api-key'
+})
+
+app.post('/api/purchase', async (req, res) => {
   // Your business logic here
   
   await trackServer('purchase', {
-    value: body.amount,
-    currency: body.currency,
-    payment_method: body.paymentMethod
+    value: req.body.amount,
+    currency: req.body.currency,
+    payment_method: req.body.paymentMethod
   }, {
-    headers: request.headers
+    headers: req.headers
   })
 
-  return Response.json({ success: true })
-}
+  res.json({ success: true })
+})
 ```
 
 ### Vercel Edge Functions

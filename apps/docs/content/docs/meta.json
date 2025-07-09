@@ -7,9 +7,10 @@
     "--- Introduction ---",
     "index",
     "what-is-better-analytics",
-    "--- Integrations ---",
-    "nextjs",
+    "--- Package ---",
+    "client",
     "server",
+    "nextjs",
     "expo"
   ]
 }

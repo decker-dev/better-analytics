@@ -1,0 +1,528 @@
+---
+title: Client-side Tracking
+description: Track events in web browsers with vanilla JavaScript, React, and other frameworks
+---
+
+# Client-side Tracking
+
+Track events in web browsers using the core Better Analytics client SDK. This guide covers vanilla JavaScript, React, and other web frameworks.
+
+## Installation
+
+```bash
+pnpm add better-analytics
+```
+
+## Basic Usage
+
+### Manual Initialization
+
+```javascript
+import { init, trackPageview, track } from 'better-analytics'
+
+// Initialize once
+init({
+  site: 'your-site-id',
+  endpoint: 'https://your-endpoint.com/api/collect', // Optional
+  debug: false // Enable console logging
+})
+
+// Track page views
+trackPageview()
+
+// Track custom events
+track('button_click', {
+  button: 'hero-cta',
+  location: 'homepage'
+})
+```
+
+### Quick Start with Pageview
+
+```javascript
+import { initWithPageview } from 'better-analytics'
+
+// Initialize and track pageview in one call
+initWithPageview({
+  site: 'your-site-id'
+})
+```
+
+## Configuration
+
+```javascript
+import { init } from 'better-analytics'
+
+init({
+  site: 'your-site-id',              // Required
+  endpoint: '/api/collect',          // Optional, defaults to SaaS
+  mode: 'auto',                      // auto | development | production
+  debug: false,                      // Enable console logging
+  beforeSend: (event) => event       // Transform events before sending
+})
+```
+
+## Core Functions
+
+### `track(event, props?)`
+
+Track custom events with optional properties:
+
+```javascript
+import { track } from 'better-analytics'
+
+// Simple event
+track('button_click')
+
+// Event with properties
+track('purchase', {
+  value: 99.99,
+  currency: 'USD',
+  items: ['product-1', 'product-2']
+})
+
+// User interaction
+track('video_play', {
+  video_id: 'intro-video',
+  duration: 120,
+  position: 'hero'
+})
+```
+
+### `trackPageview(path?)`
+
+Track page views:
+
+```javascript
+import { trackPageview } from 'better-analytics'
+
+// Track current page
+trackPageview()
+
+// Track specific path
+trackPageview('/custom-path')
+```
+
+### `identify(userId, traits?)`
+
+Identify users for session continuity:
+
+```javascript
+import { identify } from 'better-analytics'
+
+// Basic identification
+identify('user-123')
+
+// With user traits
+identify('user-123', {
+  email: 'user@example.com',
+  plan: 'premium',
+  signup_date: '2024-01-15'
+})
+```
+
+## Framework Examples
+
+### Vanilla JavaScript
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Website</title>
+</head>
+<body>
+  <button id="cta-button">Sign Up</button>
+  
+  <script type="module">
+    import { init, trackPageview, track } from 'https://esm.sh/better-analytics'
+    
+    // Initialize
+    init({ site: 'your-site-id' })
+    trackPageview()
+    
+    // Track interactions
+    document.getElementById('cta-button').addEventListener('click', () => {
+      track('cta_click', { location: 'hero' })
+    })
+  </script>
+</body>
+</html>
+```
+
+### React
+
+```jsx
+import React, { useEffect } from 'react'
+import { init, trackPageview, track } from 'better-analytics'
+
+function App() {
+  useEffect(() => {
+    init({ site: 'your-site-id' })
+    trackPageview()
+  }, [])
+
+  const handleSignup = () => {
+    track('signup_click', { source: 'header' })
+  }
+
+  return (
+    <div>
+      <h1>My App</h1>
+      <button onClick={handleSignup}>Sign Up</button>
+    </div>
+  )
+}
+
+export default App
+```
+
+### Vue.js
+
+```vue
+<template>
+  <div>
+    <h1>My App</h1>
+    <button @click="handleClick">Click Me</button>
+  </div>
+</template>
+
+<script>
+import { init, trackPageview, track } from 'better-analytics'
+
+export default {
+  name: 'App',
+  mounted() {
+    init({ site: 'your-site-id' })
+    trackPageview()
+  },
+  methods: {
+    handleClick() {
+      track('button_click', { component: 'App' })
+    }
+  }
+}
+</script>
+```
+
+### Svelte
+
+```svelte
+<script>
+  import { onMount } from 'svelte'
+  import { init, trackPageview, track } from 'better-analytics'
+  
+  onMount(() => {
+    init({ site: 'your-site-id' })
+    trackPageview()
+  })
+  
+  function handleClick() {
+    track('button_click', { framework: 'svelte' })
+  }
+</script>
+
+<main>
+  <h1>My App</h1>
+  <button on:click={handleClick}>Click Me</button>
+</main>
+```
+
+## Automatic Data Collection
+
+Client events automatically include:
+
+```javascript
+{
+  // Session tracking
+  sessionId: "1704067200000_abc123",
+  deviceId: "persistent-device-id",
+  
+  // Page context
+  url: "https://example.com/page",
+  referrer: "https://google.com",
+  
+  // Device information
+  device: {
+    userAgent: "Mozilla/5.0...",
+    screenWidth: 1920,
+    screenHeight: 1080,
+    viewportWidth: 1200,
+    viewportHeight: 800,
+    language: "en-US",
+    timezone: "America/New_York",
+    connectionType: "4g"
+  },
+  
+  // Page information
+  page: {
+    title: "Page Title",
+    pathname: "/page",
+    hostname: "example.com",
+    loadTime: 1250
+  },
+  
+  // UTM parameters (if present)
+  utm: {
+    source: "google",
+    medium: "cpc",
+    campaign: "summer-sale"
+  }
+}
+```
+
+## Single Page Applications
+
+### Route Changes
+
+For SPAs, track route changes manually:
+
+```javascript
+import { trackPageview } from 'better-analytics'
+
+// React Router
+function App() {
+  const location = useLocation()
+  
+  useEffect(() => {
+    trackPageview(location.pathname)
+  }, [location.pathname])
+  
+  return <Router />
+}
+
+// Vue Router
+router.afterEach((to) => {
+  trackPageview(to.path)
+})
+
+// History API
+window.addEventListener('popstate', () => {
+  trackPageview(window.location.pathname)
+})
+```
+
+### Route Computation
+
+Automatically compute route patterns for dynamic routes:
+
+```javascript
+import { computeRoute } from 'better-analytics'
+
+// Convert dynamic paths to patterns
+const route = computeRoute('/user/123/settings', { id: '123' })
+// Returns: '/user/[id]/settings'
+
+// Track with computed route
+track('page_view', { route })
+```
+
+## Event Queueing
+
+Events are automatically queued before SDK initialization:
+
+```html
+<script>
+  // Events are queued automatically
+  window.ba = window.ba || function() { (window.ba.q = window.ba.q || []).push(arguments) }
+  
+  // These events are queued until SDK loads
+  ba('track', 'early_event', { timestamp: Date.now() })
+</script>
+
+<script type="module">
+  import { init } from 'better-analytics'
+  
+  // SDK processes queued events on init
+  init({ site: 'your-site-id' })
+</script>
+```
+
+## Offline Support
+
+Events are automatically stored when offline and sent when connectivity is restored:
+
+```javascript
+// Events are queued automatically when offline
+track('offline_event', { data: 'important' })
+
+// Check queue status
+import { getQueueSize } from 'better-analytics/queue'
+console.log('Queued events:', getQueueSize())
+```
+
+## Privacy & Data Control
+
+### BeforeSend Middleware
+
+Transform or filter events before sending:
+
+```javascript
+init({
+  site: 'your-site-id',
+  beforeSend: (event) => {
+    // Filter sensitive data
+    if (event.data?.props?.email) {
+      delete event.data.props.email
+    }
+    
+    // Add custom data
+    event.data.environment = 'production'
+    
+    // Cancel event by returning null
+    if (event.name === 'internal_event') {
+      return null
+    }
+    
+    return event
+  }
+})
+```
+
+### Session Management
+
+Sessions are automatically managed with 30-minute timeout:
+
+- **Session ID**: Refreshed on activity, expires after 30 minutes
+- **Device ID**: Persistent identifier stored in localStorage
+- **User ID**: Set via `identify()` and persists across sessions
+
+## Development vs Production
+
+### Development Mode
+
+In development, events are logged to console by default:
+
+```javascript
+// Development behavior
+init({ site: 'your-site-id', debug: true })
+track('test_event') // Logs to console, doesn't send to server
+```
+
+### Production Mode
+
+In production, events are sent to the configured endpoint:
+
+```javascript
+// Production behavior
+init({ site: 'your-site-id' })
+track('user_action') // Sends to analytics endpoint
+```
+
+## Error Handling
+
+The SDK fails silently by default to avoid breaking your application:
+
+```javascript
+// Enable debug mode to see errors
+init({
+  site: 'your-site-id',
+  debug: true
+})
+
+// Errors are logged to console in debug mode
+track('event_with_error', { invalid: undefined })
+```
+
+## TypeScript Support
+
+Full TypeScript support with type definitions:
+
+```typescript
+import type { AnalyticsConfig, EventData, BeforeSend } from 'better-analytics'
+
+const config: AnalyticsConfig = {
+  site: 'your-site-id',
+  debug: true,
+  beforeSend: (event) => {
+    // Type-safe event transformation
+    return event
+  }
+}
+
+// Type-safe event tracking
+interface CustomEventProps {
+  category: string
+  value: number
+}
+
+track('custom_event', {
+  category: 'user_action',
+  value: 100
+} as CustomEventProps)
+```
+
+## Best Practices
+
+1. **Initialize early** - Call `init()` as soon as possible in your app
+2. **Use environment detection** - Let the SDK detect development vs production
+3. **Track meaningful events** - Focus on user actions that matter to your business
+4. **Use beforeSend for privacy** - Filter sensitive data before sending
+5. **Enable debug in development** - Monitor events during development
+6. **Handle SPAs properly** - Track route changes in single-page applications
+
+## Common Patterns
+
+### E-commerce Tracking
+
+```javascript
+// Product view
+track('product_viewed', {
+  product_id: 'item-123',
+  category: 'electronics',
+  price: 299.99,
+  currency: 'USD'
+})
+
+// Add to cart
+track('add_to_cart', {
+  product_id: 'item-123',
+  quantity: 1,
+  value: 299.99
+})
+
+// Purchase
+track('purchase', {
+  transaction_id: 'txn-456',
+  value: 299.99,
+  currency: 'USD',
+  items: ['item-123']
+})
+```
+
+### User Engagement
+
+```javascript
+// Form interactions
+track('form_start', { form_id: 'signup' })
+track('form_submit', { form_id: 'signup', success: true })
+
+// Content engagement
+track('video_play', { video_id: 'intro', duration: 120 })
+track('scroll_depth', { percentage: 75, page: '/about' })
+
+// Feature usage
+track('feature_used', { feature: 'dark_mode', enabled: true })
+```
+
+## Troubleshooting
+
+### Events not appearing
+
+1. Check that site ID is set correctly
+2. Verify initialization is called before tracking
+3. Enable debug mode to see console logs
+4. Check network tab for outgoing requests
+
+### Development vs Production
+
+- **Development**: Events are logged to console by default
+- **Production**: Events are sent to the configured endpoint
+- Use `debug: true` to see events in production console
+
+### Session Issues
+
+1. Check localStorage availability
+2. Verify session timeout (30 minutes)
+3. Use browser dev tools to inspect stored data
+4. Test across different browsers and devices 
