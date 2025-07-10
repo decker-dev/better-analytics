@@ -36,6 +36,13 @@
       "when": 1751464367878,
       "tag": "0004_wakeful_eternity",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1752186305553,
+      "tag": "0005_ordinary_nemesis",
+      "breakpoints": true
     }
   ]
 }

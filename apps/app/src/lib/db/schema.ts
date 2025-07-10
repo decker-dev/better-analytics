@@ -54,6 +54,9 @@ export const events = pgTable('events', {
   // Language
   language: text('language'), // e.g., "en-US", "es-ES"
 
+  // Temporary site flag
+  isTemp: boolean('is_temp').default(false),
+
   // Timestamps
   createdAt: timestamp('createdAt').defaultNow(),
 });
@@ -165,4 +168,15 @@ export type Invitation = typeof invitation.$inferSelect;
 export type NewInvitation = typeof invitation.$inferInsert;
 
 export type Site = typeof sites.$inferSelect;
-export type NewSite = typeof sites.$inferInsert; 
+export type NewSite = typeof sites.$inferInsert;
+
+// Temporary sites table
+export const tempSites = pgTable('temp_sites', {
+  id: text('id').primaryKey(),
+  siteKey: text('site_key').notNull().unique(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  expiresAt: timestamp('expires_at').notNull(),
+});
+
+export type TempSite = typeof tempSites.$inferSelect;
+export type NewTempSite = typeof tempSites.$inferInsert; 

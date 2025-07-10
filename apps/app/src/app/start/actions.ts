@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation';
 
 export async function createTemporarySite() {
   try {
-    const tempSiteData = createTempSite();
+    const tempSiteData = await createTempSite();
     return { success: true, redirectTo: `/start/${tempSiteData.tempId}` };
   } catch (error) {
     console.error('Error creating temporary site:', error);
@@ -15,7 +15,7 @@ export async function createTemporarySite() {
 
 export async function getTemporarySite(tempId: string) {
   try {
-    const tempSite = getTempSite(tempId);
+    const tempSite = await getTempSite(tempId);
     
     if (!tempSite) {
       return { error: 'Temporary site not found or expired' };

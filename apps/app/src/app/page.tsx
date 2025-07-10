@@ -108,7 +108,7 @@ export default function HomePage() {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/try-in-development">
+            <Link href="/start">
               <button
                 type="button"
                 className="bg-primary text-primary-foreground px-6 py-3 rounded-lg hover:bg-primary/90 transition-colors font-medium w-full sm:w-auto"
