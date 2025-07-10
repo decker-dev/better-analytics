@@ -1,4 +1,5 @@
 import type { BaseLayoutProps } from "fumadocs-ui/layouts/shared";
+import Image from "next/image";
 
 /**
  * Shared layout configurations
@@ -11,10 +12,14 @@ export const baseOptions: BaseLayoutProps = {
   nav: {
     title: (
       <>
-        <div className="h-6 w-6 rounded bg-white flex items-center justify-center">
-          <span className="text-black font-bold text-sm">BA</span>
-        </div>
-        Better Analytics
+        <Image
+          alt="Better Analytics"
+          src="/logo.svg"
+          width={24}
+          height={24}
+          className="h-6 w-6"
+        />
+        <span className="font-medium">Better Analytics</span>
       </>
     ),
   },
