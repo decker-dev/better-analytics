@@ -1,6 +1,6 @@
 import { nanoid } from 'nanoid';
 import { db } from '@/lib/db';
-import { tempSites, events } from '@/lib/db/schema';
+import { tempSites, events, type NewEvent } from '@/lib/db/schema';
 import { eq, and, lt } from 'drizzle-orm';
 
 export async function createTempSite() {
@@ -24,14 +24,18 @@ export async function createTempSite() {
 
 export async function getTempSite(tempId: string) {
   const tempSite = await db.select().from(tempSites).where(eq(tempSites.id, tempId)).limit(1);
-  
+
   if (!tempSite.length) {
     return null;
   }
 
   const site = tempSite[0];
+  if (!site) {
+    return null;
+  }
+
   const now = new Date();
-  
+
   if (now > site.expiresAt) {
     // Clean up expired site
     await db.delete(tempSites).where(eq(tempSites.id, tempId));
@@ -61,19 +65,23 @@ export async function getTempSite(tempId: string) {
   };
 }
 
-export async function addEventToTempSite(siteKey: string, eventData: any): Promise<boolean> {
+export async function addEventToTempSite(siteKey: string, eventData: Omit<NewEvent, 'id' | 'site' | 'isTemp' | 'createdAt'>): Promise<boolean> {
   // Check if temp site exists and hasn't expired
   const tempSite = await db.select().from(tempSites)
     .where(eq(tempSites.siteKey, siteKey))
     .limit(1);
-  
+
   if (!tempSite.length) {
     return false;
   }
 
   const site = tempSite[0];
+  if (!site) {
+    return false;
+  }
+
   const now = new Date();
-  
+
   if (now > site.expiresAt) {
     // Clean up expired site
     await db.delete(tempSites).where(eq(tempSites.id, site.id));
@@ -113,7 +121,7 @@ export async function addEventToTempSite(siteKey: string, eventData: any): Promi
 // Clean up expired temporary sites and their events
 export async function cleanupExpiredTempSites() {
   const now = new Date();
-  
+
   // Get all expired temp sites
   const expiredSites = await db.select().from(tempSites)
     .where(lt(tempSites.expiresAt, now));
@@ -128,6 +136,6 @@ export async function cleanupExpiredTempSites() {
 
   // Delete expired temp sites
   await db.delete(tempSites).where(lt(tempSites.expiresAt, now));
-  
+
   return expiredSites.length;
 }

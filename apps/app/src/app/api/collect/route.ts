@@ -127,12 +127,9 @@ export async function POST(request: NextRequest) {
     // Check if this is a temporary site
     if (site.startsWith('TEMP_')) {
       // Handle temporary site - don't save to database, save to memory
-      const wasAdded = addEventToTempSite(site, {
-        ...eventToInsert,
-        timestamp: validatedData.timestamp
-      });
+      const wasAdded = await addEventToTempSite(site, eventToInsert);
 
-      if (await wasAdded) {
+      if (wasAdded) {
         return NextResponse.json({ success: true, type: 'temporary' });
       }
       return NextResponse.json({
