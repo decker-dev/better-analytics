@@ -50,6 +50,18 @@ const incomingEventSchema = z.object({
   props: z.record(z.any()).optional(),
 });
 
+// Handle CORS preflight request
+export async function OPTIONS(request: NextRequest) {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    },
+  });
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -130,18 +142,37 @@ export async function POST(request: NextRequest) {
       const wasAdded = await addEventToTempSite(site, eventToInsert);
 
       if (wasAdded) {
-        return NextResponse.json({ success: true, type: 'temporary' });
+        return NextResponse.json({ success: true, type: 'temporary' }, {
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        });
       }
       return NextResponse.json({
         success: false,
         error: 'Temporary site not found or expired'
-      }, { status: 404 });
+      }, {
+        status: 404,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      });
     }
 
     // Regular site - insert into database
     await db.insert(schema.events).values(eventToInsert);
 
-    return NextResponse.json({ success: true, type: 'permanent' });
+    return NextResponse.json({ success: true, type: 'permanent' }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      },
+    });
   } catch (error) {
     console.error('Error saving event:', error);
 
@@ -153,7 +184,14 @@ export async function POST(request: NextRequest) {
           error: 'Validation error',
           details: error.errors
         },
-        { status: 400 }
+        {
+          status: 400,
+          headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          },
+        }
       );
     }
 
@@ -163,7 +201,14 @@ export async function POST(request: NextRequest) {
         success: false,
         error: 'Internal server error'
       },
-      { status: 500 }
+      {
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        },
+      }
     );
   }
 }

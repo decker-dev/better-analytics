@@ -2,6 +2,7 @@ import "@/app/global.css";
 import { RootProvider } from "fumadocs-ui/provider";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
+import { Analytics } from "better-analytics/next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -16,6 +17,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     >
       <body className="flex flex-col min-h-screen">
         <RootProvider>{children}</RootProvider>
+        <Analytics site="TEMP_L2PQEN4F" mode="production" />
       </body>
     </html>
   );
