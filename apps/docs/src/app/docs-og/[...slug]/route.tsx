@@ -14,6 +14,8 @@ export async function GET(
     title: page.data.title,
     description: page.data.description,
     site: "Better Analytics",
+    primaryColor: "#2b2b2b",
+    primaryTextColor: "#ffffff",
   });
 }
 
