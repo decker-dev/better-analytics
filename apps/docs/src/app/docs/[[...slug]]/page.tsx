@@ -9,6 +9,7 @@ import { notFound } from "next/navigation";
 import { createRelativeLink } from "fumadocs-ui/mdx";
 import { getMDXComponents } from "@/mdx-components";
 import { Rate } from "@/components/rate";
+import { LLMCopyButton, ViewOptions } from "./page-client";
 
 export default async function Page(props: {
   params: Promise<{ slug?: string[] }>;
@@ -19,10 +20,20 @@ export default async function Page(props: {
 
   const MDXContent = page.data.body;
 
+  // Generate URLs for the buttons
+  const markdownUrl = `/docs/${(params.slug || []).join("/")}`;
+  const githubUrl = `https://github.com/decker-dev/better-analytics/blob/main/apps/docs/src/app/docs/${(params.slug || []).join("/")}.mdx`;
+
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
       <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
+      <DocsDescription className="flex flex-col gap-2 mb-0">
+        {page.data.description}
+      </DocsDescription>
+      <div className="flex items-center gap-2 pb-6">
+        <LLMCopyButton slug={params.slug || []} />
+        <ViewOptions markdownUrl={markdownUrl} githubUrl={githubUrl} />
+      </div>
       <DocsBody>
         <MDXContent
           components={getMDXComponents({
@@ -59,8 +70,8 @@ export async function generateMetadata(props: {
   const page = source.getPage(params.slug);
   if (!page) notFound();
 
-  const image = ['/docs-og', ...(params.slug || []), 'image.png'].join('/');
-  
+  const image = ["/docs-og", ...(params.slug || []), "image.png"].join("/");
+
   return {
     title: page.data.title,
     description: page.data.description,
@@ -70,7 +81,7 @@ export async function generateMetadata(props: {
       images: image,
     },
     twitter: {
-      card: 'summary_large_image',
+      card: "summary_large_image",
       title: page.data.title,
       description: page.data.description,
       images: image,
