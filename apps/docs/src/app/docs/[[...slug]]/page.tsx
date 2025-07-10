@@ -22,7 +22,7 @@ export default async function Page(props: {
 
   // Generate URLs for the buttons
   const markdownUrl = `/docs/${(params.slug || []).join("/")}`;
-  const githubUrl = `https://github.com/decker-dev/better-analytics/blob/main/apps/docs/src/app/docs/${(params.slug || []).join("/")}.mdx`;
+  const githubUrl = `https://github.com/decker-dev/better-analytics/blob/main/apps/docs/content/docs/${(params.slug || []).join("/")}.mdx`;
 
   return (
     <DocsPage toc={page.data.toc} full={page.data.full}>
