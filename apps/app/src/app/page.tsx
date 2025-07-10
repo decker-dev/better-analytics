@@ -1,6 +1,7 @@
 import AnalyticsParticles from "@/components/analytics-particles";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { Badge } from "@repo/ui/components/badge";
 
 export const metadata: Metadata = {
   title: "Better Analytics",
@@ -61,7 +62,10 @@ export default function HomePage() {
                 BA
               </span>
             </div>
-            <span className="text-2xl font-bold">Better Analytics</span>
+            <div className="flex items-center space-x-2">
+              <span className="text-2xl font-bold">Better Analytics</span>
+              <Badge variant="outline">BETA</Badge>
+            </div>
           </div>
 
           {/* Main Heading */}
