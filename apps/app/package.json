@@ -19,6 +19,8 @@
     "@repo/email": "workspace:*",
     "@repo/ui": "workspace:*",
     "@t3-oss/env-nextjs": "^0.13.8",
+    "@tanstack/react-query": "^5.82.0",
+    "@tanstack/react-query-devtools": "^5.82.0",
     "@types/three": "^0.178.0",
     "better-analytics": "^0.10.0",
     "better-auth": "^1.2.9",

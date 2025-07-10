@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import {
   Card,
   CardContent,
@@ -14,18 +15,46 @@ import { RefreshCw, Clock, Activity, Copy, CheckCircle } from "lucide-react";
 import { codeToHtml } from "shiki";
 import Link from "next/link";
 
+interface TempSiteEvent {
+  id: string;
+  evt: string;
+  url: string | null;
+  props: string | null;
+  ts: string;
+  createdAt: Date | null;
+}
+
 interface TempSite {
   id: string;
   siteKey: string;
   createdAt: number;
   expiresAt: number;
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  events: any[];
+  events: TempSiteEvent[];
   timeRemaining: number;
 }
 
 interface TempSiteDemoProps {
   tempSite: TempSite;
+  tempId: string;
+}
+
+// Custom hook for fetching temp site data with polling
+function useTempSiteData(tempId: string, initialData: TempSite) {
+  return useQuery({
+    queryKey: ["tempSite", tempId],
+    queryFn: async () => {
+      const response = await fetch(`/api/temp-sites/${tempId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch temp site data");
+      }
+      const result = await response.json();
+      return result.data;
+    },
+    initialData,
+    refetchInterval: 3000, // Poll every 3 seconds
+    refetchIntervalInBackground: true, // Continue polling when tab is not active
+    staleTime: 0, // Always consider data stale to ensure fresh polling
+  });
 }
 
 function formatTimeRemaining(timeRemaining: number): string {
@@ -60,12 +89,22 @@ function CopyButton({ text, label }: { text: string; label: string }) {
   );
 }
 
-export function TempSiteDemo({ tempSite: initialTempSite }: TempSiteDemoProps) {
-  const [tempSite, setTempSite] = useState<TempSite>(initialTempSite);
+export function TempSiteDemo({
+  tempSite: initialTempSite,
+  tempId,
+}: TempSiteDemoProps) {
   const [timeRemaining, setTimeRemaining] = useState(
     initialTempSite.timeRemaining,
   );
   const router = useRouter();
+
+  // Use React Query for automatic polling
+  const {
+    data: tempSite,
+    isLoading,
+    error,
+    refetch,
+  } = useTempSiteData(tempId, initialTempSite);
 
   // Update countdown timer
   useEffect(() => {
@@ -79,16 +118,10 @@ export function TempSiteDemo({ tempSite: initialTempSite }: TempSiteDemoProps) {
     return () => clearInterval(interval);
   }, []);
 
-  // Refresh events periodically
+  // Manual refresh function (now using React Query's refetch)
   const refreshEvents = () => {
-    router.refresh();
+    refetch();
   };
-
-  // Auto-refresh every 5 seconds
-  useEffect(() => {
-    const interval = setInterval(refreshEvents, 5000);
-    return () => clearInterval(interval);
-  }, [tempSite.id]);
 
   const setupCode = `import { Analytics } from 'better-analytics/next'
 
@@ -212,14 +245,22 @@ const handleClick = () => {
                     variant="outline"
                     size="sm"
                     onClick={refreshEvents}
+                    disabled={isLoading}
                     className="flex items-center gap-2"
                   >
-                    <RefreshCw className="h-4 w-4" />
-                    Refresh
+                    <RefreshCw
+                      className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                    />
+                    {isLoading ? "Loading..." : "Refresh"}
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                {error && (
+                  <div className="text-center py-4 text-red-400">
+                    <p>Error loading events. Retrying...</p>
+                  </div>
+                )}
                 {tempSite.events.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Activity className="h-8 w-8 mx-auto mb-3 opacity-50" />
@@ -232,7 +273,7 @@ const handleClick = () => {
                     {tempSite.events
                       .slice()
                       .reverse()
-                      .map((event, index) => (
+                      .map((event: TempSiteEvent, index: number) => (
                         <div
                           // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                           key={index}
@@ -243,7 +284,7 @@ const handleClick = () => {
                               {event.evt}
                             </span>
                             <span className="text-xs text-muted-foreground">
-                              {new Date(event.receivedAt).toLocaleTimeString()}
+                              {new Date(event.ts).toLocaleTimeString()}
                             </span>
                           </div>
                           {event.url && (

@@ -17,7 +17,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     >
       <body className="flex flex-col min-h-screen">
         <RootProvider>{children}</RootProvider>
-        <Analytics site="TEMP_L2PQEN4F" mode="production" />
+        <Analytics site="TEMP_LBJCYL3J" mode="production" />
       </body>
     </html>
   );
