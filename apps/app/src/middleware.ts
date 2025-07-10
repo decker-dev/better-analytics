@@ -15,6 +15,7 @@ const RESERVED_PATHS = [
   'docs',
   'api',
   '_next',
+  'try-in-development',
 
   // SEO & Bot files
   'robots.txt',
