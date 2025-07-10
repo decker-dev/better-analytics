@@ -132,7 +132,7 @@ export async function POST(request: NextRequest) {
         timestamp: validatedData.timestamp
       });
 
-      if (wasAdded) {
+      if (await wasAdded) {
         return NextResponse.json({ success: true, type: 'temporary' });
       }
       return NextResponse.json({
