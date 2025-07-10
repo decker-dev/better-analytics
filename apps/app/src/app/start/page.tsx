@@ -7,6 +7,7 @@ import {
 import { Terminal } from "lucide-react";
 import type { Metadata } from "next";
 import { codeToHtml } from "shiki";
+import { TestInProductionButton } from "./test-button";
 
 export const metadata: Metadata = {
   title: "Try Better Analytics - Developer Setup",
@@ -84,6 +85,11 @@ const handleClick = () => {
           <p className="text-xl text-muted-foreground mb-6 max-w-2xl mx-auto">
             Install the library and see live events in your console.
           </p>
+          
+          {/* CTA Button */}
+          <div className="mb-8">
+            <TestInProductionButton />
+          </div>
         </div>
 
         {/* Installation Steps */}
