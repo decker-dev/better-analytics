@@ -141,15 +141,20 @@ export const invitation = pgTable('invitation', {
   updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-// Sites table for project management
+// Sites table for project management (unified temp and regular sites)
 export const sites = pgTable('sites', {
   id: text('id').primaryKey(),
-  name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal"
+  name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal", "Demo Site"
   slug: text('slug').notNull(),                    // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
-  siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking)
-  organizationId: text('organization_id').notNull().references(() => organization.id, { onDelete: 'cascade' }),
+  siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking Y para URLs /start/[siteKey])
+  organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }), // Null para sites temporales
   domain: text('domain'),                           // "dashboard.example.com" (opcional)
   description: text('description'),                 // Descripción del proyecto
+  
+  // Campos para sites temporales
+  isTemp: boolean('is_temp').default(false),       // true para sites temporales
+  expiresAt: timestamp('expires_at'),              // Solo para sites temporales
+  
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
 });
@@ -170,13 +175,4 @@ export type NewInvitation = typeof invitation.$inferInsert;
 export type Site = typeof sites.$inferSelect;
 export type NewSite = typeof sites.$inferInsert;
 
-// Temporary sites table
-export const tempSites = pgTable('temp_sites', {
-  id: text('id').primaryKey(),
-  siteKey: text('site_key').notNull().unique(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  expiresAt: timestamp('expires_at').notNull(),
-});
-
-export type TempSite = typeof tempSites.$inferSelect;
-export type NewTempSite = typeof tempSites.$inferInsert; 
+ 

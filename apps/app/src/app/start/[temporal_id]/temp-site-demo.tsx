@@ -28,22 +28,22 @@ interface TempSite {
   id: string;
   siteKey: string;
   createdAt: number;
-  expiresAt: number;
+  expiresAt: number | null;
   events: TempSiteEvent[];
-  timeRemaining: number;
+  timeRemaining: number | null;
 }
 
 interface TempSiteDemoProps {
   tempSite: TempSite;
-  tempId: string;
+  slug: string;
 }
 
 // Custom hook for fetching temp site data with polling
-function useTempSiteData(tempId: string, initialData: TempSite) {
+function useTempSiteData(slug: string, initialData: TempSite) {
   return useQuery({
-    queryKey: ["tempSite", tempId],
+    queryKey: ["tempSite", slug],
     queryFn: async () => {
-      const response = await fetch(`/api/temp-sites/${tempId}`);
+      const response = await fetch(`/api/temp-sites/${slug}`);
       if (!response.ok) {
         throw new Error("Failed to fetch temp site data");
       }
@@ -57,7 +57,10 @@ function useTempSiteData(tempId: string, initialData: TempSite) {
   });
 }
 
-function formatTimeRemaining(timeRemaining: number): string {
+function formatTimeRemaining(timeRemaining: number | null): string {
+  if (timeRemaining === null || timeRemaining <= 0) {
+    return "0:00";
+  }
   const minutes = Math.floor(timeRemaining / (1000 * 60));
   const seconds = Math.floor((timeRemaining % (1000 * 60)) / 1000);
   return `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -91,7 +94,7 @@ function CopyButton({ text, label }: { text: string; label: string }) {
 
 export function TempSiteDemo({
   tempSite: initialTempSite,
-  tempId,
+  slug,
 }: TempSiteDemoProps) {
   const [timeRemaining, setTimeRemaining] = useState(
     initialTempSite.timeRemaining,
@@ -104,12 +107,13 @@ export function TempSiteDemo({
     isLoading,
     error,
     refetch,
-  } = useTempSiteData(tempId, initialTempSite);
+  } = useTempSiteData(slug, initialTempSite);
 
   // Update countdown timer
   useEffect(() => {
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
+        if (prev === null || prev <= 0) return 0;
         const newTime = prev - 1000;
         return newTime > 0 ? newTime : 0;
       });
