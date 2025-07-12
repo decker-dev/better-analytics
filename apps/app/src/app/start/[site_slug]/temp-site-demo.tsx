@@ -12,8 +12,6 @@ import {
 import { Button } from "@repo/ui/components/button";
 import { Badge } from "@repo/ui/components/badge";
 import { RefreshCw, Clock, Activity, Copy, CheckCircle } from "lucide-react";
-import { codeToHtml } from "shiki";
-import Link from "next/link";
 import type { Event } from "@/lib/db/schema";
 
 interface TempSite {
@@ -307,27 +305,6 @@ const handleClick = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
-        </div>
-
-        {/* Next Steps */}
-        <div className="mt-12 text-center">
-          <h2 className="text-2xl font-bold mb-4">Ready to get started?</h2>
-          <p className="text-muted-foreground mb-6">
-            Create a permanent account to keep your analytics data and access
-            advanced features.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/sign-in">
-              <Button size="lg" className="bg-primary hover:bg-primary/90">
-                Create Account
-              </Button>
-            </Link>
-            <Link href="/start">
-              <Button variant="outline" size="lg">
-                Back to Setup
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
