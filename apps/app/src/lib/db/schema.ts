@@ -1,7 +1,8 @@
 import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { nanoid } from 'nanoid';
 
 export const events = pgTable('events', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   site: text('site').notNull().references(() => sites.id, { onDelete: 'cascade' }),
   ts: text('ts').notNull(),
   evt: text('evt').notNull(),
@@ -63,7 +64,7 @@ export const events = pgTable('events', {
 
 // Better Auth tables
 export const user = pgTable('user', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('emailVerified').notNull(),
@@ -73,7 +74,7 @@ export const user = pgTable('user', {
 });
 
 export const session = pgTable('session', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   expiresAt: timestamp('expiresAt').notNull(),
   token: text('token').notNull().unique(),
   createdAt: timestamp('createdAt').notNull().defaultNow(),
@@ -85,7 +86,7 @@ export const session = pgTable('session', {
 });
 
 export const account = pgTable('account', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   accountId: text('accountId').notNull(),
   providerId: text('providerId').notNull(),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
@@ -101,7 +102,7 @@ export const account = pgTable('account', {
 });
 
 export const verification = pgTable('verification', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   identifier: text('identifier').notNull(),
   value: text('value').notNull(),
   expiresAt: timestamp('expiresAt').notNull(),
@@ -111,7 +112,7 @@ export const verification = pgTable('verification', {
 
 // Organization plugin tables
 export const organization = pgTable('organization', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
   slug: text('slug').notNull().unique(),
   logo: text('logo'),
@@ -121,7 +122,7 @@ export const organization = pgTable('organization', {
 });
 
 export const member = pgTable('member', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   userId: text('userId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
   role: text('role').notNull(),
@@ -130,7 +131,7 @@ export const member = pgTable('member', {
 });
 
 export const invitation = pgTable('invitation', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   email: text('email').notNull(),
   inviterId: text('inviterId').notNull().references(() => user.id, { onDelete: 'cascade' }),
   organizationId: text('organizationId').notNull().references(() => organization.id, { onDelete: 'cascade' }),
@@ -142,7 +143,7 @@ export const invitation = pgTable('invitation', {
 });
 
 export const sites = pgTable('sites', {
-  id: text('id').primaryKey(),
+  id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal", "Demo Site"
   slug: text('slug').notNull().unique(),           // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
   siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking Y para URLs /start/[siteKey])

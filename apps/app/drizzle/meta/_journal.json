@@ -8,6 +8,13 @@
       "when": 1752281160748,
       "tag": "0000_giant_miss_america",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1752335522668,
+      "tag": "0001_colossal_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }

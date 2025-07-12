@@ -152,32 +152,7 @@ export function LoginForm({
             </div>
 
             {status !== "idle" && (
-              <Alert
-                className={cn(
-                  status === "success" &&
-                    "border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950",
-                  status === "error" &&
-                    "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950",
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  {status === "success" && (
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                  )}
-                  {status === "error" && (
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                  )}
-                  <AlertDescription
-                    className={cn(
-                      status === "success" &&
-                        "text-green-800 dark:text-green-200",
-                      status === "error" && "text-red-800 dark:text-red-200",
-                    )}
-                  >
-                    {message}
-                  </AlertDescription>
-                </div>
-              </Alert>
+              <div className="text-sm text-muted-foreground">{message}</div>
             )}
 
             <Button

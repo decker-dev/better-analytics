@@ -16,6 +16,7 @@ const RESERVED_PATHS = [
   'api',
   '_next',
   'start',
+  'onboarding',
 
   // SEO & Bot files
   'robots.txt',
@@ -29,7 +30,7 @@ const RESERVED_PATHS = [
   'atom.xml',
   'atom',
 
-  // Web App Manifest & PWA
+  // Web App Manifest & PWA 
   'manifest.json',
   'sw.js',
   'service-worker.js',
