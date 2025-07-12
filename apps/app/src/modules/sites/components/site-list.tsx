@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -12,6 +11,8 @@ import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
 import type { Site } from "@/lib/db/schema";
+import { createSiteAction } from "../actions/create-site";
+import { useAction } from "next-safe-action/hooks";
 
 interface SiteListProps {
   sites: Site[];
@@ -19,9 +20,17 @@ interface SiteListProps {
   organizationId: string;
 }
 
-export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
-  const router = useRouter();
-  const [creating, setCreating] = useState(false);
+export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
+  const { execute: createSite, isExecuting: creating } =
+    useAction(createSiteAction);
+
+  const handleCreateSite = () => {
+    createSite({
+      organizationId,
+      orgSlug,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -31,7 +40,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
             Manage your sites and view their analytics
           </p>
         </div>
-        <Button disabled={creating}>
+        <Button disabled={creating} onClick={handleCreateSite}>
           {creating ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
@@ -100,7 +109,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
             <p className="text-muted-foreground text-center mb-6">
               Create your first site to start tracking analytics
             </p>
-            <Button disabled={creating}>
+            <Button disabled={creating} onClick={handleCreateSite}>
               {creating ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
@@ -113,4 +122,4 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
       )}
     </div>
   );
-};
+}
