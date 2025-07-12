@@ -1,6 +1,5 @@
 import { db, schema } from '@/lib/db';
 import { eq, and, desc, gte, isNotNull, ne, sql } from 'drizzle-orm';
-import { getSiteBySiteKey } from '@/lib/unified-sites';
 
 export interface AnalyticsStats {
   totalPageViews: number;

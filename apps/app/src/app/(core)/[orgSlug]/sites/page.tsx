@@ -9,17 +9,12 @@ interface SitesPageProps {
 
 export default async function SitesPage({ params }: SitesPageProps) {
   const { orgSlug } = await params;
-
-  // Middleware has already validated session and org access
-  // We can safely get organizations
   const organizations = await auth.api.listOrganizations({
     headers: await headers(),
   });
 
-  // Find the current organization (middleware guarantees it exists)
   const currentOrg = organizations?.find((org) => org.slug === orgSlug)!;
 
-  // Get sites for this organization
   const sites = await getSitesByOrg(currentOrg.id);
 
   return (

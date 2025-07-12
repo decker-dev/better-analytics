@@ -1,29 +1,6 @@
-import { db, schema } from '../../../lib/db/index';
+import { db, schema } from '@/lib/db';
+import type { Site } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { nanoid } from 'nanoid';
-import { createSlugFromName } from '../../../lib/site-name-generator';
-import type { NewSite, Site } from '../../../lib/db/schema';
-
-/**
- * Generate a unique slug for a site within an organization
- */
-async function generateUniqueSlug(
-  name: string,
-  organizationId: string
-): Promise<string> {
-  const baseSlug = createSlugFromName(name);
-  let slug = baseSlug;
-  let counter = 1;
-
-  // Check if slug exists in the organization
-  while (await getSiteBySlug(slug, organizationId)) {
-    slug = `${baseSlug}-${counter}`;
-    counter++;
-  }
-
-  return slug;
-}
-
 
 /**
  * Get all sites for an organization
@@ -34,19 +11,6 @@ export async function getSitesByOrg(organizationId: string): Promise<Site[]> {
     .from(schema.sites)
     .where(eq(schema.sites.organizationId, organizationId))
     .orderBy(schema.sites.createdAt);
-}
-
-/**
- * Get a site by its site key
- */
-export async function getSiteByKey(siteKey: string): Promise<Site | null> {
-  const [site] = await db
-    .select()
-    .from(schema.sites)
-    .where(eq(schema.sites.siteKey, siteKey))
-    .limit(1);
-
-  return site || null;
 }
 
 /**
@@ -65,19 +29,6 @@ export async function getSiteBySlug(
         eq(schema.sites.organizationId, organizationId)
       )
     )
-    .limit(1);
-
-  return site || null;
-}
-
-/**
- * Get a site by ID
- */
-export async function getSiteById(siteId: string): Promise<Site | null> {
-  const [site] = await db
-    .select()
-    .from(schema.sites)
-    .where(eq(schema.sites.id, siteId))
     .limit(1);
 
   return site || null;
@@ -104,36 +55,6 @@ export async function updateSite(
   }
 
   return updatedSite;
-}
-
-/**
- * Delete a site
- */
-export async function deleteSite(siteId: string): Promise<void> {
-  await db
-    .delete(schema.sites)
-    .where(eq(schema.sites.id, siteId));
-}
-
-/**
- * Check if a site belongs to an organization (by site key)
- */
-export async function verifySiteOwnership(
-  siteKey: string,
-  organizationId: string
-): Promise<boolean> {
-  const [site] = await db
-    .select()
-    .from(schema.sites)
-    .where(
-      and(
-        eq(schema.sites.siteKey, siteKey),
-        eq(schema.sites.organizationId, organizationId)
-      )
-    )
-    .limit(1);
-
-  return !!site;
 }
 
 /**
