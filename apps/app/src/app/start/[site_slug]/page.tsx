@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { TempSiteDemo } from "./temp-site-demo";
+import { TempSiteDemo } from "./_components/temp-site-demo";
 import { getDemoSiteBySlug } from "@/lib/unified-sites";
 
 interface TempSitePageProps {

@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { useState, useTransition } from 'react';
-import { useRouter } from 'next/navigation';
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@repo/ui/components/button";
 import { Play } from "lucide-react";
-import { createTemporarySite } from './actions';
+import { createTemporarySite } from "../_actions/actions";
 
 export function TestInProductionButton() {
   const [isPending, startTransition] = useTransition();
@@ -16,7 +16,7 @@ export function TestInProductionButton() {
       if (result.success && result.redirectTo) {
         router.push(result.redirectTo);
       } else if (result.error) {
-        console.error('Failed to create temporary site:', result.error);
+        console.error("Failed to create temporary site:", result.error);
       }
     });
   };
@@ -29,7 +29,7 @@ export function TestInProductionButton() {
       className="bg-primary hover:bg-primary/90 text-primary-foreground"
     >
       <Play className="mr-2 h-4 w-4" />
-      {isPending ? 'Creating demo...' : 'Test in Production'}
+      {isPending ? "Creating demo..." : "Test in Production"}
     </Button>
   );
 }
