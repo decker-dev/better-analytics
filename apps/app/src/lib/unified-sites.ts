@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid';
 import { db } from '@/lib/db';
-import { sites, events, type Site } from '@/lib/db/schema';
+import { sites, events, type Site, type Event } from '@/lib/db/schema';
 import { eq, and, lt, isNotNull } from 'drizzle-orm';
 import { generateSiteKey } from '@/lib/site-key';
-import { generateSiteName, createSlugFromName } from './site-name-generator';
+import { createSlugFromName } from './site-name-generator';
 
 // Crear site regular para organización
 export async function createOrgSite(params: {
@@ -35,7 +35,17 @@ export async function createOrgSite(params: {
   };
 }
 
-export async function getSiteBySlug(slug: string) {
+export interface DemoSite {
+  id: string;
+  siteKey: string;
+  name: string;
+  slug: string;
+  createdAt: Date;
+  expiresAt: Date | null;
+  timeRemaining: number | null;
+  events: Event[];
+}
+export async function getDemoSiteBySlug(slug: string): Promise<DemoSite | null> {
   const siteResult = await db.select().from(sites)
     .where(and(
       eq(sites.slug, slug),
@@ -66,10 +76,47 @@ export async function getSiteBySlug(slug: string) {
     siteKey: site.siteKey,
     name: site.name,
     slug: site.slug,
-    createdAt: site.createdAt.getTime(),
-    expiresAt: site.expiresAt?.getTime() || null,
+    createdAt: site.createdAt,
+    expiresAt: site.expiresAt,
     timeRemaining,
-    events: siteEvents
+    events: [{
+      id: "1",
+      ref: "https://www.google.com",
+      createdAt: new Date(),
+      isTemp: false,
+      site: site.siteKey,
+      ts: "1",
+      evt: "pageview",
+      url: "https://www.google.com",
+      props: "1",
+      userAgent: "1",
+      browser: "1",
+      language: "1",
+      screenWidth: 1,
+      screenHeight: 1,
+      os: null,
+      device: null,
+      deviceVendor: null,
+      deviceModel: null,
+      engine: null,
+      cpu: null,
+      country: null,
+      region: null,
+      city: null,
+      sessionId: null,
+      userId: null,
+      pageTitle: null,
+      pathname: null,
+      hostname: null,
+      loadTime: null,
+      utmSource: null,
+      utmMedium: null,
+      utmCampaign: null,
+      utmTerm: null,
+      utmContent: null,
+      viewportWidth: null,
+      viewportHeight: null
+    }]
   };
 }
 

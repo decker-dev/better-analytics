@@ -14,22 +14,14 @@ import { Badge } from "@repo/ui/components/badge";
 import { RefreshCw, Clock, Activity, Copy, CheckCircle } from "lucide-react";
 import { codeToHtml } from "shiki";
 import Link from "next/link";
-
-interface TempSiteEvent {
-  id: string;
-  evt: string;
-  url: string | null;
-  props: string | null;
-  ts: string;
-  createdAt: Date | null;
-}
+import type { Event } from "@/lib/db/schema";
 
 interface TempSite {
   id: string;
   siteKey: string;
-  createdAt: number;
-  expiresAt: number | null;
-  events: TempSiteEvent[];
+  createdAt: Date;
+  expiresAt: Date | null;
+  events: Event[];
   timeRemaining: number | null;
 }
 
@@ -277,7 +269,7 @@ const handleClick = () => {
                     {tempSite.events
                       .slice()
                       .reverse()
-                      .map((event: TempSiteEvent, index: number) => (
+                      .map((event: Event, index: number) => (
                         <div
                           // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                           key={index}
