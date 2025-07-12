@@ -12,7 +12,6 @@ import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
 import type { Site } from "@/lib/db/schema";
-import { generateSiteName, generateSiteKey } from "@/lib/site-name-generator";
 
 interface SiteListProps {
   sites: Site[];
@@ -23,40 +22,6 @@ interface SiteListProps {
 export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
-  const handleCreateSite = async () => {
-    setCreating(true);
-
-    try {
-      const siteName = generateSiteName();
-      const siteKey = generateSiteKey();
-
-      const response = await fetch("/api/sites", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          organizationId,
-          name: siteName,
-          siteKey,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create site");
-      }
-
-      const site = await response.json();
-
-      // Redirect to onboarding
-      router.push(`/${orgSlug}/sites/${site.slug}/onboarding`);
-    } catch (error) {
-      console.error("Error creating site:", error);
-      // TODO: Add toast notification for error
-    } finally {
-      setCreating(false);
-    }
-  };
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -66,7 +31,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
             Manage your sites and view their analytics
           </p>
         </div>
-        <Button onClick={handleCreateSite} disabled={creating}>
+        <Button disabled={creating}>
           {creating ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
@@ -135,7 +100,7 @@ export const SiteList = ({ sites, orgSlug, organizationId }: SiteListProps) => {
             <p className="text-muted-foreground text-center mb-6">
               Create your first site to start tracking analytics
             </p>
-            <Button onClick={handleCreateSite} disabled={creating}>
+            <Button disabled={creating}>
               {creating ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (

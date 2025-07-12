@@ -1,7 +1,6 @@
 import { db, schema } from '../../../lib/db/index';
 import { eq, and } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import { generateUniqueSiteKey } from '../../../lib/site-key';
 import { createSlugFromName } from '../../../lib/site-name-generator';
 import type { NewSite, Site } from '../../../lib/db/schema';
 
@@ -25,38 +24,6 @@ async function generateUniqueSlug(
   return slug;
 }
 
-/**
- * Create a new site for an organization
- */
-export async function createSite(
-  organizationId: string,
-  name: string,
-  domain?: string,
-  description?: string,
-  customSiteKey?: string
-): Promise<Site> {
-  const id = nanoid();
-  const siteKey = customSiteKey || await generateUniqueSiteKey(organizationId);
-  const slug = await generateUniqueSlug(name, organizationId);
-
-  const newSite: NewSite = {
-    id,
-    name,
-    slug,
-    siteKey,
-    organizationId,
-    domain: domain || null,
-    description: description || null,
-  };
-
-  const [site] = await db.insert(schema.sites).values(newSite).returning();
-
-  if (!site) {
-    throw new Error('Failed to create site');
-  }
-
-  return site;
-}
 
 /**
  * Get all sites for an organization

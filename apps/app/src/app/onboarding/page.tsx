@@ -25,7 +25,9 @@ export default async function OnboardingPage() {
   const result = await createFirstOrganizationAndSite();
 
   if (result.success && result.data) {
-    redirect(`/${result.data.organizationSlug}/sites`);
+    redirect(
+      `/${result.data.organizationSlug}/sites/${result.data.siteKey}/onboarding`,
+    );
   }
 
   // Fallback UI in case of errors

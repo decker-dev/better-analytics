@@ -3,7 +3,6 @@ import { db, schema } from '../../../lib/db';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import UAParser from 'my-ua-parser';
-import { addEventToTempSite } from '@/lib/temp-sites';
 
 // Schema para validar los datos de entrada del SDK
 const incomingEventSchema = z.object({
@@ -136,34 +135,7 @@ export async function POST(request: NextRequest) {
       language: validatedData.device?.language || null,
     };
 
-    // Check if this is a temporary site
-    if (site.startsWith('TEMP_')) {
-      // Handle temporary site - don't save to database, save to memory
-      const wasAdded = await addEventToTempSite(site, eventToInsert);
-
-      if (wasAdded) {
-        return NextResponse.json({ success: true, type: 'temporary' }, {
-          headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-          },
-        });
-      }
-      return NextResponse.json({
-        success: false,
-        error: 'Temporary site not found or expired'
-      }, {
-        status: 404,
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-        },
-      });
-    }
-
-    // Regular site - insert into database
+    // Insert into database
     await db.insert(schema.events).values(eventToInsert);
 
     return NextResponse.json({ success: true, type: 'permanent' }, {
