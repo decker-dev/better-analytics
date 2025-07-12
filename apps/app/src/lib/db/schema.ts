@@ -141,11 +141,10 @@ export const invitation = pgTable('invitation', {
   updatedAt: timestamp('updatedAt').notNull().defaultNow().$onUpdate(() => new Date()),
 });
 
-// Sites table for project management (unified temp and regular sites)
 export const sites = pgTable('sites', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal", "Demo Site"
-  slug: text('slug').notNull(),                    // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
+  slug: text('slug').notNull().unique(),           // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
   siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking Y para URLs /start/[siteKey])
   organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }), // Null para sites temporales
   domain: text('domain'),                           // "dashboard.example.com" (opcional)

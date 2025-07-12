@@ -3,11 +3,11 @@ import { TempSiteDemo } from "./temp-site-demo";
 import { getSiteBySlug } from "@/lib/unified-sites";
 
 interface TempSitePageProps {
-  params: Promise<{ temporal_id: string }>;
+  params: Promise<{ site_slug: string }>;
 }
 
 export default async function TempSitePage({ params }: TempSitePageProps) {
-  const { temporal_id: slug } = await params;
+  const { site_slug: slug } = await params;
   const tempSite = await getSiteBySlug(slug);
 
   if (!tempSite) {
