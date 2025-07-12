@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { getSiteBySlug } from "@/lib/unified-sites";
 
 export async function GET(
   request: NextRequest,
@@ -6,6 +7,7 @@ export async function GET(
 ) {
   try {
     const { tempId } = await params;
+    console.log("tempId", tempId);
 
     if (!tempId) {
       return NextResponse.json(
@@ -14,7 +16,7 @@ export async function GET(
       );
     }
 
-    const tempSite = await getTempSite(tempId);
+    const tempSite = await getSiteBySlug(tempId);
 
     if (!tempSite) {
       return NextResponse.json(
