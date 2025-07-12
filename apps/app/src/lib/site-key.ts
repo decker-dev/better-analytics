@@ -3,47 +3,67 @@ import { db, schema } from './db';
 import { eq } from 'drizzle-orm';
 
 /**
- * Generate a unique site key in the format BA_{org_short}_{random}
- * Example: BA_A1B2_X9Y8Z7
+ * Validate if a string is a valid site key format
  */
-export function generateSiteKey(orgId: string): string {
-  const orgShort = orgId.slice(0, 4).toUpperCase();
-  const random = nanoid(6).toUpperCase();
-  return `BA_${orgShort}_${random}`;
+export function isValidSiteKey(siteKey: string): boolean {
+  // Must start with BA_ followed by 10 uppercase alphanumeric characters
+  const siteKeyRegex = /^BA_[A-Z0-9]{10}$/;
+  return siteKeyRegex.test(siteKey);
 }
 
 /**
- * Generate a unique site key that doesn't exist in the database
+ * Check if a site key exists in the database
  */
-export async function generateUniqueSiteKey(orgId: string): Promise<string> {
-  let attempts = 0;
-  const maxAttempts = 10;
+export async function siteKeyExists(siteKey: string): Promise<boolean> {
+  if (!isValidSiteKey(siteKey)) {
+    return false;
+  }
 
-  while (attempts < maxAttempts) {
-    const siteKey = generateSiteKey(orgId);
-
-    // Check if this site key already exists
+  try {
     const existing = await db
       .select()
       .from(schema.sites)
       .where(eq(schema.sites.siteKey, siteKey))
       .limit(1);
 
-    if (existing.length === 0) {
-      return siteKey;
-    }
-
-    attempts++;
+    return existing.length > 0;
+  } catch (error) {
+    throw new Error(`Database error while checking site key existence: ${error}`);
   }
-
-  throw new Error('Failed to generate unique site key after multiple attempts');
 }
 
 /**
- * Validate site key format
+ * Generate a unique site key that doesn't exist in the database
+ * Retries up to maxAttempts times to ensure uniqueness
  */
-export function validateSiteKey(siteKey: string): boolean {
-  // Pattern: BA_{4_chars}_{6_chars}
-  const pattern = /^BA_[A-Z0-9]{4}_[A-Z0-9]{6}$/;
-  return pattern.test(siteKey);
-} 
+export async function generateSiteKey(maxAttempts = 5): Promise<string> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    // Increased from 8 to 10 characters for better collision resistance
+    const siteKey = `BA_${nanoid(10).toUpperCase()}`;
+
+    try {
+      const exists = await siteKeyExists(siteKey);
+
+      if (!exists) {
+        return siteKey;
+      }
+
+      // If this is not the last attempt, continue to next iteration
+      if (attempt < maxAttempts) {
+        continue;
+      }
+
+      // If we've exhausted all attempts, throw error
+      throw new Error(`Failed to generate unique site key after ${maxAttempts} attempts`);
+    } catch (error) {
+      // Re-throw our own errors immediately
+      if (error instanceof Error && error.message.includes('Failed to generate')) {
+        throw error;
+      }
+      throw new Error(`Error while generating site key: ${error}`);
+    }
+  }
+
+  // This should never be reached, but TypeScript requires it
+  throw new Error('Unexpected error in site key generation');
+}

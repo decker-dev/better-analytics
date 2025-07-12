@@ -35,20 +35,6 @@ export function generateSiteName(): string {
 }
 
 /**
- * Generate a Better Analytics site key with format BA_XXXXXXXX
- */
-export function generateSiteKey(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = 'BA_';
-
-  for (let i = 0; i < 8; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-
-  return result;
-}
-
-/**
  * Create a URL-friendly slug from a site name
  * Examples: "Mi Dashboard" -> "mi-dashboard", "Blog Personal" -> "blog-personal"
  */
@@ -56,7 +42,7 @@ export function createSlugFromName(name: string): string {
   return name
     .toLowerCase()
     .normalize('NFD') // Decompose accented characters
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacr  itics
+    .replace(/\p{M}/gu, '') // Remove diacritics
     .replace(/[^a-z0-9\s-]/g, '') // Remove non-alphanumeric chars except spaces and hyphens
     .trim()
     .replace(/\s+/g, '-') // Replace spaces with hyphens

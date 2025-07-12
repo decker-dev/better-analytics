@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { TempSiteDemo } from "./temp-site-demo";
-import { getTempSiteBySlug } from "@/lib/unified-sites";
+import { getSiteBySlug } from "@/lib/unified-sites";
 
 interface TempSitePageProps {
   params: Promise<{ temporal_id: string }>;
@@ -8,7 +8,7 @@ interface TempSitePageProps {
 
 export default async function TempSitePage({ params }: TempSitePageProps) {
   const { temporal_id: slug } = await params;
-  const tempSite = await getTempSiteBySlug(slug);
+  const tempSite = await getSiteBySlug(slug);
 
   if (!tempSite) {
     notFound();
