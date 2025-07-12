@@ -8,7 +8,7 @@ import { generateSiteKey } from '@/lib/site-key';
 export async function createTempSite() {
   const siteKey = generateSiteKey();
   const siteId = nanoid();
-  const tempSlug = generateSlug("Demo Site"); // Generar slug normal
+  const tempSlug = generateSlug(); // Generar slug normal
   const now = new Date();
   const expiresAt = new Date(now.getTime() + (60 * 60 * 1000)); // 1 hora
 

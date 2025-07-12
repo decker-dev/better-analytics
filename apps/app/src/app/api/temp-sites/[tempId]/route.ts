@@ -1,5 +1,4 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { getTempSite } from "@/lib/temp-sites";
 
 export async function GET(
   request: NextRequest,

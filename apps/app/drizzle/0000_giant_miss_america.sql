@@ -17,11 +17,40 @@ CREATE TABLE "account" (
 CREATE TABLE "events" (
 	"id" text PRIMARY KEY NOT NULL,
 	"site" text NOT NULL,
-	"ts" integer NOT NULL,
+	"ts" text NOT NULL,
 	"evt" text NOT NULL,
 	"url" text,
 	"ref" text,
-	"props" text
+	"props" text,
+	"userAgent" text,
+	"browser" text,
+	"os" text,
+	"device" text,
+	"deviceVendor" text,
+	"deviceModel" text,
+	"engine" text,
+	"cpu" text,
+	"country" text,
+	"region" text,
+	"city" text,
+	"sessionId" text,
+	"userId" text,
+	"pageTitle" text,
+	"pathname" text,
+	"hostname" text,
+	"loadTime" integer,
+	"utmSource" text,
+	"utmMedium" text,
+	"utmCampaign" text,
+	"utmTerm" text,
+	"utmContent" text,
+	"screenWidth" integer,
+	"screenHeight" integer,
+	"viewportWidth" integer,
+	"viewportHeight" integer,
+	"language" text,
+	"is_temp" boolean DEFAULT false,
+	"createdAt" timestamp DEFAULT now()
 );
 --> statement-breakpoint
 CREATE TABLE "invitation" (
@@ -69,6 +98,21 @@ CREATE TABLE "session" (
 	CONSTRAINT "session_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
+CREATE TABLE "sites" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name" text NOT NULL,
+	"slug" text NOT NULL,
+	"site_key" text NOT NULL,
+	"organization_id" text,
+	"domain" text,
+	"description" text,
+	"is_temp" boolean DEFAULT false,
+	"expires_at" timestamp,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "sites_site_key_unique" UNIQUE("site_key")
+);
+--> statement-breakpoint
 CREATE TABLE "user" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -90,8 +134,10 @@ CREATE TABLE "verification" (
 );
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "events" ADD CONSTRAINT "events_site_sites_id_fk" FOREIGN KEY ("site") REFERENCES "public"."sites"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invitation" ADD CONSTRAINT "invitation_inviterId_user_id_fk" FOREIGN KEY ("inviterId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "invitation" ADD CONSTRAINT "invitation_organizationId_organization_id_fk" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "member" ADD CONSTRAINT "member_organizationId_organization_id_fk" FOREIGN KEY ("organizationId") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "session" ADD CONSTRAINT "session_userId_user_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "sites" ADD CONSTRAINT "sites_organization_id_organization_id_fk" FOREIGN KEY ("organization_id") REFERENCES "public"."organization"("id") ON DELETE cascade ON UPDATE no action;

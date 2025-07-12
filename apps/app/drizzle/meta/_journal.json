@@ -5,50 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1750096066513,
-      "tag": "0000_lovely_sinister_six",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1750097370360,
-      "tag": "0001_cuddly_jamie_braddock",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1750114114261,
-      "tag": "0002_little_darkstar",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1750291112321,
-      "tag": "0003_nervous_adam_warlock",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1751464367878,
-      "tag": "0004_wakeful_eternity",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1752186305553,
-      "tag": "0005_ordinary_nemesis",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1752205782300,
-      "tag": "0006_aberrant_logan",
+      "when": 1752281160748,
+      "tag": "0000_giant_miss_america",
       "breakpoints": true
     }
   ]

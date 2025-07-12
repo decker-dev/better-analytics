@@ -2,7 +2,7 @@ import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core'
 
 export const events = pgTable('events', {
   id: text('id').primaryKey(),
-  site: text('site').notNull(),
+  site: text('site').notNull().references(() => sites.id, { onDelete: 'cascade' }),
   ts: text('ts').notNull(),
   evt: text('evt').notNull(),
   url: text('url'),
@@ -150,11 +150,11 @@ export const sites = pgTable('sites', {
   organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }), // Null para sites temporales
   domain: text('domain'),                           // "dashboard.example.com" (opcional)
   description: text('description'),                 // Descripción del proyecto
-  
+
   // Campos para sites temporales
   isTemp: boolean('is_temp').default(false),       // true para sites temporales
   expiresAt: timestamp('expires_at'),              // Solo para sites temporales
-  
+
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
 });
@@ -175,4 +175,3 @@ export type NewInvitation = typeof invitation.$inferInsert;
 export type Site = typeof sites.$inferSelect;
 export type NewSite = typeof sites.$inferInsert;
 
- 
