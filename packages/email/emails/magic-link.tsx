@@ -36,7 +36,7 @@ export default function MagicLinkEmail({
           <Container className="border border-solid border-[#262626] rounded my-[40px] mx-auto p-[20px] max-w-[465px] bg-[#111111]">
             <Section className="mt-[32px]">
               <Img
-                src="https://better-analytics.app/logo.png"
+                src="https://better-analytics.app/logo_512x512.png"
                 width="40"
                 height="37"
                 alt="Better Analytics"
