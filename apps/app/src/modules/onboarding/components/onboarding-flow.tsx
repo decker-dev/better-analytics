@@ -115,7 +115,7 @@ export function OnboardingFlow({ site, orgSlug }: OnboardingFlowProps) {
                   </div>
 
                   {/* Continue Button */}
-                  <Link href={`/${orgSlug}/sites/${site.siteKey}/stats`}>
+                  <Link href={`/${orgSlug}/sites/${site.slug}/stats`}>
                     <Button className="w-full">
                       Continue to Dashboard
                       <ArrowRight className="w-4 h-4 ml-2" />

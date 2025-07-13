@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -10,9 +9,11 @@ import {
 import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Site } from "@/lib/db/schema";
 import { createSiteAction } from "../actions/create-site";
 import { useAction } from "next-safe-action/hooks";
+import { useEffect } from "react";
 
 interface SiteListProps {
   sites: Site[];
@@ -21,8 +22,21 @@ interface SiteListProps {
 }
 
 export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
-  const { execute: createSite, isExecuting: creating } =
-    useAction(createSiteAction);
+  const router = useRouter();
+
+  const {
+    execute: createSite,
+    isExecuting: creating,
+    result,
+    hasSucceeded,
+  } = useAction(createSiteAction);
+
+  useEffect(() => {
+    if (hasSucceeded && result?.data?.data) {
+      const actionResult = result.data.data;
+      router.push(`/${orgSlug}/sites/${actionResult.siteSlug}/onboarding`);
+    }
+  }, [hasSucceeded, result, router, orgSlug]);
 
   const handleCreateSite = () => {
     createSite({

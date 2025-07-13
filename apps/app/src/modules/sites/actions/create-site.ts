@@ -54,7 +54,8 @@ export const createSiteAction = authActionClient
       return {
         success: true,
         data: {
-          site: newSite,
+          organizationSlug: orgSlug,
+          siteSlug: newSite.slug,
         },
       };
     } catch (error) {
