@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { authClient } from "@/modules/auth/lib/auth-client";
+import { useActionState } from "react";
+import { inviteMember } from "../actions/invite-member";
 import {
   Card,
   CardContent,
@@ -18,66 +18,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@repo/ui/components/select";
-import { Loader2, UserPlus, Mail, Check } from "lucide-react";
+import { UserPlus, Mail, CheckCircle2 } from "lucide-react";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
+import type { ActionState } from "@/modules/shared/lib/middleware-action";
 
 interface InviteMemberFormProps {
   organizationId: string;
 }
 
+const initialState: ActionState = {
+  success: false,
+  message: "",
+};
+
 export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  // Form state
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState<"admin" | "member">("member");
-
-  const handleInviteMember = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!email.trim()) {
-      setMessage({ type: "error", text: "Please enter a valid email" });
-      return;
-    }
-
-    if (!email.includes("@")) {
-      setMessage({ type: "error", text: "Please enter a valid email" });
-      return;
-    }
-
-    setLoading(true);
-    setMessage(null);
-
-    try {
-      const result = await authClient.organization.inviteMember({
-        email: email.trim(),
-        role,
-        organizationId,
-      });
-
-      if (result.error) {
-        setMessage({ type: "error", text: `Error: ${result.error.message}` });
-      } else {
-        setMessage({
-          type: "success",
-          text: `Invitation sent successfully to ${email}`,
-        });
-        setEmail("");
-        setRole("member");
-      }
-    } catch (error) {
-      setMessage({
-        type: "error",
-        text: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [state, action, isPending] = useActionState(inviteMember, initialState);
 
   return (
     <Card>
@@ -88,28 +43,32 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleInviteMember} className="space-y-4">
-          <div className="grid gap-2">
-            <Label htmlFor="email">Member email</Label>
+        <form action={action} className="space-y-4">
+          <input type="hidden" name="organizationId" value={organizationId} />
+
+          <div className="space-y-2">
+            <Label htmlFor="email">Member Email</Label>
             <Input
               id="email"
+              name="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
               placeholder="example@company.com"
-              disabled={loading}
               required
+              aria-describedby="email-error"
+              className={state?.errors?.email ? "border-red-500" : ""}
+              disabled={isPending}
             />
+            {state?.errors?.email && (
+              <p id="email-error" className="text-sm text-red-500">
+                {state.errors.email[0]}
+              </p>
+            )}
           </div>
 
-          <div className="grid gap-2">
+          <div className="space-y-2">
             <Label htmlFor="role">Role</Label>
-            <Select
-              value={role}
-              onValueChange={(value: "admin" | "member") => setRole(value)}
-              disabled={loading}
-            >
-              <SelectTrigger>
+            <Select name="role" defaultValue="member" disabled={isPending}>
+              <SelectTrigger aria-describedby="role-error">
                 <SelectValue placeholder="Select a role" />
               </SelectTrigger>
               <SelectContent>
@@ -117,37 +76,30 @@ export const InviteMemberForm = ({ organizationId }: InviteMemberFormProps) => {
                 <SelectItem value="admin">Admin</SelectItem>
               </SelectContent>
             </Select>
+            {state?.errors?.role && (
+              <p id="role-error" className="text-sm text-red-500">
+                {state.errors.role[0]}
+              </p>
+            )}
           </div>
 
-          <Button
-            type="submit"
-            disabled={loading || !email.trim()}
-            className="w-full"
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <Mail className="h-4 w-4 mr-2" />
-            )}
-            Send Invitation
-          </Button>
-
-          {message && (
-            <Alert
-              className={
-                message.type === "success" ? "border-green-200 bg-green-50" : ""
-              }
-            >
-              {message.type === "success" && (
-                <Check className="h-4 w-4 text-green-600" />
-              )}
-              <AlertDescription
-                className={message.type === "success" ? "text-green-800" : ""}
-              >
-                {message.text}
-              </AlertDescription>
+          {state?.message && (
+            <Alert variant={state.success ? "default" : "destructive"}>
+              {state.success && <CheckCircle2 className="h-4 w-4" />}
+              <AlertDescription>{state.message}</AlertDescription>
             </Alert>
           )}
+
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? (
+              "Sending..."
+            ) : (
+              <>
+                <Mail className="h-4 w-4 mr-2" />
+                Send Invitation
+              </>
+            )}
+          </Button>
 
           <div className="text-sm text-muted-foreground space-y-1">
             <p>

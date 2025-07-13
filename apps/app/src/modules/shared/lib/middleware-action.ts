@@ -8,9 +8,11 @@ import { member, organization, user } from '@/modules/shared/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export type ActionState = {
-  error?: string;
-  success?: string;
-  [key: string]: unknown; // This allows for additional properties
+  success: boolean;
+  message: string;
+  errors?: {
+    [key: string]: string[];
+  };
 };
 
 export type User = typeof user.$inferSelect;
@@ -96,7 +98,11 @@ export function validatedAction<S extends z.ZodType<unknown, z.ZodTypeDef, unkno
   return async (prevState: ActionState, formData: FormData) => {
     const result = schema.safeParse(Object.fromEntries(formData));
     if (!result.success) {
-      return { error: result.error.errors[0]?.message || 'Validation failed' };
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: result.error.flatten().fieldErrors
+      };
     }
 
     return action(result.data, formData);
@@ -121,7 +127,11 @@ export function validatedActionWithUser<S extends z.ZodType<unknown, z.ZodTypeDe
 
     const result = schema.safeParse(Object.fromEntries(formData));
     if (!result.success) {
-      return { error: result.error.errors[0]?.message || 'Validation failed' };
+      return {
+        success: false,
+        message: 'Validation failed',
+        errors: result.error.flatten().fieldErrors
+      };
     }
 
     return action(result.data, formData, user);

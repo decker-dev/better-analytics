@@ -1,132 +1,117 @@
 "use client";
 
-import { useState, useTransition, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useActionState } from "react";
+import { updateOrganization } from "../actions/update-organization";
+import { Button } from "@repo/ui/components/button";
+import { Input } from "@repo/ui/components/input";
+import { Label } from "@repo/ui/components/label";
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Button } from "@repo/ui/components/button";
-import { Input } from "@repo/ui/components/input";
-import { Label } from "@repo/ui/components/label";
-import { Loader2 } from "lucide-react";
-import { updateOrganization } from "../actions/update-organization";
-import type { Organization } from "../types/organization";
+import { Alert, AlertDescription } from "@repo/ui/components/alert";
+import { Settings, CheckCircle2 } from "lucide-react";
+import type { ActionState } from "@/modules/shared/lib/middleware-action";
 
-const generateSlug = (name: string) => {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[\s_]+/g, "-") // Replace spaces and underscores with hyphens
-    .replace(/[^a-z0-9-]/g, "") // Remove all non-alphanumeric characters except hyphens
-    .replace(/--+/g, "-") // Replace multiple hyphens with a single one
-    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+type UpdateOrganizationFormProps = {
+  organization: {
+    id: string;
+    name: string;
+    slug: string;
+  };
 };
 
-interface UpdateOrganizationFormProps {
-  organization: Organization;
-}
+const initialState: ActionState = {
+  success: false,
+  message: "",
+};
 
-export function UpdateOrganizationForm({
+export const UpdateOrganizationForm = ({
   organization,
-}: UpdateOrganizationFormProps) {
-  const [name, setName] = useState(organization.name);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-
-  const derivedSlug = useMemo(() => {
-    if (name === organization.name) {
-      return organization.slug;
-    }
-    return generateSlug(name);
-  }, [name, organization.name, organization.slug]);
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (name === organization.name) return;
-
-    setError(null);
-    setSuccess(null);
-
-    startTransition(async () => {
-      const formData = new FormData();
-      formData.append("organizationId", organization.id);
-      formData.append("name", name);
-      formData.append("slug", derivedSlug);
-
-      const result = await updateOrganization(formData);
-
-      if (result?.error) {
-        setError(result.error);
-        setSuccess(null);
-      } else {
-        setSuccess("Organization updated successfully!");
-        setError(null);
-        router.refresh();
-      }
-    });
-  };
+}: UpdateOrganizationFormProps) => {
+  const [state, action, isPending] = useActionState(
+    updateOrganization,
+    initialState,
+  );
 
   return (
     <Card>
-      <form onSubmit={handleSubmit}>
-        <CardHeader>
-          <CardTitle>Organization Name</CardTitle>
-          <CardDescription>
-            Updating the name will also update the organization's URL. Make sure
-            the new URL doesn't conflict with existing organizations.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="org-name">Name</Label>
-            <Input
-              id="org-name"
-              value={name}
-              onChange={(e) => {
-                setName(e.target.value);
-                // Clear messages when user starts typing
-                if (error) setError(null);
-                if (success) setSuccess(null);
-              }}
-              disabled={isPending}
-            />
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Settings className="h-5 w-5" />
+          Organization Settings
+        </CardTitle>
+        <CardDescription>
+          Update your organization name and identifier (slug)
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={action} className="space-y-6">
+          <input type="hidden" name="organizationId" value={organization.id} />
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Organization Name</Label>
+              <Input
+                id="name"
+                name="name"
+                defaultValue={organization.name}
+                placeholder="Enter organization name"
+                required
+                minLength={1}
+                maxLength={100}
+                aria-describedby="name-error"
+                className={state?.errors?.name ? "border-red-500" : ""}
+                disabled={isPending}
+              />
+              {state?.errors?.name && (
+                <p id="name-error" className="text-sm text-red-500">
+                  {state.errors.name[0]}
+                </p>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="slug">Identifier (Slug)</Label>
+              <Input
+                id="slug"
+                name="slug"
+                defaultValue={organization.slug}
+                placeholder="organization-slug"
+                required
+                minLength={1}
+                maxLength={50}
+                pattern="^[a-z0-9-]+$"
+                aria-describedby="slug-error slug-help"
+                className={state?.errors?.slug ? "border-red-500" : ""}
+                disabled={isPending}
+              />
+              <p id="slug-help" className="text-sm text-muted-foreground">
+                Only lowercase letters, numbers, and hyphens are allowed
+              </p>
+              {state?.errors?.slug && (
+                <p id="slug-error" className="text-sm text-red-500">
+                  {state.errors.slug[0]}
+                </p>
+              )}
+            </div>
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-between items-center mt-4">
-          <div className="flex-1 mr-4">
-            {error && (
-              <div className="text-sm text-destructive space-y-1">
-                <p className="font-medium">Unable to update organization:</p>
-                <p>{error}</p>
-                {error.includes("slug") && error.includes("already in use") && (
-                  <p className="text-xs text-muted-foreground">
-                    Try choosing a different name or manually edit the URL slug.
-                  </p>
-                )}
-              </div>
-            )}
-            {success && (
-              <div className="text-sm text-green-600">
-                <p className="font-medium">✓ {success}</p>
-              </div>
-            )}
-          </div>
-          <Button
-            type="submit"
-            disabled={isPending || name === organization.name}
-          >
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isPending ? "Updating..." : "Save Changes"}
+
+          {state?.message && (
+            <Alert variant={state.success ? "default" : "destructive"}>
+              {state.success && <CheckCircle2 className="h-4 w-4" />}
+              <AlertDescription>{state.message}</AlertDescription>
+            </Alert>
+          )}
+
+          <Button type="submit" className="w-full" disabled={isPending}>
+            {isPending ? "Updating..." : "Update Organization"}
           </Button>
-        </CardFooter>
-      </form>
+        </form>
+      </CardContent>
     </Card>
   );
-}
+};
