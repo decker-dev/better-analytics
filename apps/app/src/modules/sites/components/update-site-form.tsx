@@ -1,16 +1,14 @@
 "use client";
 
-import { useActionState } from "react";
-import { useRouter } from "next/navigation";
-import Form from "next/form";
+import { useTransition, useState } from "react";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
 import { Loader2, Save } from "lucide-react";
-import { updateSiteAction } from "../actions/update-site";
+import { updateSite } from "../actions/update-site";
 import type { Site } from "@/lib/db/schema";
-import { useEffect } from "react";
+import type { ActionState } from "@/lib/middleware-action";
 
 interface UpdateSiteFormProps {
   site: Site;
@@ -18,18 +16,34 @@ interface UpdateSiteFormProps {
 }
 
 export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
-  const router = useRouter();
-  const [state, formAction, isPending] = useActionState(updateSiteAction, null);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<{
+    success?: boolean;
+    serverError?: string;
+    validationErrors?: Record<string, string[]>;
+    error?: string;
+    data?: {
+      id: string;
+      name: string;
+      slug: string;
+      domain: string | null;
+      description: string | null;
+      organizationSlug: string;
+    };
+  }>({});
 
-  useEffect(() => {
-    if (state?.data?.slug && state.data.slug !== site.slug) {
-      // If slug changed, redirect to new URL
-      router.push(`/${orgSlug}/sites/${state.data.slug}/settings`);
-    }
-  }, [state, router, orgSlug, site.slug]);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    startTransition(async () => {
+      const formData = new FormData(e.currentTarget);
+      const result = await updateSite({}, formData);
+      setState(result);
+    });
+  };
 
   return (
-    <Form action={formAction} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       {/* Hidden fields */}
       <input type="hidden" name="siteId" value={site.id} />
       <input type="hidden" name="orgSlug" value={orgSlug} />
@@ -95,8 +109,8 @@ export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
       </div>
 
       {/* Error handling */}
-      {state?.validationErrors && (
-        <div className="text-sm text-red-600">
+      {state.validationErrors && (
+        <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md">
           {Object.entries(state.validationErrors).map(([field, errors]) => (
             <div key={field}>
               <strong>{field}:</strong> {errors.join(", ")}
@@ -105,12 +119,16 @@ export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
         </div>
       )}
 
-      {state?.serverError && (
-        <div className="text-sm text-red-600">{state.serverError}</div>
+      {(state.serverError || state.error) && (
+        <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md">
+          {state.serverError || state.error}
+        </div>
       )}
 
-      {state?.success && (
-        <div className="text-sm text-green-600">Site updated successfully!</div>
+      {state.success && (
+        <div className="bg-green-50 text-green-700 px-4 py-3 rounded-md">
+          Site updated successfully!
+        </div>
       )}
 
       <div className="flex justify-end">
@@ -123,6 +141,6 @@ export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
           Save Changes
         </Button>
       </div>
-    </Form>
+    </form>
   );
 };

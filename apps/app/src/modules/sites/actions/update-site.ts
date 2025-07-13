@@ -5,8 +5,8 @@ import { sites } from '@/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { auth } from '@/modules/auth/lib/auth';
-import { headers } from 'next/headers';
+import { validatedActionWithUser } from '@/lib/middleware-action';
+import { redirect } from 'next/navigation';
 
 const updateSiteSchema = z.object({
   siteId: z.string().min(1, 'Site ID is required'),
@@ -66,118 +66,99 @@ async function ensureUniqueSlug(baseSlug: string, currentSiteId: string, organiz
   }
 }
 
-export async function updateSiteAction(prevState: unknown, formData: FormData) {
-  try {
-    // Check authentication
-    const session = await auth.api.getSession({
-      headers: await headers(),
-    });
+export const updateSite = validatedActionWithUser(
+  updateSiteSchema,
+  async (data, formData, user) => {
+    const { siteId, name, domain, description, orgSlug, currentSlug } = data;
 
-    if (!session) {
+    try {
+      // Get the current site to verify ownership and get organization ID
+      const [currentSite] = await db
+        .select({
+          id: sites.id,
+          organizationId: sites.organizationId,
+          name: sites.name,
+          slug: sites.slug,
+        })
+        .from(sites)
+        .where(eq(sites.id, siteId))
+        .limit(1);
+
+      if (!currentSite) {
+        return {
+          success: false,
+          serverError: 'Site not found',
+        };
+      }
+
+      // Generate new slug from name
+      const baseSlug = generateSlugFromName(name);
+      if (!baseSlug) {
+        return {
+          success: false,
+          serverError: 'Invalid site name - cannot generate slug',
+        };
+      }
+
+      // Ensure slug is unique
+      const uniqueSlug = await ensureUniqueSlug(
+        baseSlug,
+        siteId,
+        currentSite.organizationId!
+      );
+
+      // Update the site
+      const [updatedSite] = await db
+        .update(sites)
+        .set({
+          name: name.trim(),
+          slug: uniqueSlug,
+          domain: domain?.trim() || null,
+          description: description?.trim() || null,
+          updatedAt: new Date(),
+        })
+        .where(eq(sites.id, siteId))
+        .returning();
+
+      if (!updatedSite) {
+        return {
+          success: false,
+          serverError: 'Failed to update site',
+        };
+      }
+
+      // Revalidate relevant paths
+      revalidatePath(`/${orgSlug}/sites`);
+      revalidatePath(`/${orgSlug}/sites/${currentSlug}`);
+      revalidatePath(`/${orgSlug}/sites/${uniqueSlug}`);
+
+      // If slug changed, redirect to new URL (this throws NEXT_REDIRECT)
+      if (uniqueSlug !== currentSlug) {
+        redirect(`/${orgSlug}/sites/${uniqueSlug}/settings`);
+      }
+
+      return {
+        success: true,
+        data: {
+          id: updatedSite.id,
+          name: updatedSite.name,
+          slug: updatedSite.slug,
+          domain: updatedSite.domain,
+          description: updatedSite.description,
+          organizationSlug: orgSlug,
+        },
+      };
+    } catch (error) {
+      // Re-throw redirect errors so Next.js can handle them
+      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+        throw error;
+      }
+
+      console.error('Error updating site:', error);
       return {
         success: false,
-        serverError: 'Authentication required',
+        serverError: error instanceof Error ? error.message : 'Failed to update site',
       };
     }
-
-    // Parse form data
-    const rawData = {
-      siteId: formData.get('siteId') as string,
-      name: formData.get('name') as string,
-      domain: formData.get('domain') as string,
-      description: formData.get('description') as string,
-      orgSlug: formData.get('orgSlug') as string,
-      currentSlug: formData.get('currentSlug') as string,
-    };
-
-    // Validate with zod
-    const validationResult = updateSiteSchema.safeParse(rawData);
-
-    if (!validationResult.success) {
-      return {
-        success: false,
-        validationErrors: validationResult.error.flatten().fieldErrors,
-      };
-    }
-
-    const { siteId, name, domain, description, orgSlug, currentSlug } = validationResult.data;
-
-    // Get the current site to verify ownership and get organization ID
-    const [currentSite] = await db
-      .select({
-        id: sites.id,
-        organizationId: sites.organizationId,
-        name: sites.name,
-        slug: sites.slug,
-      })
-      .from(sites)
-      .where(eq(sites.id, siteId))
-      .limit(1);
-
-    if (!currentSite) {
-      return {
-        success: false,
-        serverError: 'Site not found',
-      };
-    }
-
-    // Generate new slug from name
-    const baseSlug = generateSlugFromName(name);
-    if (!baseSlug) {
-      return {
-        success: false,
-        serverError: 'Invalid site name - cannot generate slug',
-      };
-    }
-
-    // Ensure slug is unique
-    const uniqueSlug = await ensureUniqueSlug(
-      baseSlug,
-      siteId,
-      currentSite.organizationId!
-    );
-
-    // Update the site
-    const [updatedSite] = await db
-      .update(sites)
-      .set({
-        name: name.trim(),
-        slug: uniqueSlug,
-        domain: domain?.trim() || null,
-        description: description?.trim() || null,
-        updatedAt: new Date(),
-      })
-      .where(eq(sites.id, siteId))
-      .returning();
-
-    if (!updatedSite) {
-      return {
-        success: false,
-        serverError: 'Failed to update site',
-      };
-    }
-
-    // Revalidate relevant paths
-    revalidatePath(`/${orgSlug}/sites`);
-    revalidatePath(`/${orgSlug}/sites/${currentSlug}`);
-    revalidatePath(`/${orgSlug}/sites/${uniqueSlug}`);
-
-    return {
-      success: true,
-      data: {
-        id: updatedSite.id,
-        name: updatedSite.name,
-        slug: updatedSite.slug,
-        domain: updatedSite.domain,
-        description: updatedSite.description,
-        organizationSlug: orgSlug,
-      },
-    };
-  } catch (error) {
-    console.error('Error updating site:', error);
-    return {
-      success: false,
-      serverError: error instanceof Error ? error.message : 'Failed to update site',
-    };
   }
-} 
+); 

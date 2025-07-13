@@ -1,29 +1,23 @@
 'use server';
 
-import { authActionClient } from '@/lib/safe-action';
+import { z } from 'zod';
 import { db } from '@/lib/db';
 import { sites } from '@/lib/db/schema';
 import { generateSiteKey } from '@/lib/site-key';
 import { generateSlug } from '@/lib/site-name-generator';
 import { revalidatePath } from 'next/cache';
-import { z } from 'zod';
+import { validatedActionWithUser } from '@/lib/middleware-action';
+import { redirect } from 'next/navigation';
 
 const createSiteSchema = z.object({
   organizationId: z.string().min(1, 'Organization ID is required'),
   orgSlug: z.string().min(1, 'Organization slug is required'),
 });
 
-export const createSiteAction = authActionClient
-  .schema(createSiteSchema)
-  .metadata({
-    name: 'create-site',
-    track: {
-      event: 'site_created',
-      channel: 'dashboard',
-    },
-  })
-  .action(async ({ parsedInput, ctx }) => {
-    const { organizationId, orgSlug } = parsedInput;
+export const createSite = validatedActionWithUser(
+  createSiteSchema,
+  async (data, formData, user) => {
+    const { organizationId, orgSlug } = data;
 
     try {
       // Generate unique site key
@@ -51,15 +45,18 @@ export const createSiteAction = authActionClient
       // Revalidate the sites page
       revalidatePath(`/${orgSlug}/sites`);
 
-      return {
-        success: true,
-        data: {
-          organizationSlug: orgSlug,
-          siteSlug: newSite.slug,
-        },
-      };
+      // Redirect to onboarding (this throws NEXT_REDIRECT)
+      redirect(`/${orgSlug}/sites/${newSite.slug}/onboarding`);
     } catch (error) {
+      // Re-throw redirect errors so Next.js can handle them
+      if (error instanceof Error && error.message === 'NEXT_REDIRECT') {
+        throw error;
+      }
+
       console.error('Error creating site:', error);
-      throw new Error(error instanceof Error ? error.message : 'Failed to create site');
+      return {
+        error: error instanceof Error ? error.message : 'Failed to create site',
+      };
     }
-  }); 
+  }
+); 

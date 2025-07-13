@@ -9,11 +9,10 @@ import {
 import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { Site } from "@/lib/db/schema";
-import { createSiteAction } from "../actions/create-site";
-import { useAction } from "next-safe-action/hooks";
-import { useEffect } from "react";
+import { createSite } from "../actions/create-site";
+import { useTransition, useState } from "react";
+import type { ActionState } from "@/lib/middleware-action";
 
 interface SiteListProps {
   sites: Site[];
@@ -22,26 +21,17 @@ interface SiteListProps {
 }
 
 export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
-  const router = useRouter();
-
-  const {
-    execute: createSite,
-    isExecuting: creating,
-    result,
-    hasSucceeded,
-  } = useAction(createSiteAction);
-
-  useEffect(() => {
-    if (hasSucceeded && result?.data?.data) {
-      const actionResult = result.data.data;
-      router.push(`/${orgSlug}/sites/${actionResult.siteSlug}/onboarding`);
-    }
-  }, [hasSucceeded, result, router, orgSlug]);
+  const [isPending, startTransition] = useTransition();
+  const [state, setState] = useState<ActionState>({});
 
   const handleCreateSite = () => {
-    createSite({
-      organizationId,
-      orgSlug,
+    startTransition(async () => {
+      const formData = new FormData();
+      formData.append("organizationId", organizationId);
+      formData.append("orgSlug", orgSlug);
+
+      const result = await createSite(state, formData);
+      setState(result);
     });
   };
 
@@ -54,8 +44,8 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
             Manage your sites and view their analytics
           </p>
         </div>
-        <Button disabled={creating} onClick={handleCreateSite}>
-          {creating ? (
+        <Button disabled={isPending} onClick={handleCreateSite}>
+          {isPending ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           ) : (
             <Plus className="h-4 w-4 mr-2" />
@@ -63,6 +53,12 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
           Create New Site
         </Button>
       </div>
+
+      {state.error && (
+        <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md">
+          {state.error}
+        </div>
+      )}
 
       {sites.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -123,8 +119,8 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
             <p className="text-muted-foreground text-center mb-6">
               Create your first site to start tracking analytics
             </p>
-            <Button disabled={creating} onClick={handleCreateSite}>
-              {creating ? (
+            <Button disabled={isPending} onClick={handleCreateSite}>
+              {isPending ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
               ) : (
                 <Plus className="h-4 w-4 mr-2" />
