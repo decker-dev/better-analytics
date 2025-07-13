@@ -1,5 +1,6 @@
 "use client";
 
+import { useActionState } from "react";
 import {
   Card,
   CardContent,
@@ -7,11 +8,11 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Button } from "@repo/ui/components/button";
-import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
+import { BarChart3, Settings, Plus, Globe, CheckCircle2 } from "lucide-react";
+import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import Link from "next/link";
 import type { Site } from "@/modules/shared/lib/db/schema";
 import { createSite } from "../actions/create-site";
-import { useTransition, useState } from "react";
 import type { ActionState } from "@/modules/shared/lib/middleware-action";
 
 interface SiteListProps {
@@ -20,20 +21,13 @@ interface SiteListProps {
   organizationId: string;
 }
 
+const initialState: ActionState = {
+  success: false,
+  message: "",
+};
+
 export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
-  const [isPending, startTransition] = useTransition();
-  const [state, setState] = useState<ActionState>({});
-
-  const handleCreateSite = () => {
-    startTransition(async () => {
-      const formData = new FormData();
-      formData.append("organizationId", organizationId);
-      formData.append("orgSlug", orgSlug);
-
-      const result = await createSite(state, formData);
-      setState(result);
-    });
-  };
+  const [state, action, isPending] = useActionState(createSite, initialState);
 
   return (
     <div className="space-y-6">
@@ -44,20 +38,27 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
             Manage your sites and view their analytics
           </p>
         </div>
-        <Button disabled={isPending} onClick={handleCreateSite}>
-          {isPending ? (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          ) : (
+        <form action={action}>
+          <input type="hidden" name="organizationId" value={organizationId} />
+          <input type="hidden" name="orgSlug" value={orgSlug} />
+          <Button type="submit" disabled={isPending}>
             <Plus className="h-4 w-4 mr-2" />
-          )}
-          Create New Site
-        </Button>
+            {isPending ? "Creating..." : "Create New Site"}
+          </Button>
+        </form>
       </div>
 
-      {state.error && (
-        <div className="bg-destructive/15 text-destructive px-4 py-3 rounded-md">
-          {state.error}
-        </div>
+      {state?.message && !state.success && (
+        <Alert variant="destructive">
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
+      )}
+
+      {state?.message && state.success && (
+        <Alert variant="default">
+          <CheckCircle2 className="h-4 w-4" />
+          <AlertDescription>{state.message}</AlertDescription>
+        </Alert>
       )}
 
       {sites.length > 0 ? (
@@ -119,14 +120,18 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
             <p className="text-muted-foreground text-center mb-6">
               Create your first site to start tracking analytics
             </p>
-            <Button disabled={isPending} onClick={handleCreateSite}>
-              {isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
+            <form action={action}>
+              <input
+                type="hidden"
+                name="organizationId"
+                value={organizationId}
+              />
+              <input type="hidden" name="orgSlug" value={orgSlug} />
+              <Button type="submit" disabled={isPending}>
                 <Plus className="h-4 w-4 mr-2" />
-              )}
-              Create Your First Site
-            </Button>
+                {isPending ? "Creating..." : "Create Your First Site"}
+              </Button>
+            </form>
           </CardContent>
         </Card>
       )}

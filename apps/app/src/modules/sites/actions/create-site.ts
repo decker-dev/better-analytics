@@ -6,7 +6,7 @@ import { sites } from '@/modules/shared/lib/db/schema';
 import { generateSiteKey } from '@/modules/shared/lib/site-key';
 import { generateRandomName } from '@/modules/shared/lib/site-name-generator';
 import { revalidatePath } from 'next/cache';
-import { validatedActionWithUser } from '@/modules/shared/lib/middleware-action';
+import { validatedActionWithUser, type ActionState } from '@/modules/shared/lib/middleware-action';
 import { redirect } from 'next/navigation';
 
 const createSiteSchema = z.object({
@@ -16,7 +16,7 @@ const createSiteSchema = z.object({
 
 export const createSite = validatedActionWithUser(
   createSiteSchema,
-  async (data, formData, user) => {
+  async (data, formData, user): Promise<ActionState> => {
     const { organizationId, orgSlug } = data;
 
     try {
@@ -39,7 +39,11 @@ export const createSite = validatedActionWithUser(
       }).returning();
 
       if (!newSite) {
-        throw new Error('Failed to create site');
+        return {
+          success: false,
+          message: 'Failed to create site',
+          errors: { organizationId: ['Failed to create site'] },
+        };
       }
 
       // Revalidate the sites page
@@ -55,7 +59,9 @@ export const createSite = validatedActionWithUser(
 
       console.error('Error creating site:', error);
       return {
-        error: error instanceof Error ? error.message : 'Failed to create site',
+        success: false,
+        message: error instanceof Error ? error.message : 'Failed to create site',
+        errors: { organizationId: [error instanceof Error ? error.message : 'Failed to create site'] },
       };
     }
   }

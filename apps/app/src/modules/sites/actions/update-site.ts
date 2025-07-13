@@ -5,8 +5,8 @@ import { sites } from '@/modules/shared/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { validatedActionWithUser } from '@/modules/shared/lib/middleware-action';
-import { redirect } from 'next/navigation'; 
+import { validatedActionWithUser, type ActionState } from '@/modules/shared/lib/middleware-action';
+import { redirect } from 'next/navigation';
 
 const updateSiteSchema = z.object({
   siteId: z.string().min(1, 'Site ID is required'),
@@ -68,7 +68,7 @@ async function ensureUniqueSlug(baseSlug: string, currentSiteId: string, organiz
 
 export const updateSite = validatedActionWithUser(
   updateSiteSchema,
-  async (data, formData, user) => {
+  async (data, formData, user): Promise<ActionState> => {
     const { siteId, name, domain, description, orgSlug, currentSlug } = data;
 
     try {
@@ -87,7 +87,8 @@ export const updateSite = validatedActionWithUser(
       if (!currentSite) {
         return {
           success: false,
-          serverError: 'Site not found',
+          message: 'Site not found',
+          errors: { siteId: ['Site not found'] },
         };
       }
 
@@ -96,7 +97,8 @@ export const updateSite = validatedActionWithUser(
       if (!baseSlug) {
         return {
           success: false,
-          serverError: 'Invalid site name - cannot generate slug',
+          message: 'Invalid site name - cannot generate slug',
+          errors: { name: ['Invalid site name - cannot generate slug'] },
         };
       }
 
@@ -123,7 +125,8 @@ export const updateSite = validatedActionWithUser(
       if (!updatedSite) {
         return {
           success: false,
-          serverError: 'Failed to update site',
+          message: 'Failed to update site',
+          errors: { siteId: ['Failed to update site'] },
         };
       }
 
@@ -139,14 +142,7 @@ export const updateSite = validatedActionWithUser(
 
       return {
         success: true,
-        data: {
-          id: updatedSite.id,
-          name: updatedSite.name,
-          slug: updatedSite.slug,
-          domain: updatedSite.domain,
-          description: updatedSite.description,
-          organizationSlug: orgSlug,
-        },
+        message: 'Site updated successfully!',
       };
     } catch (error) {
       // Re-throw redirect errors so Next.js can handle them
@@ -157,7 +153,8 @@ export const updateSite = validatedActionWithUser(
       console.error('Error updating site:', error);
       return {
         success: false,
-        serverError: error instanceof Error ? error.message : 'Failed to update site',
+        message: error instanceof Error ? error.message : 'Failed to update site',
+        errors: { siteId: [error instanceof Error ? error.message : 'Failed to update site'] },
       };
     }
   }
