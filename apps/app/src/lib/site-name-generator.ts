@@ -20,7 +20,7 @@ const animals = [
  * Generate a random site name with pattern: adjective-animal-adjective
  * Examples: "swift-fox-blue", "dancing-whale-bright", "crystal-eagle-fast"
  */
-export function generateSlug(): string {
+export function generateRandomName(): string {
   const randomAdjective1 = adjectives[Math.floor(Math.random() * adjectives.length)];
   const randomAnimal = animals[Math.floor(Math.random() * animals.length)];
   const randomAdjective2 = adjectives[Math.floor(Math.random() * adjectives.length)];

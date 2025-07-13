@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { sites } from '@/lib/db/schema';
 import { generateSiteKey } from '@/lib/site-key';
-import { generateSlug } from '@/lib/site-name-generator';
+import { generateRandomName } from '@/lib/site-name-generator';
 import { revalidatePath } from 'next/cache';
 import { validatedActionWithUser } from '@/lib/middleware-action';
 import { redirect } from 'next/navigation';
@@ -24,7 +24,7 @@ export const createSite = validatedActionWithUser(
       const siteKey = await generateSiteKey();
 
       // Generate random slug and name
-      const slug = generateSlug();
+      const slug = generateRandomName();
       const name = slug.split('-').map(word =>
         word.charAt(0).toUpperCase() + word.slice(1)
       ).join(' ');

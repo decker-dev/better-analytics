@@ -4,7 +4,7 @@ import { auth } from "@/modules/auth/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/db";
 import { organization, member, sites } from "@/lib/db/schema";
-import { generateSlug } from "@/lib/site-name-generator";
+import { generateRandomName } from "@/lib/site-name-generator";
 import { generateSiteKey } from "@/lib/site-key";
 
 interface CreateFirstSetupResult {
@@ -35,7 +35,7 @@ export const createFirstOrganizationAndSite = async (): Promise<CreateFirstSetup
     if (existingOrgs && existingOrgs.length > 0) {
       return { success: false, error: "User already has organizations" };
     }
-    const orgSlug = generateSlug()
+    const orgSlug = generateRandomName()
 
     const [organizationData] = await db.insert(organization).values({
       name: orgSlug,
@@ -54,7 +54,7 @@ export const createFirstOrganizationAndSite = async (): Promise<CreateFirstSetup
     });
 
     const siteKey = await generateSiteKey();
-    const siteSlug = generateSlug();
+    const siteSlug = generateRandomName();
 
     const [newSite] = await db.insert(sites).values({
       name: siteSlug,
