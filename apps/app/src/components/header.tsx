@@ -30,13 +30,7 @@ interface HeaderOrganization {
 interface HeaderSite {
   id: string;
   name: string;
-  siteKey: string;
-}
-
-interface SiteApiResponse {
-  id: string;
-  name: string;
-  siteKey: string;
+  slug: string;
 }
 
 interface HeaderProps {
@@ -53,55 +47,25 @@ export default function Header({
   const router = useRouter();
   const params = useParams();
 
-  const [internalSites, setInternalSites] = useState<HeaderSite[]>(sites || []);
-  const [internalCurrentSite, setInternalCurrentSite] =
-    useState<HeaderSite | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [currentSite, setCurrentSite] = useState<HeaderSite | null>(null);
+
+  // Get URL parameters
+  const orgSlug = params?.orgSlug as string | undefined;
+  const siteSlug = params?.slug as string | undefined;
 
   // Detect if we're in a site context
-  const siteKey = params?.siteKey as string | undefined;
-  const isInSiteContext = !!siteKey;
+  const isInSiteContext = !!siteSlug;
 
-  // Manage sites and current site detection
+  // Find current site based on URL slug
   useEffect(() => {
-    if (sites) {
-      setInternalSites(sites);
-
-      // If we're in site context, find the current site from the provided sites
-      if (isInSiteContext && siteKey) {
-        const current = sites.find((s) => s.siteKey === siteKey);
-        setInternalCurrentSite(current || null);
-      } else {
-        setInternalCurrentSite(null);
-      }
-    } else if (isInSiteContext && currentOrg && siteKey) {
-      // Fallback: fetch sites if not provided (shouldn't happen with server component)
-      setLoading(true);
-
-      fetch(`/api/sites?orgId=${currentOrg.id}`)
-        .then((res) => res.json())
-        .then((sitesData: SiteApiResponse[]) => {
-          const mappedSites = sitesData.map((s) => ({
-            id: s.id,
-            name: s.name,
-            siteKey: s.siteKey,
-          }));
-          setInternalSites(mappedSites);
-
-          const current = mappedSites.find((s) => s.siteKey === siteKey);
-          setInternalCurrentSite(current || null);
-        })
-        .catch((error) => {
-          console.error("Failed to fetch sites:", error);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
+    if (isInSiteContext && siteSlug && sites) {
+      // Find site by siteKey matching the slug from URL
+      const current = sites.find((site) => site.slug === siteSlug);
+      setCurrentSite(current || null);
     } else {
-      setInternalSites([]);
-      setInternalCurrentSite(null);
+      setCurrentSite(null);
     }
-  }, [isInSiteContext, currentOrg, siteKey, sites]);
+  }, [isInSiteContext, siteSlug, sites]);
 
   const handleOrgChange = (orgSlug: string) => {
     router.push(`/${orgSlug}/sites`);
@@ -200,17 +164,17 @@ export default function Header({
               </BreadcrumbItem>
 
               {/* Site - Only show in site context */}
-              {isInSiteContext && internalCurrentSite && !loading && (
+              {isInSiteContext && currentSite && (
                 <>
                   <BreadcrumbSeparator> / </BreadcrumbSeparator>
                   <BreadcrumbItem>
                     <div className="flex items-center gap-1">
                       {/* Site Title Link */}
                       <Link
-                        href={`/${currentOrg?.slug}/sites/${internalCurrentSite.siteKey}/stats`}
+                        href={`/${currentOrg?.slug}/sites/${currentSite.slug}/stats`}
                         className="text-foreground hover:text-primary font-medium transition-colors"
                       >
-                        {internalCurrentSite.name}
+                        {currentSite.name}
                       </Link>
 
                       {/* Site Dropdown */}
@@ -226,14 +190,12 @@ export default function Header({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="center">
-                          {internalSites.map((site) => (
+                          {sites?.map((site) => (
                             <DropdownMenuItem
                               key={site.id}
-                              onClick={() => handleSiteChange(site.siteKey)}
+                              onClick={() => handleSiteChange(site.slug)}
                               className={
-                                internalCurrentSite?.id === site.id
-                                  ? "bg-accent"
-                                  : ""
+                                currentSite?.id === site.id ? "bg-accent" : ""
                               }
                             >
                               {site.name}
