@@ -15,8 +15,7 @@ const RESERVED_PATHS = [
   'docs',
   'api',
   '_next',
-  'start',
-  'onboarding',
+  'setup',
 
   // SEO & Bot files
   'robots.txt',
@@ -122,22 +121,22 @@ export async function middleware(request: NextRequest) {
       // Get user's organizations
       const organizations = await auth.api.listOrganizations({ headers: requestHeaders });
 
-      // If user has no organizations, redirect to onboarding
+      // If user has no organizations, redirect to setup
       if (!organizations || organizations.length === 0) {
-        return NextResponse.redirect(new URL("/onboarding", request.url));
+        return NextResponse.redirect(new URL("/setup", request.url));
       }
 
       // If user has organizations, redirect to first org
       const firstOrg = organizations[0];
       if (!firstOrg) {
-        // Fallback: if somehow no orgs exist, redirect to onboarding
-        return NextResponse.redirect(new URL("/onboarding", request.url));
+        // Fallback: if somehow no orgs exist, redirect to setup
+        return NextResponse.redirect(new URL("/setup", request.url));
       }
       return NextResponse.redirect(new URL(`/${firstOrg.slug}/sites`, request.url));
     }
 
-    // Handle onboarding route - user is authenticated but might not have orgs
-    if (pathname === "/onboarding") {
+    // Handle setup route - user is authenticated but might not have orgs
+    if (pathname === "/setup") {
       return NextResponse.next();
     }
 
@@ -147,12 +146,12 @@ export async function middleware(request: NextRequest) {
     if (orgRouteMatch) {
       const [, orgSlug] = orgRouteMatch;
 
-      // Get user's organizations
+      // Get user's organizations 
       const organizations = await auth.api.listOrganizations({ headers: requestHeaders });
 
-      // If user has no organizations, redirect to onboarding
+      // If user has no organizations, redirect to setup
       if (!organizations || organizations.length === 0) {
-        return NextResponse.redirect(new URL("/onboarding", request.url));
+        return NextResponse.redirect(new URL("/setup", request.url));
       }
 
       // Check if the requested org exists and user has access
@@ -162,8 +161,8 @@ export async function middleware(request: NextRequest) {
         // If org doesn't exist or user doesn't have access, redirect to first available org
         const firstOrg = organizations[0];
         if (!firstOrg) {
-          // Fallback: if somehow no orgs exist, redirect to onboarding
-          return NextResponse.redirect(new URL("/onboarding", request.url));
+          // Fallback: if somehow no orgs exist, redirect to setup
+          return NextResponse.redirect(new URL("/setup", request.url));
         }
         return NextResponse.redirect(new URL(`/${firstOrg.slug}/sites`, request.url));
       }
