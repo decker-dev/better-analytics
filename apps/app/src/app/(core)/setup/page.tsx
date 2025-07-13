@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { auth } from "@/modules/auth/lib/auth";
-import { createFirstOrganizationAndSite } from "@/modules/onboarding/actions/create-first-setup";
+import { createFirstOrganizationAndSite } from "@/modules/setup/lib/create-first-setup";
 
 export default async function OnboardingPage() {
   const requestHeaders = await headers();
