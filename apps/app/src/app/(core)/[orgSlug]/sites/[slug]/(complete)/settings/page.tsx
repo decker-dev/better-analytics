@@ -13,6 +13,7 @@ import {
 } from "@repo/ui/components/card";
 import { Settings, Globe, Trash2, RotateCcw } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
+import { UpdateSiteForm } from "@/modules/sites/components/update-site-form";
 
 interface SiteSettingsPageProps {
   params: Promise<{ orgSlug: string; slug: string }>;
@@ -54,57 +55,8 @@ export default async function SiteSettingsPage({
             Site Information
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label
-                htmlFor="name"
-                className="block text-sm font-medium text-foreground mb-1"
-              >
-                Site Name
-              </label>
-              <input
-                type="text"
-                defaultValue={site.name}
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="domain"
-                className="block text-sm font-medium text-foreground mb-1"
-              >
-                Domain
-              </label>
-              <input
-                type="text"
-                defaultValue={site.domain || ""}
-                placeholder="example.com"
-                className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-foreground mb-1"
-            >
-              Description
-            </label>
-            <textarea
-              rows={3}
-              defaultValue={site.description || ""}
-              placeholder="Describe your site..."
-              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background text-foreground"
-            />
-          </div>
-
-          <div className="flex justify-end">
-            <Button variant="outline" size="sm">
-              Save Changes
-            </Button>
-          </div>
+        <CardContent>
+          <UpdateSiteForm site={site} orgSlug={orgSlug} />
         </CardContent>
       </Card>
 

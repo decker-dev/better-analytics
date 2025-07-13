@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, boolean, unique } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const events = pgTable('events', {
@@ -145,7 +145,7 @@ export const invitation = pgTable('invitation', {
 export const sites = pgTable('sites', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),                    // "Mi Dashboard", "Blog Personal", "Demo Site"
-  slug: text('slug').notNull().unique(),           // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
+  slug: text('slug').notNull(),                    // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
   siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking Y para URLs /start/[siteKey])
   organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }), // Null para sites temporales
   domain: text('domain'),                           // "dashboard.example.com" (opcional)
@@ -157,7 +157,10 @@ export const sites = pgTable('sites', {
 
   createdAt: timestamp('created_at').notNull().defaultNow(),
   updatedAt: timestamp('updated_at').notNull().defaultNow().$onUpdate(() => new Date()),
-});
+}, (table) => ({
+  // Slug único por organización
+  uniqueSlugPerOrg: unique().on(table.organizationId, table.slug),
+}));
 
 // TypeScript types
 export type Event = typeof events.$inferSelect;
