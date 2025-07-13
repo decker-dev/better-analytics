@@ -37,11 +37,9 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <QueryProvider>
-            {children}
-          </QueryProvider>
+          <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
-        <Analytics endpoint="/api/collect" />
+        <Analytics endpoint="/api/collect" mode="production" />
       </body>
     </html>
   );

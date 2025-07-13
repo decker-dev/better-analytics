@@ -3,7 +3,7 @@ import { nanoid } from 'nanoid';
 
 export const events = pgTable('events', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
-  site: text('site').notNull().references(() => sites.id, { onDelete: 'cascade' }),
+  site: text('site').notNull().references(() => sites.siteKey, { onDelete: 'cascade' }),
   ts: text('ts').notNull(),
   evt: text('evt').notNull(),
   url: text('url'),
