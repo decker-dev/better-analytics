@@ -1,10 +1,10 @@
 import type { z } from 'zod';
-import type { Organization, Member } from '@/lib/db/schema';
+import type { Organization, Member } from '@/modules/shared/lib/db/schema';
 import { auth } from '@/modules/auth/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { db } from '@/lib/db';
-import { member, organization, user } from '@/lib/db/schema';
+import { db } from '@/modules/shared/lib/db';
+import { member, organization, user } from '@/modules/shared/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export type ActionState = {

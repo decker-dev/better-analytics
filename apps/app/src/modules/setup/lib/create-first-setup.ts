@@ -2,10 +2,10 @@
 
 import { auth } from "@/modules/auth/lib/auth";
 import { headers } from "next/headers";
-import { db } from "@/lib/db";
-import { organization, member, sites } from "@/lib/db/schema";
-import { generateRandomName } from "@/lib/site-name-generator";
-import { generateSiteKey } from "@/lib/site-key";
+import { db } from "@/modules/shared/lib/db";
+import { organization, member, sites } from "@/modules/shared/lib/db/schema";
+import { generateRandomName } from "@/modules/shared/lib/site-name-generator";
+import { generateSiteKey } from "@/modules/shared/lib/site-key";
 
 interface CreateFirstSetupResult {
   success: boolean;

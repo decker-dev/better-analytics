@@ -1,12 +1,12 @@
 'use server';
 
-import { db } from '@/lib/db';
-import { sites } from '@/lib/db/schema';
+import { db } from '@/modules/shared/lib/db';
+import { sites } from '@/modules/shared/lib/db/schema';
 import { eq, and, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
-import { validatedActionWithUser } from '@/lib/middleware-action';
-import { redirect } from 'next/navigation';
+import { validatedActionWithUser } from '@/modules/shared/lib/middleware-action';
+import { redirect } from 'next/navigation'; 
 
 const updateSiteSchema = z.object({
   siteId: z.string().min(1, 'Site ID is required'),

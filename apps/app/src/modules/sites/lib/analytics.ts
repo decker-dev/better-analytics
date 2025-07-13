@@ -1,4 +1,4 @@
-import { db, schema } from '@/lib/db';
+import { db, schema } from '@/modules/shared/lib/db';
 import { eq, and, desc, gte, isNotNull, ne, sql } from 'drizzle-orm';
 
 export interface AnalyticsStats {

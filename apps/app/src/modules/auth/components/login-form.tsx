@@ -1,20 +1,12 @@
 "use client";
 
-import {
-  GalleryVerticalEnd,
-  Github,
-  Loader2,
-  Mail,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
+import { GalleryVerticalEnd, Github, Loader2, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { cn } from "@repo/ui/lib/utils";
 import { Button } from "@repo/ui/components/button";
 import { Input } from "@repo/ui/components/input";
 import { Label } from "@repo/ui/components/label";
-import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { signIn } from "@/modules/auth/lib/auth-client";
 
 export function LoginForm({

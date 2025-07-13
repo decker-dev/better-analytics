@@ -9,10 +9,10 @@ import {
 import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, Loader2 } from "lucide-react";
 import Link from "next/link";
-import type { Site } from "@/lib/db/schema";
+import type { Site } from "@/modules/shared/lib/db/schema";
 import { createSite } from "../actions/create-site";
 import { useTransition, useState } from "react";
-import type { ActionState } from "@/lib/middleware-action";
+import type { ActionState } from "@/modules/shared/lib/middleware-action";
 
 interface SiteListProps {
   sites: Site[];

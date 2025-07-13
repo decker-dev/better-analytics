@@ -1,8 +1,8 @@
 import "server-only";
 
-import { unstable_cache } from "@/lib/unstable-cache";
 import { auth } from "@/modules/auth/lib/auth";
-import { TAGS } from "@/lib/tags";
+import { unstable_cache } from "next/cache";
+import { TAGS } from "@/modules/shared/lib/tags";
 
 /**
  * Cached session getter - reduces database calls for session verification

@@ -7,8 +7,7 @@ import { Label } from "@repo/ui/components/label";
 import { Textarea } from "@repo/ui/components/textarea";
 import { Loader2, Save } from "lucide-react";
 import { updateSite } from "../actions/update-site";
-import type { Site } from "@/lib/db/schema";
-import type { ActionState } from "@/lib/middleware-action";
+import type { Site } from "@/modules/shared/lib/db/schema";
 
 interface UpdateSiteFormProps {
   site: Site;

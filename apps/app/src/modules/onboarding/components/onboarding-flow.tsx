@@ -5,9 +5,9 @@ import { Button } from "@repo/ui/components/button";
 import { ArrowRight } from "lucide-react";
 import { CodeTabs } from "@repo/ui/components/animate-ui/components/code-tabs";
 import Link from "next/link";
-import { getCodeExamples } from "../lib/code-examples";
-import type { Site } from "@/lib/db/schema";
+import type { Site } from "@/modules/shared/lib/db/schema";
 import SecretInput from "./secret-input";
+import { getCodeExamples } from "../lib/code-examples";
 
 interface OnboardingFlowProps {
   site: Site;

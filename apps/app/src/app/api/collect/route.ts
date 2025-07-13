@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
-import { db, schema } from '../../../lib/db';
+import { db, schema } from '@/modules/shared/lib/db';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import UAParser from 'my-ua-parser';

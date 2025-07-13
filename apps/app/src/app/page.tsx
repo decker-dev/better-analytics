@@ -1,4 +1,4 @@
-import AnalyticsParticles from "@/components/analytics-particles";
+import AnalyticsParticles from "@/modules/shared/components/analytics-particles";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { Badge } from "@repo/ui/components/badge";

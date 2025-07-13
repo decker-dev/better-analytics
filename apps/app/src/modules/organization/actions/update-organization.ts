@@ -6,10 +6,10 @@ import { redirect } from 'next/navigation';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { getCachedSession } from '@/modules/auth/lib/auth-cache';
 import { auth } from '@/modules/auth/lib/auth';
-import { TAGS } from '@/lib/tags';
-import { db } from '@/lib/db';
+import { TAGS } from '@/modules/shared/lib/tags';
+import { db } from '@/modules/shared/lib/db';
 import { eq, and, ne } from 'drizzle-orm';
-import { organization } from '@/lib/db/schema';
+import { organization } from '@/modules/shared/lib/db/schema';
 
 const updateOrganizationSchema = z.object({
   organizationId: z.string(),

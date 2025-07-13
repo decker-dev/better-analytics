@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { auth } from "@/modules/auth/lib/auth";
 import { getSitesByOrg } from "@/modules/sites/lib/sites";
 import { getCachedOrganizations } from "@/modules/auth/lib/auth-cache";
-import Header from "@/components/header";
+import Header from "@/modules/shared/components/header";
 
 interface OrgLayoutProps {
   children: React.ReactNode;

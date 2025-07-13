@@ -1,12 +1,12 @@
 'use server';
 
 import { z } from 'zod';
-import { db } from '@/lib/db';
-import { sites } from '@/lib/db/schema';
-import { generateSiteKey } from '@/lib/site-key';
-import { generateRandomName } from '@/lib/site-name-generator';
+import { db } from '@/modules/shared/lib/db';
+import { sites } from '@/modules/shared/lib/db/schema';
+import { generateSiteKey } from '@/modules/shared/lib/site-key';
+import { generateRandomName } from '@/modules/shared/lib/site-name-generator';
 import { revalidatePath } from 'next/cache';
-import { validatedActionWithUser } from '@/lib/middleware-action';
+import { validatedActionWithUser } from '@/modules/shared/lib/middleware-action';
 import { redirect } from 'next/navigation';
 
 const createSiteSchema = z.object({
