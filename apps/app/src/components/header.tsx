@@ -1,6 +1,6 @@
 "use client";
 
-import { ChartNoAxesColumnIncreasing, ChevronsUpDown } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@repo/ui/components/dropdown-menu";
+import Image from "next/image";
 
 interface HeaderOrganization {
   id: string;
@@ -120,7 +121,12 @@ export default function Header({
           </Popover>
 
           {/* Breadcrumb */}
-          <ChartNoAxesColumnIncreasing size={16} />
+          <Image
+            src="/logo.svg"
+            alt="Better Analytics"
+            width={24}
+            height={24}
+          />
           <Breadcrumb>
             <BreadcrumbList>
               {/* Organization */}
