@@ -23,7 +23,7 @@ export const events = pgTable('events', {
   // Geographic information (if available)
   country: text('country'), // e.g., "US", "ES"
   region: text('region'), // e.g., "California", "Madrid"
-  city: text('city'), // e.g., "San Francisco", "Madrid"
+  city: text('city'), // e.g., "San Francisco", "Madrid" 
 
   // Session information
   sessionId: text('sessionId'), // To group events by session

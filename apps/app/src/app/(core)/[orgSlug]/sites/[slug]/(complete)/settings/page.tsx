@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@repo/ui/components/card";
 import { Settings, Globe, Trash2, RotateCcw } from "lucide-react";
+import { Button } from "@repo/ui/components/button";
 
 interface SiteSettingsPageProps {
   params: Promise<{ orgSlug: string; slug: string }>;
@@ -100,12 +101,9 @@ export default async function SiteSettingsPage({
           </div>
 
           <div className="flex justify-end">
-            <button
-              type="button"
-              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-ring"
-            >
+            <Button variant="outline" size="sm">
               Save Changes
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -140,13 +138,10 @@ export default async function SiteSettingsPage({
                   tracking code.
                 </p>
               </div>
-              <button
-                type="button"
-                className="px-3 py-1 text-sm border border-input rounded-md hover:bg-accent hover:text-accent-foreground flex items-center gap-2"
-              >
+              <Button variant="outline" size="sm">
                 <RotateCcw className="h-4 w-4" />
                 Regenerate
-              </button>
+              </Button>
             </div>
           </div>
         </CardContent>
@@ -202,13 +197,10 @@ export default function RootLayout({ children }) {
                 action cannot be undone.
               </p>
             </div>
-            <button
-              type="button"
-              className="px-3 py-1 text-sm bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-2"
-            >
+            <Button variant="destructive" size="sm">
               <Trash2 className="h-4 w-4" />
               Delete Site
-            </button>
+            </Button>
           </div>
         </CardContent>
       </Card>

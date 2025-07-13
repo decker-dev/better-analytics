@@ -35,29 +35,6 @@ export async function getSiteBySlug(
 }
 
 /**
- * Update a site
- */
-export async function updateSite(
-  siteId: string,
-  data: Partial<Pick<Site, 'name' | 'domain' | 'description'>>
-): Promise<Site> {
-  const [updatedSite] = await db
-    .update(schema.sites)
-    .set({
-      ...data,
-      updatedAt: new Date(),
-    })
-    .where(eq(schema.sites.id, siteId))
-    .returning();
-
-  if (!updatedSite) {
-    throw new Error('Site not found or update failed');
-  }
-
-  return updatedSite;
-}
-
-/**
  * Check if a site belongs to an organization (by slug)
  */
 export async function verifySiteOwnershipBySlug(
