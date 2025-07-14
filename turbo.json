@@ -38,6 +38,12 @@
         "NEON_PROJECT_ID"
       ]
     },
+    "docs#build": {
+      "dependsOn": [],
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "env": []
+    },
     "@repo/email#build": {
       "dependsOn": [],
       "outputs": [".react-email/**"]
