@@ -39,7 +39,7 @@ export default function RootLayout({
         >
           <QueryProvider>{children}</QueryProvider>
         </ThemeProvider>
-        <Analytics endpoint="/api/collect" mode="production" />
+        <Analytics endpoint="/api/collect" />
       </body>
     </html>
   );
