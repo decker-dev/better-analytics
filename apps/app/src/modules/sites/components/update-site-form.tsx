@@ -83,26 +83,53 @@ export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="domain">Domain</Label>
-            <Input
-              id="domain"
-              name="domain"
-              type="text"
-              defaultValue={site.domain || ""}
-              placeholder="example.com"
-              aria-describedby="domain-error domain-help"
-              className={state?.errors?.domain ? "border-red-500" : ""}
-              disabled={isPending}
-            />
-            <p id="domain-help" className="text-xs text-muted-foreground">
-              Optional • Your site's domain name
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="domainProtection"
+                name="domainProtection"
+                defaultChecked={site.domainProtection || false}
+                className="h-4 w-4 rounded border-gray-300"
+                disabled={isPending}
+              />
+              <Label htmlFor="domainProtection" className="text-sm font-medium">
+                Enable domain protection
+              </Label>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              When enabled, only events from specified domains will be accepted
             </p>
-            {state?.errors?.domain && (
-              <p id="domain-error" className="text-sm text-red-500">
-                {state.errors.domain[0]}
+
+            <div className="space-y-2">
+              <Label htmlFor="allowedDomains">Allowed Domains</Label>
+              <Textarea
+                id="allowedDomains"
+                name="allowedDomains"
+                rows={3}
+                defaultValue={
+                  site.allowedDomains ? site.allowedDomains.join("\n") : ""
+                }
+                placeholder="example.com&#10;subdomain.example.com&#10;localhost:3000"
+                aria-describedby="allowedDomains-error allowedDomains-help"
+                className={
+                  state?.errors?.allowedDomains ? "border-red-500" : ""
+                }
+                disabled={isPending}
+              />
+              <p
+                id="allowedDomains-help"
+                className="text-xs text-muted-foreground"
+              >
+                One domain per line • Only used when domain protection is
+                enabled
               </p>
-            )}
+              {state?.errors?.allowedDomains && (
+                <p id="allowedDomains-error" className="text-sm text-red-500">
+                  {state.errors.allowedDomains[0]}
+                </p>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">

@@ -11,7 +11,8 @@ import { redirect } from 'next/navigation';
 const updateSiteSchema = z.object({
   siteId: z.string().min(1, 'Site ID is required'),
   name: z.string().min(1, 'Site name is required').max(100, 'Site name too long'),
-  domain: z.string().optional(),
+  domainProtection: z.boolean().optional(),
+  allowedDomains: z.string().optional(),
   description: z.string().optional(),
   orgSlug: z.string().min(1, 'Organization slug is required'),
   currentSlug: z.string().min(1, 'Current slug is required'),
@@ -69,7 +70,7 @@ async function ensureUniqueSlug(baseSlug: string, currentSiteId: string, organiz
 export const updateSite = validatedActionWithUser(
   updateSiteSchema,
   async (data, formData, user): Promise<ActionState> => {
-    const { siteId, name, domain, description, orgSlug, currentSlug } = data;
+    const { siteId, name, domainProtection, allowedDomains, description, orgSlug, currentSlug } = data;
 
     try {
       // Get the current site to verify ownership and get organization ID
@@ -109,13 +110,27 @@ export const updateSite = validatedActionWithUser(
         currentSite.organizationId!
       );
 
+      // Process allowed domains
+      let processedAllowedDomains = null;
+      if (domainProtection && allowedDomains) {
+        const domainsArray = allowedDomains
+          .split('\n')
+          .map(domain => domain.trim())
+          .filter(domain => domain.length > 0);
+
+        if (domainsArray.length > 0) {
+          processedAllowedDomains = domainsArray;
+        }
+      }
+
       // Update the site
       const [updatedSite] = await db
         .update(sites)
         .set({
           name: name.trim(),
           slug: uniqueSlug,
-          domain: domain?.trim() || null,
+          domainProtection: domainProtection || false,
+          allowedDomains: processedAllowedDomains,
           description: description?.trim() || null,
           updatedAt: new Date(),
         })

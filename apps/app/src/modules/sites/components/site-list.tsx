@@ -78,12 +78,6 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  {site.domain && (
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-muted-foreground">Domain:</span>
-                      <span className="truncate ml-2">{site.domain}</span>
-                    </div>
-                  )}
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Created:</span>
                     <span>{new Date(site.createdAt).toLocaleDateString()}</span>

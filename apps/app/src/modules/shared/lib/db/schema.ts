@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, boolean, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, boolean, unique, jsonb } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
 export const events = pgTable('events', {
@@ -148,7 +148,8 @@ export const sites = pgTable('sites', {
   slug: text('slug').notNull(),                    // "mi-dashboard", "blog-personal" (URL-friendly, unique per org)
   siteKey: text('site_key').notNull().unique(),    // "BA_231", "BA_456" (identificador único para tracking Y para URLs /start/[siteKey])
   organizationId: text('organization_id').references(() => organization.id, { onDelete: 'cascade' }), // Null para sites temporales
-  domain: text('domain'),                           // "dashboard.example.com" (opcional)
+  allowedDomains: jsonb('allowed_domains').$type<string[]>(),          // JSON array: ["example.com", "subdomain.example.com"]
+  domainProtection: boolean('domain_protection').default(false), // Feature flag para protección por dominio
   description: text('description'),                 // Descripción del proyecto
 
   // Campos para sites temporales

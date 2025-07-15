@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { db, schema } from '@/modules/shared/lib/db';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { nanoid } from 'nanoid';
 import UAParser from 'my-ua-parser';
@@ -71,7 +72,58 @@ export async function POST(request: NextRequest) {
     const props = validatedData.props || {};
 
     // El SDK ya nos envía toda la información que necesitamos
-    const site = validatedData.site || props.hostname as string || 'unknown';
+    const siteKey = validatedData.site || props.hostname as string || 'unknown';
+
+    // Verificar si el site existe y obtener configuración de protección
+    const [siteConfig] = await db
+      .select({
+        siteKey: schema.sites.siteKey,
+        domainProtection: schema.sites.domainProtection,
+        allowedDomains: schema.sites.allowedDomains,
+      })
+      .from(schema.sites)
+      .where(eq(schema.sites.siteKey, siteKey))
+      .limit(1);
+
+    if (!siteConfig) {
+      return NextResponse.json(
+        { success: false, error: 'Site not found' },
+        {
+          status: 404, headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Methods': 'POST, OPTIONS',
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          }
+        }
+      );
+    }
+
+    // Validar dominio si la protección está activada
+    if (siteConfig.domainProtection && siteConfig.allowedDomains) {
+      const allowedDomains = siteConfig.allowedDomains;
+      const origin = request.headers.get('origin');
+      const referer = request.headers.get('referer');
+
+      const isAllowed = allowedDomains.some((domain: string) => {
+        const cleanDomain = domain.toLowerCase().trim();
+        const originMatch = origin?.toLowerCase().includes(cleanDomain);
+        const refererMatch = referer?.toLowerCase().includes(cleanDomain);
+        return originMatch || refererMatch;
+      });
+
+      if (!isAllowed) {
+        return NextResponse.json(
+          { success: false, error: 'Domain not allowed' },
+          {
+            status: 403, headers: {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            }
+          }
+        );
+      }
+    }
 
     // Parsear el user agent solo para información básica
     const userAgentInfo = validatedData.device?.userAgent ? UAParser(validatedData.device.userAgent) : null;
@@ -82,7 +134,7 @@ export async function POST(request: NextRequest) {
     // Preparar los datos para insertar - usar principalmente datos del SDK
     const eventToInsert = {
       id: nanoid(),
-      site: site,
+      site: siteKey,
       ts: validatedData.timestamp.toString(),
       evt: validatedData.event,
       url: validatedData.url || null,
