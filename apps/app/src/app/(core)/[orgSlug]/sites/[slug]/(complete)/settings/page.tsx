@@ -11,7 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@repo/ui/components/card";
-import { Settings, Globe, Trash2, RotateCcw } from "lucide-react";
+import { Settings, Trash2, RotateCcw } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { UpdateSiteForm } from "@/modules/sites/components/update-site-form";
 
@@ -48,17 +48,8 @@ export default async function SiteSettingsPage({
   return (
     <div className="space-y-6">
       {/* Site Information */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Globe className="h-5 w-5" />
-            Site Information
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <UpdateSiteForm site={site} orgSlug={orgSlug} />
-        </CardContent>
-      </Card>
+
+      <UpdateSiteForm site={site} orgSlug={orgSlug} />
 
       {/* Site Key Information */}
       <Card>
