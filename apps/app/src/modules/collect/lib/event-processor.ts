@@ -2,6 +2,7 @@ import type { NextRequest } from 'next/server';
 import { db, schema } from '@/modules/shared/lib/db';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
+import type { NewWebEvent, NewMobileEvent, NewServerEvent, NewGeoEvent } from '@/modules/shared/lib/db/schema';
 import { getGeolocation, isValidIP } from './geolocation';
 import {
   parseUserAgent,
@@ -237,11 +238,105 @@ export async function processEvent(
 }
 
 /**
- * Save processed event to database
+ * Save processed event to normalized database tables
  */
 export async function saveEvent(processedEvent: ProcessedEvent): Promise<void> {
   try {
-    await db.insert(schema.events).values(processedEvent);
+    await db.transaction(async (tx) => {
+      // 1. Insert base event
+      const baseEvent = {
+        id: processedEvent.id,
+        site: processedEvent.site,
+        timestamp: new Date(Number(processedEvent.ts)),
+        event: processedEvent.evt,
+        url: processedEvent.url,
+        referrer: processedEvent.ref,
+        sessionId: processedEvent.sessionId,
+        deviceId: processedEvent.deviceId,
+        userId: processedEvent.userId,
+        props: processedEvent.props ? JSON.parse(processedEvent.props) : null,
+      };
+
+      await tx.insert(schema.events).values(baseEvent);
+
+      // 2. Insert geographic data if available
+      if (processedEvent.country || processedEvent.region || processedEvent.city) {
+        const geoData: NewGeoEvent = {
+          eventId: processedEvent.id,
+          country: processedEvent.country,
+          region: processedEvent.region,
+          city: processedEvent.city,
+          latitude: processedEvent.latitude,
+          longitude: processedEvent.longitude,
+        };
+        await tx.insert(schema.geoEvents).values(geoData);
+      }
+
+      // 3. Determine event type and insert specific data
+      const isMobile = processedEvent.platform || processedEvent.appVersion || processedEvent.bundleId;
+      const isServer = processedEvent.serverRuntime || processedEvent.serverFramework;
+
+      if (isMobile) {
+        // Mobile event
+        const mobileData: NewMobileEvent = {
+          eventId: processedEvent.id,
+          platform: processedEvent.platform,
+          platformVersion: processedEvent.platformVersion,
+          brand: processedEvent.brand,
+          model: processedEvent.model,
+          isEmulator: processedEvent.isEmulator,
+          appVersion: processedEvent.appVersion,
+          appBuildNumber: processedEvent.appBuildNumber,
+          bundleId: processedEvent.bundleId,
+          language: processedEvent.language,
+          timezone: processedEvent.timezone,
+          screenWidth: processedEvent.screenWidth,
+          screenHeight: processedEvent.screenHeight,
+        };
+        await tx.insert(schema.mobileEvents).values(mobileData);
+      } else if (isServer) {
+        // Server event
+        const serverData: NewServerEvent = {
+          eventId: processedEvent.id,
+          runtime: processedEvent.serverRuntime,
+          framework: processedEvent.serverFramework,
+          serverIP: processedEvent.serverIP,
+          origin: processedEvent.serverOrigin,
+          userAgent: processedEvent.userAgent,
+        };
+        await tx.insert(schema.serverEvents).values(serverData);
+      } else {
+        // Web event (default)
+        const webData: NewWebEvent = {
+          eventId: processedEvent.id,
+          userAgent: processedEvent.userAgent,
+          browser: processedEvent.browser,
+          os: processedEvent.os,
+          device: processedEvent.device,
+          deviceVendor: processedEvent.deviceVendor,
+          deviceModel: processedEvent.deviceModel,
+          engine: processedEvent.engine,
+          cpu: processedEvent.cpu,
+          pageTitle: processedEvent.pageTitle,
+          pathname: processedEvent.pathname,
+          hostname: processedEvent.hostname,
+          loadTime: processedEvent.loadTime,
+          utmSource: processedEvent.utmSource,
+          utmMedium: processedEvent.utmMedium,
+          utmCampaign: processedEvent.utmCampaign,
+          utmTerm: processedEvent.utmTerm,
+          utmContent: processedEvent.utmContent,
+          screenWidth: processedEvent.screenWidth,
+          screenHeight: processedEvent.screenHeight,
+          viewportWidth: processedEvent.viewportWidth,
+          viewportHeight: processedEvent.viewportHeight,
+          language: processedEvent.language,
+          timezone: processedEvent.timezone,
+          connectionType: processedEvent.connectionType,
+        };
+        await tx.insert(schema.webEvents).values(webData);
+      }
+    });
   } catch (error) {
     console.error('Failed to save event to database:', error);
     throw error;

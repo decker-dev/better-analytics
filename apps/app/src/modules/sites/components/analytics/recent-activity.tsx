@@ -25,7 +25,7 @@ export const RecentActivity = ({ stats }: RecentActivityProps) => {
           {stats.recentActivity.length > 0 ? (
             stats.recentActivity.map((activity, index) => (
               <div
-                key={`activity-${index}-${activity.timeAgo}`}
+                key={`activity-${index}-${activity.timestamp}`}
                 className="flex items-start space-x-3 p-3 border rounded-lg bg-muted"
               >
                 <div className="flex-1 min-w-0">
@@ -34,14 +34,14 @@ export const RecentActivity = ({ stats }: RecentActivityProps) => {
                       {activity.event}
                     </span>
                     <span className="text-xs text-muted-foreground">
-                      {activity.timeAgo}
+                      {new Date(activity.timestamp).toLocaleString()}
                     </span>
                   </div>
                   <p className="text-sm font-medium truncate">
-                    {activity.title}
+                    {activity.event}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {activity.pathname}
+                    {activity.page}
                   </p>
                   <p className="text-xs text-muted-foreground/70">
                     {activity.browser} • {activity.os}

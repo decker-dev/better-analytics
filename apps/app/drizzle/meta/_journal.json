@@ -64,6 +64,20 @@
       "when": 1752716130727,
       "tag": "0008_woozy_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1752754492533,
+      "tag": "0009_simple_nightshade",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1752754684125,
+      "tag": "0010_lying_blade",
+      "breakpoints": true
     }
   ]
 }

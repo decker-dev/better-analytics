@@ -5,10 +5,7 @@ import {
   getSiteBySlug,
   verifySiteOwnershipBySlug,
 } from "@/modules/sites/lib/sites";
-import {
-  getComprehensiveStats,
-  calculateBounceRate,
-} from "@/modules/sites/lib/analytics";
+import { getAnalyticsStats } from "@/modules/sites/lib/analytics";
 import { KeyMetrics } from "@/modules/sites/components/analytics/key-metrics";
 import { TopPagesAndReferrers } from "@/modules/sites/components/analytics/top-pages-and-referrers";
 import { TechnologyStats } from "@/modules/sites/components/analytics/technology-stats";
@@ -44,13 +41,13 @@ export default async function SiteStatsPage({ params }: SiteStatsPageProps) {
   }
 
   // Fetch comprehensive analytics data for this site
-  const stats = await getComprehensiveStats(site.siteKey);
+  const stats = await getAnalyticsStats(site.siteKey);
 
-  // Calculate bounce rate
-  const bounceRate = calculateBounceRate(
-    stats.totalPageViews,
-    stats.uniqueVisitors,
-  );
+  // Calculate bounce rate (simple approximation)
+  const bounceRate =
+    stats.uniqueVisitors > 0
+      ? Math.round((1 - stats.totalPageViews / stats.uniqueVisitors) * 100)
+      : 0;
 
   return (
     <div className="space-y-6">

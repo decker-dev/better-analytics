@@ -1,5 +1,5 @@
 import { db, schema } from '@/modules/shared/lib/db';
-import { eq, and, desc, gte, isNotNull, ne, sql } from 'drizzle-orm';
+import { eq, and, desc, gte, isNotNull, ne, sql, count } from 'drizzle-orm';
 
 export interface AnalyticsStats {
   totalPageViews: number;
@@ -18,42 +18,40 @@ export interface AnalyticsStats {
   }>;
   topBrowsers: Array<{
     name: string;
-    count: number;
+    visits: number;
   }>;
   topOS: Array<{
     name: string;
-    count: number;
+    visits: number;
   }>;
-  deviceVendors: Array<{
-    vendor: string;
-    model: string;
-    count: number;
+  topCountries: Array<{
+    name: string;
+    visits: number;
   }>;
+  deviceStats: {
+    desktop: number;
+    mobile: number;
+    tablet: number;
+  };
   topResolutions: Array<{
     resolution: string;
     count: number;
   }>;
-  topLanguages: Array<{
-    language: string;
-    count: number;
-  }>;
   recentActivity: Array<{
+    id: string;
     event: string;
-    pathname: string;
-    title: string;
+    timestamp: Date;
+    page: string;
+    country: string;
     browser: string;
     os: string;
-    timeAgo: string;
   }>;
 }
 
-/**
- * Get comprehensive analytics stats for a specific site
- */
-export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsStats> {
+export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats> {
   const now = new Date();
-  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   // Total page views
   const totalPageViewsResult = await db
@@ -62,7 +60,7 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        eq(schema.events.evt, 'pageview')
+        eq(schema.events.event, 'pageview')
       )
     );
 
@@ -73,8 +71,8 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        eq(schema.events.evt, 'pageview'),
-        gte(schema.events.createdAt, oneWeekAgo)
+        eq(schema.events.event, 'pageview'),
+        gte(schema.events.timestamp, oneWeekAgo)
       )
     );
 
@@ -85,252 +83,233 @@ export async function getComprehensiveStats(siteKey: string): Promise<AnalyticsS
     .where(
       and(
         eq(schema.events.site, siteKey),
-        eq(schema.events.evt, 'pageview'),
-        gte(schema.events.createdAt, oneDayAgo)
+        eq(schema.events.event, 'pageview'),
+        gte(schema.events.timestamp, oneDayAgo)
       )
     );
 
-  // Unique visitors (by session ID)
+  // Unique visitors (based on sessionId)
   const uniqueVisitorsResult = await db
     .select({ count: sql<number>`count(distinct ${schema.events.sessionId})` })
-    .from(schema.events)
-    .where(eq(schema.events.site, siteKey));
-
-  // Average load time
-  const avgLoadTimeResult = await db
-    .select({ avg: sql<number>`avg(${schema.events.loadTime})` })
     .from(schema.events)
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.loadTime)
+        isNotNull(schema.events.sessionId)
+      )
+    );
+
+  // Average load time (only for web events)
+  const avgLoadTimeResult = await db
+    .select({ avg: sql<number>`avg(${schema.webEvents.loadTime})` })
+    .from(schema.events)
+    .innerJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
+    .where(
+      and(
+        eq(schema.events.site, siteKey),
+        eq(schema.events.event, 'pageview'),
+        isNotNull(schema.webEvents.loadTime)
       )
     );
 
   // Top pages
-  const topPages = await db
+  const topPagesResult = await db
     .select({
-      page: schema.events.pathname,
-      title: schema.events.pageTitle,
+      page: schema.webEvents.pathname,
+      title: schema.webEvents.pageTitle,
       views: sql<number>`count(*)`
     })
     .from(schema.events)
+    .innerJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
     .where(
       and(
         eq(schema.events.site, siteKey),
-        eq(schema.events.evt, 'pageview'),
-        isNotNull(schema.events.pathname)
+        eq(schema.events.event, 'pageview'),
+        isNotNull(schema.webEvents.pathname)
       )
     )
-    .groupBy(schema.events.pathname, schema.events.pageTitle)
+    .groupBy(schema.webEvents.pathname, schema.webEvents.pageTitle)
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
   // Top referrers
-  const topReferrers = await db
+  const topReferrersResult = await db
     .select({
-      source: schema.events.ref,
+      source: schema.events.referrer,
       visits: sql<number>`count(*)`
     })
     .from(schema.events)
     .where(
       and(
         eq(schema.events.site, siteKey),
-        eq(schema.events.evt, 'pageview'),
-        isNotNull(schema.events.ref),
-        ne(schema.events.ref, '')
+        eq(schema.events.event, 'pageview'),
+        isNotNull(schema.events.referrer),
+        ne(schema.events.referrer, '')
       )
     )
-    .groupBy(schema.events.ref)
+    .groupBy(schema.events.referrer)
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
   // Top browsers
-  const topBrowsers = await db
+  const topBrowsersResult = await db
     .select({
-      name: schema.events.browser,
-      count: sql<number>`count(*)`
+      name: schema.webEvents.browser,
+      visits: sql<number>`count(*)`
     })
     .from(schema.events)
+    .innerJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.browser)
+        isNotNull(schema.webEvents.browser)
       )
     )
-    .groupBy(schema.events.browser)
+    .groupBy(schema.webEvents.browser)
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
   // Top OS
-  const topOS = await db
+  const topOSResult = await db
     .select({
-      name: schema.events.os,
-      count: sql<number>`count(*)`
+      name: schema.webEvents.os,
+      visits: sql<number>`count(*)`
     })
     .from(schema.events)
+    .innerJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.os)
+        isNotNull(schema.webEvents.os)
       )
     )
-    .groupBy(schema.events.os)
+    .groupBy(schema.webEvents.os)
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
-  // Device vendors
-  const deviceVendors = await db
+  // Top countries
+  const topCountriesResult = await db
     .select({
-      vendor: schema.events.deviceVendor,
-      model: schema.events.deviceModel,
-      count: sql<number>`count(*)`
+      name: schema.geoEvents.country,
+      visits: sql<number>`count(*)`
     })
     .from(schema.events)
+    .innerJoin(schema.geoEvents, eq(schema.events.id, schema.geoEvents.eventId))
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.deviceVendor)
+        isNotNull(schema.geoEvents.country)
       )
     )
-    .groupBy(schema.events.deviceVendor, schema.events.deviceModel)
+    .groupBy(schema.geoEvents.country)
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
-  // Top screen resolutions
-  const topResolutions = await db
+  // Device stats
+  const deviceStatsResult = await db
     .select({
-      resolution: sql<string>`concat(${schema.events.screenWidth}, 'x', ${schema.events.screenHeight})`,
+      device: schema.webEvents.device,
       count: sql<number>`count(*)`
     })
     .from(schema.events)
+    .innerJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.screenWidth),
-        isNotNull(schema.events.screenHeight)
+        isNotNull(schema.webEvents.device)
       )
     )
-    .groupBy(sql`concat(${schema.events.screenWidth}, 'x', ${schema.events.screenHeight})`)
-    .orderBy(desc(sql`count(*)`))
-    .limit(10);
+    .groupBy(schema.webEvents.device);
 
-  // Top languages
-  const topLanguages = await db
+  // Top resolutions
+  const topResolutionsResult = await db
     .select({
-      language: schema.events.language,
+      resolution: sql<string>`concat(${schema.webEvents.screenWidth}, 'x', ${schema.webEvents.screenHeight})`,
       count: sql<number>`count(*)`
     })
     .from(schema.events)
+    .innerJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.language)
+        isNotNull(schema.webEvents.screenWidth),
+        isNotNull(schema.webEvents.screenHeight)
       )
     )
-    .groupBy(schema.events.language)
+    .groupBy(sql`concat(${schema.webEvents.screenWidth}, 'x', ${schema.webEvents.screenHeight})`)
     .orderBy(desc(sql`count(*)`))
     .limit(10);
 
   // Recent activity
-  const recentActivityRaw = await db
+  const recentActivityResult = await db
     .select({
-      event: schema.events.evt,
-      pathname: schema.events.pathname,
-      title: schema.events.pageTitle,
-      browser: schema.events.browser,
-      os: schema.events.os,
-      createdAt: schema.events.createdAt
+      id: schema.events.id,
+      event: schema.events.event,
+      timestamp: schema.events.timestamp,
+      page: schema.webEvents.pathname,
+      country: schema.geoEvents.country,
+      browser: schema.webEvents.browser,
+      os: schema.webEvents.os,
     })
     .from(schema.events)
+    .leftJoin(schema.webEvents, eq(schema.events.id, schema.webEvents.eventId))
+    .leftJoin(schema.geoEvents, eq(schema.events.id, schema.geoEvents.eventId))
     .where(eq(schema.events.site, siteKey))
-    .orderBy(desc(schema.events.createdAt))
-    .limit(20);
+    .orderBy(desc(schema.events.timestamp))
+    .limit(50);
 
-  // Format recent activity with time ago
-  const recentActivity = recentActivityRaw.map(activity => ({
-    event: activity.event || 'unknown',
-    pathname: activity.pathname || '/',
-    title: activity.title || 'Untitled',
-    browser: activity.browser || 'Unknown',
-    os: activity.os || 'Unknown',
-    timeAgo: formatTimeAgo(activity.createdAt || new Date())
-  }));
+  // Process device stats
+  const deviceStats = deviceStatsResult.reduce(
+    (acc, curr) => {
+      const device = curr.device?.toLowerCase() || 'unknown';
+      if (device.includes('mobile')) acc.mobile += curr.count;
+      else if (device.includes('tablet')) acc.tablet += curr.count;
+      else acc.desktop += curr.count;
+      return acc;
+    },
+    { desktop: 0, mobile: 0, tablet: 0 }
+  );
 
   return {
     totalPageViews: totalPageViewsResult[0]?.count || 0,
     weeklyPageViews: weeklyPageViewsResult[0]?.count || 0,
     dailyPageViews: dailyPageViewsResult[0]?.count || 0,
     uniqueVisitors: uniqueVisitorsResult[0]?.count || 0,
-    avgLoadTime: avgLoadTimeResult[0]?.avg || 0,
-    topPages: topPages.map(p => ({
+    avgLoadTime: Math.round(avgLoadTimeResult[0]?.avg || 0),
+    topPages: topPagesResult.map(p => ({
       page: p.page || '/',
       title: p.title || 'Untitled',
       views: p.views
     })),
-    topReferrers: topReferrers.map(r => ({
+    topReferrers: topReferrersResult.map(r => ({
       source: r.source || 'Direct',
       visits: r.visits
     })),
-    topBrowsers: topBrowsers.map(b => ({
+    topBrowsers: topBrowsersResult.map(b => ({
       name: b.name || 'Unknown',
-      count: b.count
+      visits: b.visits
     })),
-    topOS: topOS.map(os => ({
+    topOS: topOSResult.map(os => ({
       name: os.name || 'Unknown',
-      count: os.count
+      visits: os.visits
     })),
-    deviceVendors: deviceVendors.map(d => ({
-      vendor: d.vendor || 'Unknown',
-      model: d.model || 'Unknown',
-      count: d.count
+    topCountries: topCountriesResult.map(c => ({
+      name: c.name || 'Unknown',
+      visits: c.visits
     })),
-    topResolutions: topResolutions.map(r => ({
-      resolution: r.resolution || 'Unknown',
+    deviceStats,
+    topResolutions: topResolutionsResult.map(r => ({
+      resolution: r.resolution,
       count: r.count
     })),
-    topLanguages: topLanguages.map(l => ({
-      language: l.language || 'Unknown',
-      count: l.count
-    })),
-    recentActivity
+    recentActivity: recentActivityResult.map(a => ({
+      id: a.id,
+      event: a.event,
+      timestamp: a.timestamp,
+      page: a.page || '/',
+      country: a.country || 'Unknown',
+      browser: a.browser || 'Unknown',
+      os: a.os || 'Unknown'
+    }))
   };
-}
-
-/**
- * Calculate bounce rate based on page views and unique visitors
- */
-export function calculateBounceRate(totalPageViews: number, uniqueVisitors: number): number {
-  if (uniqueVisitors === 0) return 0;
-
-  // Simple estimation: if pageviews per visitor is close to 1, it's likely a bounce
-  const avgPageViewsPerVisitor = totalPageViews / uniqueVisitors;
-  const bounceRate = Math.max(0, Math.min(100, (2 - avgPageViewsPerVisitor) * 100));
-
-  return Math.round(bounceRate);
-}
-
-/**
- * Format a date as time ago
- */
-function formatTimeAgo(date: Date): string {
-  const now = new Date();
-  const diffInMs = now.getTime() - date.getTime();
-  const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
-  const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
-  const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-
-  if (diffInMinutes < 1) {
-    return 'Just now';
-  }
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes}m ago`;
-  }
-  if (diffInHours < 24) {
-    return `${diffInHours}h ago`;
-  }
-  if (diffInDays < 7) {
-    return `${diffInDays}d ago`;
-  }
-  return date.toLocaleDateString();
 } 

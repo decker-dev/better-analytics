@@ -32,7 +32,7 @@ export const TechnologyStats = ({ stats }: TechnologyStatsProps) => {
                 >
                   <span className="text-sm font-medium">{browser.name}</span>
                   <span className="text-sm text-muted-foreground">
-                    {browser.count}
+                    {browser.visits}
                   </span>
                 </div>
               ))
@@ -63,7 +63,7 @@ export const TechnologyStats = ({ stats }: TechnologyStatsProps) => {
                 >
                   <span className="text-sm font-medium">{os.name}</span>
                   <span className="text-sm text-muted-foreground">
-                    {os.count}
+                    {os.visits}
                   </span>
                 </div>
               ))

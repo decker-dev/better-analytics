@@ -24,28 +24,22 @@ export const DeviceInfo = ({ stats }: DeviceInfoProps) => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {stats.deviceVendors.length > 0 ? (
-              stats.deviceVendors.map((device, index) => (
-                <div
-                  key={`device-${index}-${device.vendor}-${device.model}`}
-                  className="flex items-center justify-between"
-                >
-                  <div>
-                    <span className="text-sm font-medium">{device.vendor}</span>
-                    <p className="text-xs text-muted-foreground">
-                      {device.model}
-                    </p>
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {device.count}
-                  </span>
+            {Object.entries(stats.deviceStats).map(([deviceType, count]) => (
+              <div
+                key={deviceType}
+                className="flex items-center justify-between"
+              >
+                <div>
+                  <span className="text-sm font-medium capitalize">{deviceType}</span>
+                  <p className="text-xs text-muted-foreground">
+                    {count > 0 ? `${count} visits` : 'No visits'}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <p className="text-muted-foreground text-center py-4">
-                No device data
-              </p>
-            )}
+                <span className="text-sm text-muted-foreground">
+                  {count}
+                </span>
+              </div>
+            ))}
           </div>
         </CardContent>
       </Card>

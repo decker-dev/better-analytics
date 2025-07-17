@@ -1,90 +1,128 @@
-import { pgTable, text, integer, timestamp, boolean, unique, jsonb } from 'drizzle-orm/pg-core';
+import { pgTable, text, integer, timestamp, boolean, unique, jsonb, index } from 'drizzle-orm/pg-core';
 import { nanoid } from 'nanoid';
 
+// === NORMALIZED ANALYTICS SCHEMA ===
+
+// Base events table - core data only
 export const events = pgTable('events', {
   id: text('id').primaryKey().$defaultFn(() => crypto.randomUUID()),
   site: text('site').notNull().references(() => sites.siteKey, { onDelete: 'cascade' }),
-  ts: text('ts').notNull(),
-  evt: text('evt').notNull(),
+  timestamp: timestamp('timestamp').notNull().defaultNow(),
+  event: text('event').notNull(),
   url: text('url'),
-  ref: text('ref'),
-  props: text('props'),
-
-  // User Agent information (parsed)
-  userAgent: text('userAgent'), // Raw user agent string
-  browser: text('browser'), // e.g., "Chrome 120.0"
-  os: text('os'), // e.g., "macOS 14.1"
-  device: text('device'), // e.g., "desktop", "mobile", "tablet"
-  deviceVendor: text('deviceVendor'), // e.g., "Apple", "Samsung"
-  deviceModel: text('deviceModel'), // e.g., "iPhone", "MacBook Pro"
-  engine: text('engine'), // e.g., "Blink", "WebKit"
-  cpu: text('cpu'), // e.g., "amd64", "arm64"
-
-  // Geographic information (if available)
-  country: text('country'), // e.g., "US", "ES"
-  region: text('region'), // e.g., "California", "Madrid"
-  city: text('city'), // e.g., "San Francisco", "Madrid" 
-  latitude: text('latitude'), // e.g., "37.7749" (stored as text for precision)
-  longitude: text('longitude'), // e.g., "-122.4194" (stored as text for precision)
-
-  // Session information
-  sessionId: text('sessionId'), // To group events by session
-  userId: text('userId'), // If user is identified
-
-  // Page information
-  pageTitle: text('pageTitle'), // Page title
-  pathname: text('pathname'), // Just the path part of URL
-  hostname: text('hostname'), // Just the hostname
-
-  // Performance metrics (optional)
-  loadTime: integer('loadTime'), // Page load time in ms
-
-  // UTM parameters for marketing attribution
-  utmSource: text('utmSource'),
-  utmMedium: text('utmMedium'),
-  utmCampaign: text('utmCampaign'),
-  utmTerm: text('utmTerm'),
-  utmContent: text('utmContent'),
-
-  // Screen resolution
-  screenWidth: integer('screenWidth'),
-  screenHeight: integer('screenHeight'),
-
-  // Viewport size
-  viewportWidth: integer('viewportWidth'),
-  viewportHeight: integer('viewportHeight'),
-
-  // Language and timezone
-  language: text('language'), // e.g., "en-US", "es-ES"
-  timezone: text('timezone'), // e.g., "America/New_York", "Europe/Madrid"
-
-  // Device tracking
-  deviceId: text('deviceId'), // Persistent device identifier
-
-  // Connection type
-  connectionType: text('connectionType'), // e.g., "4g", "wifi", "ethernet"
-
-  // Mobile-specific fields
-  platform: text('platform'), // e.g., "ios", "android", "web"
-  platformVersion: text('platformVersion'), // e.g., "17.2", "14"
-  brand: text('brand'), // e.g., "Apple", "Samsung" (mobile devices)
-  model: text('model'), // e.g., "iPhone 15 Pro", "Galaxy S24" (more specific than deviceModel)
-  isEmulator: boolean('isEmulator'), // true if running on emulator/simulator
-
-  // App-specific fields (for mobile apps)
-  appVersion: text('appVersion'), // e.g., "1.2.3"
-  appBuildNumber: text('appBuildNumber'), // e.g., "42"
-  bundleId: text('bundleId'), // e.g., "com.example.app"
-
-  // Server-specific fields
-  serverRuntime: text('serverRuntime'), // e.g., "node", "edge", "cloudflare", "deno"
-  serverFramework: text('serverFramework'), // e.g., "nextjs", "vercel", "netlify"
-  serverIP: text('serverIP'), // Server-provided IP (might differ from extracted IP)
-  serverOrigin: text('serverOrigin'), // Origin from server context
-
-  // Timestamps
+  referrer: text('referrer'),
+  sessionId: text('sessionId'),
+  deviceId: text('deviceId'),
+  userId: text('userId'),
+  props: jsonb('props').$type<Record<string, unknown>>(),
   createdAt: timestamp('createdAt').defaultNow(),
-});
+}, (table) => ({
+  // Core indexes for base queries
+  siteTimestampIdx: index('events_site_timestamp_idx').on(table.site, table.timestamp.desc()),
+  siteEventIdx: index('events_site_event_idx').on(table.site, table.event),
+  sessionIdx: index('events_session_idx').on(table.sessionId),
+  deviceIdx: index('events_device_idx').on(table.deviceId),
+  userIdx: index('events_user_idx').on(table.userId),
+  timestampIdx: index('events_timestamp_idx').on(table.timestamp),
+}));
+
+// Web-specific data
+export const webEvents = pgTable('web_events', {
+  eventId: text('event_id').primaryKey().references(() => events.id, { onDelete: 'cascade' }),
+
+  // User Agent parsed data
+  userAgent: text('user_agent'),
+  browser: text('browser'),
+  os: text('os'),
+  device: text('device'),
+  deviceVendor: text('device_vendor'),
+  deviceModel: text('device_model'),
+  engine: text('engine'),
+  cpu: text('cpu'),
+
+  // Page context
+  pageTitle: text('page_title'),
+  pathname: text('pathname'),
+  hostname: text('hostname'),
+  loadTime: integer('load_time'),
+
+  // UTM parameters
+  utmSource: text('utm_source'),
+  utmMedium: text('utm_medium'),
+  utmCampaign: text('utm_campaign'),
+  utmTerm: text('utm_term'),
+  utmContent: text('utm_content'),
+
+  // Screen/viewport
+  screenWidth: integer('screen_width'),
+  screenHeight: integer('screen_height'),
+  viewportWidth: integer('viewport_width'),
+  viewportHeight: integer('viewport_height'),
+
+  // Web-specific
+  language: text('language'),
+  timezone: text('timezone'),
+  connectionType: text('connection_type'),
+}, (table) => ({
+  pathnameIdx: index('web_events_pathname_idx').on(table.pathname),
+  utmSourceIdx: index('web_events_utm_source_idx').on(table.utmSource),
+}));
+
+// Mobile-specific data
+export const mobileEvents = pgTable('mobile_events', {
+  eventId: text('event_id').primaryKey().references(() => events.id, { onDelete: 'cascade' }),
+
+  // Mobile device info
+  platform: text('platform'), // ios, android
+  platformVersion: text('platform_version'),
+  brand: text('brand'),
+  model: text('model'),
+  isEmulator: boolean('is_emulator'),
+
+  // App info
+  appVersion: text('app_version'),
+  appBuildNumber: text('app_build_number'),
+  bundleId: text('bundle_id'),
+
+  // Mobile-specific context
+  language: text('language'),
+  timezone: text('timezone'),
+  screenWidth: integer('screen_width'),
+  screenHeight: integer('screen_height'),
+}, (table) => ({
+  platformIdx: index('mobile_events_platform_idx').on(table.platform),
+  appVersionIdx: index('mobile_events_app_version_idx').on(table.appVersion),
+}));
+
+// Server-side events data
+export const serverEvents = pgTable('server_events', {
+  eventId: text('event_id').primaryKey().references(() => events.id, { onDelete: 'cascade' }),
+
+  // Server context
+  runtime: text('runtime'), // node, edge, cloudflare, deno
+  framework: text('framework'), // nextjs, vercel, netlify
+  serverIP: text('server_ip'),
+  origin: text('origin'),
+  userAgent: text('user_agent'),
+}, (table) => ({
+  runtimeIdx: index('server_events_runtime_idx').on(table.runtime),
+  frameworkIdx: index('server_events_framework_idx').on(table.framework),
+}));
+
+// Geographic data (shared across all event types)
+export const geoEvents = pgTable('geo_events', {
+  eventId: text('event_id').primaryKey().references(() => events.id, { onDelete: 'cascade' }),
+
+  // Geographic info
+  country: text('country'),
+  region: text('region'),
+  city: text('city'),
+  latitude: text('latitude'),
+  longitude: text('longitude'),
+}, (table) => ({
+  countryIdx: index('geo_events_country_idx').on(table.country),
+  regionIdx: index('geo_events_region_idx').on(table.region),
+}));
 
 // Better Auth tables
 export const user = pgTable('user', {
@@ -190,6 +228,18 @@ export const sites = pgTable('sites', {
 // TypeScript types
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
+
+export type WebEvent = typeof webEvents.$inferSelect;
+export type NewWebEvent = typeof webEvents.$inferInsert;
+
+export type MobileEvent = typeof mobileEvents.$inferSelect;
+export type NewMobileEvent = typeof mobileEvents.$inferInsert;
+
+export type ServerEvent = typeof serverEvents.$inferSelect;
+export type NewServerEvent = typeof serverEvents.$inferInsert;
+
+export type GeoEvent = typeof geoEvents.$inferSelect;
+export type NewGeoEvent = typeof geoEvents.$inferInsert;
 
 export type Organization = typeof organization.$inferSelect;
 export type NewOrganization = typeof organization.$inferInsert;
