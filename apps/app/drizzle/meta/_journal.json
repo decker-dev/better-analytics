@@ -50,6 +50,20 @@
       "when": 1752714123195,
       "tag": "0006_slow_wasp",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1752716073891,
+      "tag": "0007_broken_imperial_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1752716130727,
+      "tag": "0008_woozy_northstar",
+      "breakpoints": true
     }
   ]
 }

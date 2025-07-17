@@ -15,6 +15,12 @@ export interface DeviceInfo {
   language?: string;
   timezone?: string;
   connectionType?: string;
+  // Mobile-specific fields
+  platform?: string;
+  platformVersion?: string;
+  brand?: string;
+  model?: string;
+  isEmulator?: boolean;
 }
 
 export interface PageInfo {
@@ -30,6 +36,12 @@ export interface UtmParams {
   campaign?: string;
   term?: string;
   content?: string;
+}
+
+export interface AppInfo {
+  version?: string;
+  buildNumber?: string;
+  bundleId?: string;
 }
 
 export interface ServerInfo {
@@ -59,13 +71,16 @@ export interface IncomingEvent {
   referrer?: string;
   site: string;
   sessionId?: string;
+  deviceId?: string;
   userId?: string;
   device?: DeviceInfo;
   page?: PageInfo;
   utm?: UtmParams;
+  app?: AppInfo;
   server?: ServerInfo;
   user?: UserInfo;
   props?: Record<string, unknown>;
+  meta?: Record<string, unknown>;
   _server?: boolean;
 }
 
@@ -99,6 +114,7 @@ export interface ProcessedEvent {
   latitude: string | null;
   longitude: string | null;
   sessionId: string | null;
+  deviceId: string | null;
   userId: string | null;
   pageTitle: string | null;
   pathname: string | null;
@@ -114,6 +130,23 @@ export interface ProcessedEvent {
   viewportWidth: number | null;
   viewportHeight: number | null;
   language: string | null;
+  timezone: string | null;
+  connectionType: string | null;
+  // Mobile-specific fields
+  platform: string | null;
+  platformVersion: string | null;
+  brand: string | null;
+  model: string | null;
+  isEmulator: boolean | null;
+  // App-specific fields
+  appVersion: string | null;
+  appBuildNumber: string | null;
+  bundleId: string | null;
+  // Server-specific fields
+  serverRuntime: string | null;
+  serverFramework: string | null;
+  serverIP: string | null;
+  serverOrigin: string | null;
 }
 
 export interface SiteConfig {

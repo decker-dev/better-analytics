@@ -54,11 +54,33 @@ export const events = pgTable('events', {
   viewportWidth: integer('viewportWidth'),
   viewportHeight: integer('viewportHeight'),
 
-  // Language
+  // Language and timezone
   language: text('language'), // e.g., "en-US", "es-ES"
+  timezone: text('timezone'), // e.g., "America/New_York", "Europe/Madrid"
 
-  // Temporary site flag
-  isTemp: boolean('is_temp').default(false),
+  // Device tracking
+  deviceId: text('deviceId'), // Persistent device identifier
+
+  // Connection type
+  connectionType: text('connectionType'), // e.g., "4g", "wifi", "ethernet"
+
+  // Mobile-specific fields
+  platform: text('platform'), // e.g., "ios", "android", "web"
+  platformVersion: text('platformVersion'), // e.g., "17.2", "14"
+  brand: text('brand'), // e.g., "Apple", "Samsung" (mobile devices)
+  model: text('model'), // e.g., "iPhone 15 Pro", "Galaxy S24" (more specific than deviceModel)
+  isEmulator: boolean('isEmulator'), // true if running on emulator/simulator
+
+  // App-specific fields (for mobile apps)
+  appVersion: text('appVersion'), // e.g., "1.2.3"
+  appBuildNumber: text('appBuildNumber'), // e.g., "42"
+  bundleId: text('bundleId'), // e.g., "com.example.app"
+
+  // Server-specific fields
+  serverRuntime: text('serverRuntime'), // e.g., "node", "edge", "cloudflare", "deno"
+  serverFramework: text('serverFramework'), // e.g., "nextjs", "vercel", "netlify"
+  serverIP: text('serverIP'), // Server-provided IP (might differ from extracted IP)
+  serverOrigin: text('serverOrigin'), // Origin from server context
 
   // Timestamps
   createdAt: timestamp('createdAt').defaultNow(),

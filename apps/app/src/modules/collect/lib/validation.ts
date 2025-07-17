@@ -10,6 +10,12 @@ export const deviceInfoSchema = z.object({
   language: z.string().optional(),
   timezone: z.string().optional(),
   connectionType: z.string().optional(),
+  // Mobile-specific fields
+  platform: z.string().optional(),
+  platformVersion: z.string().optional(),
+  brand: z.string().optional(),
+  model: z.string().optional(),
+  isEmulator: z.boolean().optional(),
 }).optional();
 
 // Page info schema
@@ -27,6 +33,13 @@ export const utmParamsSchema = z.object({
   campaign: z.string().optional(),
   term: z.string().optional(),
   content: z.string().optional(),
+}).optional();
+
+// App info schema (for mobile apps)
+export const appInfoSchema = z.object({
+  version: z.string().optional(),
+  buildNumber: z.string().optional(),
+  bundleId: z.string().optional(),
 }).optional();
 
 // Server info schema (for server-side events)
@@ -61,17 +74,22 @@ export const incomingEventSchema = z.object({
 
   // Session & User
   sessionId: z.string().optional(),
+  deviceId: z.string().optional(),
   userId: z.string().optional(),
 
   // Nested objects
   device: deviceInfoSchema,
   page: pageInfoSchema,
   utm: utmParamsSchema,
+  app: appInfoSchema,
   server: serverInfoSchema,
   user: userInfoSchema,
 
   // Custom properties
   props: z.record(z.unknown()).optional(),
+
+  // Custom metadata
+  meta: z.record(z.unknown()).optional(),
 
   // Server event marker
   _server: z.boolean().optional(),

@@ -149,9 +149,10 @@ export async function processEvent(
   const userAgentString = incomingEvent.device?.userAgent || null;
   const parsedUserAgent = userAgentString ? parseUserAgent(userAgentString) : null;
 
-  // Extract session ID from event or props
+  // Extract session and device IDs from event or props
   const props = incomingEvent.props || {};
   const sessionId = incomingEvent.sessionId || (props.sessionId as string) || null;
+  const deviceId = incomingEvent.deviceId || (props.deviceId as string) || null;
 
   // Build the processed event
   const processedEvent: ProcessedEvent = {
@@ -182,6 +183,7 @@ export async function processEvent(
 
     // Session information
     sessionId: sessionId,
+    deviceId: deviceId,
     userId: incomingEvent.userId || null,
 
     // Page information
@@ -205,8 +207,30 @@ export async function processEvent(
     viewportWidth: incomingEvent.device?.viewportWidth || null,
     viewportHeight: incomingEvent.device?.viewportHeight || null,
 
-    // Language
+    // Language and timezone
     language: incomingEvent.device?.language || null,
+    timezone: incomingEvent.device?.timezone || null,
+
+    // Connection type
+    connectionType: incomingEvent.device?.connectionType || null,
+
+    // Mobile-specific fields
+    platform: incomingEvent.device?.platform || null,
+    platformVersion: incomingEvent.device?.platformVersion || null,
+    brand: incomingEvent.device?.brand || null,
+    model: incomingEvent.device?.model || null,
+    isEmulator: incomingEvent.device?.isEmulator || null,
+
+    // App-specific fields (mobile apps)
+    appVersion: incomingEvent.app?.version || null,
+    appBuildNumber: incomingEvent.app?.buildNumber || null,
+    bundleId: incomingEvent.app?.bundleId || null,
+
+    // Server-specific fields
+    serverRuntime: incomingEvent.server?.runtime || null,
+    serverFramework: incomingEvent.server?.framework || null,
+    serverIP: incomingEvent.server?.ip || null,
+    serverOrigin: incomingEvent.server?.origin || null,
   };
 
   return processedEvent;
