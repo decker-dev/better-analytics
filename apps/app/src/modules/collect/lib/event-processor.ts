@@ -3,7 +3,7 @@ import { db, schema } from '@/modules/shared/lib/db';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
 import { getGeolocation, isValidIP } from './geolocation';
-import { 
+import {
   parseUserAgent,
   formatBrowser,
   formatOS,
@@ -11,13 +11,13 @@ import {
   getDeviceVendor,
   getDeviceModel,
   getEngine,
-  getCPU 
+  getCPU
 } from './user-agent';
-import type { 
-  IncomingEvent, 
-  ProcessedEvent, 
+import type {
+  IncomingEvent,
+  ProcessedEvent,
   SiteConfig,
-  GeolocationData 
+  GeolocationData
 } from '../types/collect';
 
 /**
@@ -133,6 +133,8 @@ export async function processEvent(
     country: null,
     region: null,
     city: null,
+    latitude: null,
+    longitude: null,
   };
 
   if (clientIP) {
@@ -175,6 +177,8 @@ export async function processEvent(
     country: geolocationData.country,
     region: geolocationData.region,
     city: geolocationData.city,
+    latitude: geolocationData.latitude,
+    longitude: geolocationData.longitude,
 
     // Session information
     sessionId: sessionId,

@@ -24,6 +24,8 @@ export const events = pgTable('events', {
   country: text('country'), // e.g., "US", "ES"
   region: text('region'), // e.g., "California", "Madrid"
   city: text('city'), // e.g., "San Francisco", "Madrid" 
+  latitude: text('latitude'), // e.g., "37.7749" (stored as text for precision)
+  longitude: text('longitude'), // e.g., "-122.4194" (stored as text for precision)
 
   // Session information
   sessionId: text('sessionId'), // To group events by session

@@ -2,6 +2,8 @@ export interface GeolocationData {
   country: string | null;
   region: string | null;
   city: string | null;
+  latitude: string | null;
+  longitude: string | null;
 }
 
 export interface DeviceInfo {
@@ -94,6 +96,8 @@ export interface ProcessedEvent {
   country: string | null;
   region: string | null;
   city: string | null;
+  latitude: string | null;
+  longitude: string | null;
   sessionId: string | null;
   userId: string | null;
   pageTitle: string | null;

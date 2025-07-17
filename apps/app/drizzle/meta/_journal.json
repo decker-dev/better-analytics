@@ -43,6 +43,13 @@
       "when": 1752542365360,
       "tag": "0005_silky_scourge",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1752714123195,
+      "tag": "0006_slow_wasp",
+      "breakpoints": true
     }
   ]
 }

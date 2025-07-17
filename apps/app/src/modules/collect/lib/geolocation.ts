@@ -1,60 +1,63 @@
 import type { GeolocationData } from '../types/collect';
 
 /**
- * Basic IP validation to ensure we have a valid IPv4 or IPv6 address
+ * IP API response interface based on actual response
  */
-export function isValidIP(ip: string): boolean {
-  // Remove any whitespace
-  const trimmedIP = ip.trim();
-
-  // Skip local/private IPs that won't work with geolocation services
-  if (
-    trimmedIP === '127.0.0.1' ||
-    trimmedIP === '::1' ||
-    trimmedIP.startsWith('192.168.') ||
-    trimmedIP.startsWith('10.') ||
-    trimmedIP.startsWith('172.')
-  ) {
-    return false;
-  }
-
-  // Basic IPv4 validation
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  if (ipv4Regex.test(trimmedIP)) {
-    return true;
-  }
-
-  // Basic IPv6 validation (simplified)
-  const ipv6Regex = /^(?:[0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^::1$|^::$/;
-  if (ipv6Regex.test(trimmedIP)) {
-    return true;
-  }
-
-  return false;
+interface IPAPIResponse {
+  status: string;
+  country?: string;
+  countryCode?: string;
+  region?: string;
+  regionName?: string;
+  city?: string;
+  zip?: string;
+  lat?: number;
+  lon?: number;
+  timezone?: string;
+  isp?: string;
+  org?: string;
+  as?: string;
+  query?: string;
 }
 
 /**
- * Get geolocation data from ip-api.com
- * Includes proper error handling and timeout
+ * Check if an IP address is valid
+ */
+export function isValidIP(ip: string): boolean {
+  // Basic IPv4 validation
+  const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+  if (!ipv4Regex.test(ip)) return false;
+
+  const parts = ip.split('.');
+  return parts.every(part => {
+    const num = Number.parseInt(part, 10);
+    return num >= 0 && num <= 255;
+  });
+}
+
+/**
+ * Get geolocation data from IP address using ip-api.com
  */
 export async function getGeolocation(ip: string): Promise<GeolocationData> {
   const defaultResult: GeolocationData = {
     country: null,
     region: null,
     city: null,
+    latitude: null,
+    longitude: null,
   };
 
-  if (!isValidIP(ip)) {
+  if (!ip || !isValidIP(ip)) {
     return defaultResult;
   }
 
   try {
     // Create AbortController for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
 
     const response = await fetch(
-      `http://ip-api.com/json/${ip}?fields=status,country,regionName,city`,
+      `http://ip-api.com/json/${ip}`,
       {
         signal: controller.signal,
         headers: {
@@ -66,15 +69,13 @@ export async function getGeolocation(ip: string): Promise<GeolocationData> {
     clearTimeout(timeoutId);
 
     if (!response.ok) {
-      console.warn(`Geolocation API returned ${response.status} for IP ${ip}`);
-      return defaultResult;
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data: IPAPIResponse = await response.json();
 
-    // Check if the API returned success status
     if (data.status !== 'success') {
-      console.warn(`Geolocation failed for IP ${ip}:`, data.status);
+      console.warn('IP API returned non-success status:', data.status);
       return defaultResult;
     }
 
@@ -82,16 +83,11 @@ export async function getGeolocation(ip: string): Promise<GeolocationData> {
       country: data.country || null,
       region: data.regionName || null,
       city: data.city || null,
+      latitude: data.lat ? data.lat.toString() : null,
+      longitude: data.lon ? data.lon.toString() : null,
     };
   } catch (error) {
-    // Handle timeout, network errors, etc.
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        console.warn(`Geolocation timeout for IP ${ip}`);
-      } else {
-        console.warn(`Geolocation error for IP ${ip}:`, error.message);
-      }
-    }
+    console.warn('Geolocation lookup failed:', error);
     return defaultResult;
   }
 } 
