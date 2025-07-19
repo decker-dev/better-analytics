@@ -1,0 +1,58 @@
+# Better Analytics License
+
+This repository contains code under different licenses depending on the component:
+
+## SDK Package (`packages/better-analytics/`)
+**License:** MIT License
+**Purpose:** Maximum adoption and integration flexibility
+
+The Better Analytics JavaScript SDK is licensed under the MIT License to encourage widespread adoption. You can:
+- Use it in any project (commercial or non-commercial)
+- Modify and distribute it freely
+- Include it in proprietary software
+- No obligations beyond including the copyright notice
+
+See: `packages/better-analytics/LICENSE`
+
+## SaaS Application (`apps/app/`)
+**License:** Business Source License (BSL) 1.1
+**Purpose:** Protect our commercial offering while maintaining transparency
+
+The Better Analytics SaaS platform is licensed under BSL 1.1. You can:
+- Use the source code for internal business purposes (e.g., company dashboard)
+- Modify and study the code for learning and development
+- Deploy for development, testing, and internal production use
+- **Cannot:** Offer a competing analytics service commercially (e.g., "YourAnalytics.com")
+
+**Change Date:** January 1, 2029 (or 4 years from first public release, whichever comes first)
+**Change License:** GNU Affero General Public License v3.0 (AGPL-3.0)
+
+After the Change Date, this software will be made available under AGPL-3.0 (strong copyleft).
+This means competitors can create commercial services, but must open-source all their code.
+
+See: `apps/app/LICENSE`
+
+## Summary
+
+- **Developers:** Use our SDK freely in any project
+- **Enterprises:** Deploy our platform internally for your own analytics needs
+- **Competitors:** Cannot offer competing SaaS services until 2029
+- **Everyone:** Full access to source code for transparency and learning
+
+This dual-license approach ensures:
+1. Maximum SDK adoption (MIT)
+2. Sustainable business model (BSL)
+3. Long-term community benefit (BSL → AGPL-3.0 strong copyleft)
+
+## Common Questions
+
+**Q: Can I use the SDK in my commercial product?**  
+A: Yes! The SDK is MIT licensed - use it anywhere.
+
+**Q: Can I deploy the SaaS platform for my company's internal analytics?**  
+A: Yes! Internal business use is explicitly permitted.
+
+**Q: Can I create a competing analytics service?**  
+A: Not until 2029. After that, yes, but you must open-source your code (AGPL-3.0).
+
+For questions about licensing, please contact: hello@better-analytics.app 
