@@ -1,6 +1,6 @@
 {
   "name": "better-analytics",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "description": "Zero-dependency micro-analytics JavaScript SDK < 3KB gzipped with React/Next.js/Expo support",
   "repository": "decker-dev/better-analytics",
   "homepage": "https://better-analytics.app/",
