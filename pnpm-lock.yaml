@@ -32,9 +32,6 @@ importers:
 
   apps/app:
     dependencies:
-      '@neondatabase/serverless':
-        specifier: ^1.0.1
-        version: 1.0.1
       '@react-three/drei':
         specifier: ^10.5.0
         version: 10.5.0(@react-three/fiber@9.0.0-alpha.8(tymstqcxutkuynmogtvjjmeud4))(@types/react@19.1.8)(@types/three@0.178.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.178.0)
@@ -10712,6 +10709,7 @@ snapshots:
     dependencies:
       '@types/node': 22.15.32
       '@types/pg': 8.15.4
+    optional: true
 
   '@next/env@15.3.0': {}
 
@@ -12712,6 +12710,7 @@ snapshots:
   '@types/node@22.15.32':
     dependencies:
       undici-types: 6.21.0
+    optional: true
 
   '@types/node@24.0.7':
     dependencies:
