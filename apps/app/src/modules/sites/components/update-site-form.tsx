@@ -91,7 +91,7 @@ function cleanHost(host: string): string {
     .trim()
     .replace(/^https?:\/\//, "") // Remove protocol if present
     .replace(/\/$/, "") // Remove trailing slash
-    .replace(/[^a-z0-9.-]/g, ""); // Only allow alphanumeric, dots, and hyphens
+    .replace(/[^a-z0-9.:-]/g, ""); // Allow alphanumeric, dots, hyphens, and colons (for ports)
 }
 
 export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
