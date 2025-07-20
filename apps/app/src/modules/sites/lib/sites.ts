@@ -1,5 +1,5 @@
-import { db, schema } from '@/modules/shared/lib/db';
-import type { Site } from '@/modules/shared/lib/db/schema';
+import { db, schema } from '@repo/database';
+import type { Site } from '@repo/database';
 import { eq, and } from 'drizzle-orm';
 
 /**

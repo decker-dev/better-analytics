@@ -1,7 +1,6 @@
 'use server';
 
-import { db } from '@/modules/shared/lib/db';
-import { sites } from '@/modules/shared/lib/db/schema';
+import { db, sites } from '@repo/database';
 import { eq, and, ne } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';

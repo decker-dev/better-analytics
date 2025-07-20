@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
-import { db, schema } from '@/modules/shared/lib/db';
+import { db, schema } from '@repo/database';
 import { eq } from 'drizzle-orm';
 import { nanoid } from 'nanoid';
-import type { NewWebEvent, NewMobileEvent, NewServerEvent, NewGeoEvent } from '@/modules/shared/lib/db/schema';
+import type { NewWebEvent, NewMobileEvent, NewServerEvent, NewGeoEvent } from '@repo/database';
 import { getGeolocation, isValidIP } from './geolocation';
 import {
   parseUserAgent,

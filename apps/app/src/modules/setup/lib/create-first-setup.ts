@@ -2,8 +2,7 @@
 
 import { auth } from "@/modules/auth/lib/auth";
 import { headers } from "next/headers";
-import { db } from "@/modules/shared/lib/db";
-import { organization, member, sites } from "@/modules/shared/lib/db/schema";
+import { db, organization, member, sites } from "@repo/database";
 import { generateRandomName } from "@/modules/shared/lib/site-name-generator";
 import { generateSiteKey } from "@/modules/shared/lib/site-key";
 

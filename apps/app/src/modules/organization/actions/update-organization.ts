@@ -6,9 +6,8 @@ import { redirect } from 'next/navigation';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { auth } from '@/modules/auth/lib/auth';
 import { TAGS } from '@/modules/shared/lib/tags';
-import { db } from '@/modules/shared/lib/db';
+import { db, organization } from '@repo/database';
 import { eq, and, ne } from 'drizzle-orm';
-import { organization } from '@/modules/shared/lib/db/schema';
 import { validatedActionWithUser, type ActionState } from '@/modules/shared/lib/middleware-action';
 
 const updateOrganizationSchema = z.object({

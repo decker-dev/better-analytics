@@ -11,7 +11,7 @@ import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, CheckCircle2 } from "lucide-react";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import Link from "next/link";
-import type { Site } from "@/modules/shared/lib/db/schema";
+import type { Site } from "@repo/database";
 import { createSite } from "../actions/create-site";
 import type { ActionState } from "@/modules/shared/lib/middleware-action";
 

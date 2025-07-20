@@ -1,5 +1,5 @@
 import { nanoid } from 'nanoid';
-import { db, schema } from './db';
+import { db, schema } from '@repo/database';
 import { eq } from 'drizzle-orm';
 
 /**

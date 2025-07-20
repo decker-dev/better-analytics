@@ -12,21 +12,20 @@
   "scripts": {
     "db:seed": "tsx scripts/seed.ts",
     "db:migrate": "tsx scripts/migrate.ts",
+    "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "generate": "drizzle-kit generate:pg"
+    "generate": "drizzle-kit generate"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "drizzle-orm": "0.29.4",
-    "kysely": "0.27.2",
-    "pg": "^8.11.3",
-    "postgres": "3.4.3"
+    "drizzle-orm": "^0.44.2",
+    "pg": "^8.16.0",
+    "postgres": "^3.4.7"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
-    "drizzle-kit": "0.20.14",
-    "tsup": "8.0.2",
+    "drizzle-kit": "^0.31.1",
     "tsx": "4.7.1",
-    "typescript": "5.3.3"
+    "typescript": "^5.7.3"
   }
 }

@@ -1,8 +1,7 @@
 'use server';
 
 import { z } from 'zod';
-import { db } from '@/modules/shared/lib/db';
-import { sites } from '@/modules/shared/lib/db/schema';
+import { db, sites } from '@repo/database';
 import { generateSiteKey } from '@/modules/shared/lib/site-key';
 import { generateRandomName } from '@/modules/shared/lib/site-name-generator';
 import { revalidatePath } from 'next/cache';

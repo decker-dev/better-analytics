@@ -1,18 +1,13 @@
-import "dotenv/config";
+import { defineConfig } from 'drizzle-kit';
+import 'dotenv/config';
 
-import type { Config } from "drizzle-kit";
-
-const getEnvVariable = (name: string) => {
-  const value = process.env[name];
-  if (value == null) throw new Error(`environment variable ${name} not found`);
-  return value;
-};
-
-export default {
-  schema: "./src/schema.ts", 
-  out: "./drizzle",
-  driver: "pg",
+export default defineConfig({
+  schema: './src/schema.ts',
+  out: './drizzle',
+  dialect: 'postgresql',
   dbCredentials: {
-    connectionString: getEnvVariable("DATABASE_URL"),
+    url: process.env.DATABASE_URL!,
   },
-} satisfies Config;
+  verbose: true,
+  strict: true,
+}); 

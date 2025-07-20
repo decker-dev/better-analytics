@@ -6,7 +6,7 @@ import {
   organization,
 } from 'better-auth/plugins';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db } from '@/modules/shared/lib/db';
+import { db } from '@repo/database';
 import { Resend } from 'resend';
 import { env } from '@/env';
 import { InvitationEmail, MagicLinkEmail } from '@repo/email/emails';

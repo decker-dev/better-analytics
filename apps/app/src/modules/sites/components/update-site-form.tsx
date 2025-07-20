@@ -8,7 +8,7 @@ import { Textarea } from "@repo/ui/components/textarea";
 import { Save, CheckCircle2, Globe } from "lucide-react";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import { updateSite } from "../actions/update-site";
-import type { Site } from "@/modules/shared/lib/db/schema";
+import type { Site } from "@repo/database";
 import type { ActionState } from "@/modules/shared/lib/middleware-action";
 import {
   Card,
