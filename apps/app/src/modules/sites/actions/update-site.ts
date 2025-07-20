@@ -10,7 +10,15 @@ import { redirect } from 'next/navigation';
 const updateSiteSchema = z.object({
   siteId: z.string().min(1, 'Site ID is required'),
   name: z.string().min(1, 'Site name is required').max(100, 'Site name too long'),
-  domainProtection: z.boolean().optional(),
+  domainProtection: z
+    .union([z.string(), z.boolean()])
+    .optional()
+    .transform((val) => {
+      if (typeof val === 'string') {
+        return val === 'on' || val === 'true';
+      }
+      return Boolean(val);
+    }),
   allowedDomains: z.string().optional(),
   description: z.string().optional(),
   orgSlug: z.string().min(1, 'Organization slug is required'),
