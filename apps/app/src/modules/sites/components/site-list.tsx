@@ -38,9 +38,9 @@ function SiteIcon({ site }: SiteIconProps) {
     return <Globe className="h-5 w-5" />;
   }
 
-  // Clean domain (remove protocol if present)
-  const cleanDomain = primaryDomain.replace(/^https?:\/\//, "");
-  const faviconUrl = `https://${cleanDomain}/favicon.ico`;
+  // Extract hostname from the full URL for favicon
+  const url = new URL(primaryDomain);
+  const faviconUrl = `${url.href}favicon.ico`;
 
   return (
     <div className="relative h-5 w-5">
