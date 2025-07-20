@@ -8,7 +8,7 @@
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"]
     },
     "app#build": {
-      "dependsOn": [],
+      "dependsOn": ["@repo/database#db:migrate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
       "env": [
@@ -47,6 +47,11 @@
     "@repo/email#build": {
       "dependsOn": [],
       "outputs": [".react-email/**"]
+    },
+    "@repo/database#db:migrate": {
+      "cache": false,
+      "inputs": ["src/schema.ts", "drizzle/**"],
+      "env": ["DATABASE_URL"]
     },
     "lint": {
       "dependsOn": ["^lint"]

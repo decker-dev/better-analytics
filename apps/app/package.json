@@ -5,14 +5,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack --port 3010",
-    "build": "pnpm --filter @repo/database run db:migrate && next build --turbopack",
+    "build": "next build --turbopack",
     "start": "next start",
     "lint": "next lint --max-warnings 0",
-    "check-types": "tsc --noEmit",
-    "db:generate": "pnpm --filter @repo/database run generate",
-    "db:migrate": "pnpm --filter @repo/database run db:migrate",
-    "db:push": "pnpm --filter @repo/database run db:push",
-    "db:studio": "pnpm --filter @repo/database run db:studio"
+    "check-types": "tsc --noEmit"
   },
   "dependencies": {
     "@react-three/drei": "^10.5.0",
