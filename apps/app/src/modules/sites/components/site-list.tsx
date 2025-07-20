@@ -11,6 +11,8 @@ import { Button } from "@repo/ui/components/button";
 import { BarChart3, Settings, Plus, Globe, CheckCircle2 } from "lucide-react";
 import { Alert, AlertDescription } from "@repo/ui/components/alert";
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import type { Site } from "@repo/database";
 import { createSite } from "../actions/create-site";
 import type { ActionState } from "@/modules/shared/lib/middleware-action";
@@ -19,6 +21,40 @@ interface SiteListProps {
   sites: Site[];
   orgSlug: string;
   organizationId: string;
+}
+
+interface SiteIconProps {
+  site: Site;
+}
+
+function SiteIcon({ site }: SiteIconProps) {
+  const [imageError, setImageError] = useState(false);
+
+  // Get the first allowed domain if available
+  const primaryDomain = site.allowedDomains?.[0];
+
+  // If no domain or image failed to load, show Globe icon
+  if (!primaryDomain || imageError) {
+    return <Globe className="h-5 w-5" />;
+  }
+
+  // Clean domain (remove protocol if present)
+  const cleanDomain = primaryDomain.replace(/^https?:\/\//, "");
+  const faviconUrl = `https://${cleanDomain}/favicon.ico`;
+
+  return (
+    <div className="relative h-5 w-5">
+      <Image
+        src={faviconUrl}
+        alt={`${site.name} favicon`}
+        width={20}
+        height={20}
+        className="rounded-sm"
+        onError={() => setImageError(true)}
+        unoptimized // Since we're loading external favicons
+      />
+    </div>
+  );
 }
 
 const initialState: ActionState = {
@@ -67,7 +103,7 @@ export function SiteList({ sites, orgSlug, organizationId }: SiteListProps) {
             <Card key={site.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
+                  <SiteIcon site={site} />
                   {site.name}
                 </CardTitle>
                 {site.description && (
