@@ -1,18 +1,18 @@
 "use client";
 
-import * as React from "react";
 import { useTheme } from "next-themes";
+import * as React from "react";
 
-import { cn } from "@repo/ui/lib/utils";
+import { CopyButton } from "@repo/ui/components/animate-ui/buttons/copy";
 import {
   Tabs,
   TabsContent,
-  TabsList,
-  TabsTrigger,
   TabsContents,
+  TabsList,
   type TabsProps,
+  TabsTrigger,
 } from "@repo/ui/components/animate-ui/components/tabs";
-import { CopyButton } from "@repo/ui/components/animate-ui/buttons/copy";
+import { cn } from "@repo/ui/lib/utils";
 
 type CodeTabsProps = {
   codes: Record<string, string | { display: string; copy: string }>;

@@ -1,11 +1,11 @@
 "use client";
 
-import * as React from "react";
-import { useInView, type UseInViewOptions } from "motion/react";
+import { type UseInViewOptions, useInView } from "motion/react";
 import { useTheme } from "next-themes";
+import * as React from "react";
 
-import { cn } from "@repo/ui/lib/utils";
 import { CopyButton } from "@repo/ui/components/animate-ui/buttons/copy";
+import { cn } from "@repo/ui/lib/utils";
 
 type CodeEditorProps = Omit<React.ComponentProps<"div">, "onCopy"> & {
   children: string;

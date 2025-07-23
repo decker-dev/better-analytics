@@ -1,9 +1,9 @@
 "use client";
 
-import * as React from "react";
-import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
+import { type VariantProps, cva } from "class-variance-authority";
 import { CheckIcon, CopyIcon } from "lucide-react";
-import { cva, type VariantProps } from "class-variance-authority";
+import { AnimatePresence, type HTMLMotionProps, motion } from "motion/react";
+import * as React from "react";
 
 import { cn } from "@repo/ui/lib/utils";
 

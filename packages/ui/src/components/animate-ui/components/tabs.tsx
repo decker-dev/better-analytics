@@ -1,13 +1,13 @@
 "use client";
 
+import { type HTMLMotionProps, type Transition, motion } from "motion/react";
 import * as React from "react";
-import { motion, type Transition, type HTMLMotionProps } from "motion/react";
 
-import { cn } from "@repo/ui/lib/utils";
 import {
   MotionHighlight,
   MotionHighlightItem,
 } from "@repo/ui/components/animate-ui/effects/motion-highlight";
+import { cn } from "@repo/ui/lib/utils";
 
 type TabsContextType<T extends string> = {
   activeValue: T;
