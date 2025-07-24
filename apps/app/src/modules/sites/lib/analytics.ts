@@ -52,6 +52,7 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
   const now = new Date();
   const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
   const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
   // Total page views
   const totalPageViewsResult = await db
@@ -88,14 +89,16 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
       )
     );
 
-  // Unique visitors (based on sessionId)
+  // Unique visitors (based on sessionId) - last 30 days
   const uniqueVisitorsResult = await db
     .select({ count: sql<number>`count(distinct ${schema.events.sessionId})` })
     .from(schema.events)
     .where(
       and(
         eq(schema.events.site, siteKey),
-        isNotNull(schema.events.sessionId)
+        eq(schema.events.event, 'pageview'),
+        isNotNull(schema.events.sessionId),
+        gte(schema.events.timestamp, oneMonthAgo)
       )
     );
 
@@ -162,6 +165,7 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
     .where(
       and(
         eq(schema.events.site, siteKey),
+        eq(schema.events.event, 'pageview'),
         isNotNull(schema.webEvents.browser)
       )
     )
@@ -180,6 +184,7 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
     .where(
       and(
         eq(schema.events.site, siteKey),
+        eq(schema.events.event, 'pageview'),
         isNotNull(schema.webEvents.os)
       )
     )
@@ -198,6 +203,7 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
     .where(
       and(
         eq(schema.events.site, siteKey),
+        eq(schema.events.event, 'pageview'),
         isNotNull(schema.geoEvents.country)
       )
     )
@@ -216,6 +222,7 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
     .where(
       and(
         eq(schema.events.site, siteKey),
+        eq(schema.events.event, 'pageview'),
         isNotNull(schema.webEvents.device)
       )
     )
@@ -232,6 +239,7 @@ export async function getAnalyticsStats(siteKey: string): Promise<AnalyticsStats
     .where(
       and(
         eq(schema.events.site, siteKey),
+        eq(schema.events.event, 'pageview'),
         isNotNull(schema.webEvents.screenWidth),
         isNotNull(schema.webEvents.screenHeight)
       )
