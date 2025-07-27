@@ -148,43 +148,28 @@ export const UpdateSiteForm = ({ site, orgSlug }: UpdateSiteFormProps) => {
             value={serializeDomains(domains)}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Site Name</Label>
-              <Input
-                id="name"
-                name="name"
-                type="text"
-                defaultValue={site.name}
-                placeholder="Enter site name"
-                maxLength={100}
-                required
-                aria-describedby="name-error name-help"
-                className={state?.errors?.name ? "border-red-500" : ""}
-                disabled={isPending}
-              />
-              <p id="name-help" className="text-xs text-muted-foreground">
-                The URL slug will be automatically generated from the name
+          <div className="space-y-2">
+            <Label htmlFor="name">Site Name</Label>
+            <Input
+              id="name"
+              name="name"
+              type="text"
+              defaultValue={site.name}
+              placeholder="Enter site name"
+              maxLength={100}
+              required
+              aria-describedby="name-error name-help"
+              className={state?.errors?.name ? "border-red-500" : ""}
+              disabled={isPending}
+            />
+            <p id="name-help" className="text-xs text-muted-foreground">
+              The URL slug will be automatically generated from the name
+            </p>
+            {state?.errors?.name && (
+              <p id="name-error" className="text-sm text-red-500">
+                {state.errors.name[0]}
               </p>
-              {state?.errors?.name && (
-                <p id="name-error" className="text-sm text-red-500">
-                  {state.errors.name[0]}
-                </p>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="current-slug">Current URL Slug</Label>
-              <Input
-                id="current-slug"
-                type="text"
-                value={site.slug}
-                disabled
-                className="bg-muted"
-              />
-              <p className="text-xs text-muted-foreground">
-                Read-only • Updates automatically with name changes
-              </p>
-            </div>
+            )}
           </div>
 
           <div className="space-y-4">
