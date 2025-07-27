@@ -14,6 +14,7 @@ import {
 import { Settings, Trash2, RotateCcw } from "lucide-react";
 import { Button } from "@repo/ui/components/button";
 import { UpdateSiteForm } from "@/modules/sites/components/update-site-form";
+import { DeleteSiteDialog } from "@/modules/sites/components/delete-site-dialog";
 
 interface SiteSettingsPageProps {
   params: Promise<{ orgSlug: string; slug: string }>;
@@ -90,10 +91,11 @@ export default async function SiteSettingsPage({
                 action cannot be undone.
               </p>
             </div>
-            <Button variant="destructive" size="sm">
-              <Trash2 className="h-4 w-4" />
-              Delete Site
-            </Button>
+            <DeleteSiteDialog
+              siteId={site.id}
+              siteName={site.name}
+              orgSlug={orgSlug}
+            />
           </div>
         </CardContent>
       </Card>
