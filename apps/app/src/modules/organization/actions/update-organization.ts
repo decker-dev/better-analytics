@@ -9,19 +9,13 @@ import { TAGS } from '@/modules/shared/lib/tags';
 import { db, organization } from '@repo/database';
 import { eq, and, ne } from 'drizzle-orm';
 import { validatedActionWithUser, type ActionState } from '@/modules/shared/lib/middleware-action';
+import { generateSlug } from '@/modules/shared/lib/utils';
 
 const updateOrganizationSchema = z.object({
   organizationId: z.string().min(1, 'Organization ID is required'),
   name: z.string().min(1, 'Organization name is required').max(100, 'Name must be less than 100 characters'),
-  slug: z
-    .string()
-    .min(1, 'Slug is required')
-    .max(50, 'Slug must be less than 50 characters')
-    .regex(
-      /^[a-z0-9-]+$/,
-      'Slug can only contain lowercase letters, numbers, and hyphens'
-    ),
 });
+
 
 /**
  * Check if a slug is available for use by an organization
@@ -40,7 +34,27 @@ async function isSlugAvailable(slug: string, currentOrgId: string): Promise<bool
 export const updateOrganization = validatedActionWithUser(
   updateOrganizationSchema,
   async (data, formData, user): Promise<ActionState> => {
-    const { organizationId, name, slug } = data;
+    const { organizationId, name } = data;
+
+    // Generate slug from name
+    const slug = generateSlug(name);
+
+    // Validate generated slug
+    if (!slug || slug.length === 0) {
+      return {
+        success: false,
+        message: 'Organization name must contain at least one alphanumeric character',
+        errors: { name: ['Invalid name - must contain letters or numbers'] }
+      };
+    }
+
+    if (slug.length > 50) {
+      return {
+        success: false,
+        message: 'Organization name is too long',
+        errors: { name: ['Name is too long - please use a shorter name'] }
+      };
+    }
 
     try {
       // Await headers() call to fix Next.js 15+ issue
@@ -84,8 +98,8 @@ export const updateOrganization = validatedActionWithUser(
         if (!slugAvailable) {
           return {
             success: false,
-            message: 'This slug is already in use. Please choose a different one',
-            errors: { slug: ['This slug is already in use'] }
+            message: 'An organization with this name already exists. Please choose a different name',
+            errors: { name: ['An organization with this name already exists'] }
           };
         }
       }
@@ -145,8 +159,8 @@ export const updateOrganization = validatedActionWithUser(
         if (error.message.includes('slug') && error.message.includes('unique')) {
           return {
             success: false,
-            message: 'This slug is already in use. Please choose a different one',
-            errors: { slug: ['This slug is already in use'] }
+            message: 'An organization with this name already exists. Please choose a different name',
+            errors: { name: ['An organization with this name already exists'] }
           };
         }
         return {

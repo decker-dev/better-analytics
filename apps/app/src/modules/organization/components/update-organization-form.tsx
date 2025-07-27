@@ -20,7 +20,6 @@ type UpdateOrganizationFormProps = {
   organization: {
     id: string;
     name: string;
-    slug: string;
   };
 };
 
@@ -44,9 +43,7 @@ export const UpdateOrganizationForm = ({
           <Settings className="h-5 w-5" />
           Organization Settings
         </CardTitle>
-        <CardDescription>
-          Update your organization name and identifier (slug)
-        </CardDescription>
+        <CardDescription>Update your organization name.</CardDescription>
       </CardHeader>
       <CardContent>
         <form action={action} className="space-y-6">
@@ -70,31 +67,6 @@ export const UpdateOrganizationForm = ({
               {state?.errors?.name && (
                 <p id="name-error" className="text-sm text-red-500">
                   {state.errors.name[0]}
-                </p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="slug">Identifier (Slug)</Label>
-              <Input
-                id="slug"
-                name="slug"
-                defaultValue={organization.slug}
-                placeholder="organization-slug"
-                required
-                minLength={1}
-                maxLength={50}
-                pattern="^[a-z0-9-]+$"
-                aria-describedby="slug-error slug-help"
-                className={state?.errors?.slug ? "border-red-500" : ""}
-                disabled={isPending}
-              />
-              <p id="slug-help" className="text-sm text-muted-foreground">
-                Only lowercase letters, numbers, and hyphens are allowed
-              </p>
-              {state?.errors?.slug && (
-                <p id="slug-error" className="text-sm text-red-500">
-                  {state.errors.slug[0]}
                 </p>
               )}
             </div>
