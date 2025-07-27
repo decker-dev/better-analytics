@@ -16,6 +16,7 @@ const RESERVED_PATHS = [
   'api',
   '_next',
   'setup',
+  'account',
 
   // SEO & Bot files
   'robots.txt',
@@ -137,6 +138,11 @@ export async function middleware(request: NextRequest) {
 
     // Handle setup route - user is authenticated but might not have orgs
     if (pathname === "/setup") {
+      return NextResponse.next();
+    }
+
+    // Handle account routes - user is authenticated and can access account pages
+    if (pathname.startsWith("/account")) {
       return NextResponse.next();
     }
 

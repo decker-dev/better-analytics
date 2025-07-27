@@ -1,6 +1,6 @@
 "use client";
 
-import { BoltIcon, LogOutIcon } from "lucide-react";
+import { BoltIcon, LogOutIcon, UserIcon, BuildingIcon } from "lucide-react";
 
 import {
   Avatar,
@@ -81,12 +81,26 @@ export default function UserMenu() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href={orgSlug ? `/${orgSlug}/settings` : ""}>
+          <Link href="/account">
             <DropdownMenuItem>
-              <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
-              <span>Settings</span>
+              <UserIcon size={16} className="opacity-60" aria-hidden="true" />
+              <span>Account</span>
             </DropdownMenuItem>
           </Link>
+          <Link href="/account/settings">
+            <DropdownMenuItem>
+              <BoltIcon size={16} className="opacity-60" aria-hidden="true" />
+              <span>Account Settings</span>
+            </DropdownMenuItem>
+          </Link>
+          {orgSlug && (
+            <Link href={`/${orgSlug}/settings`}>
+              <DropdownMenuItem>
+                <BuildingIcon size={16} className="opacity-60" aria-hidden="true" />
+                <span>Organization Settings</span>
+              </DropdownMenuItem>
+            </Link>
+          )}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogoutClick}>
